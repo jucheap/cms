@@ -21,7 +21,16 @@ namespace SiteServer.CMS.StlParser.Utility
         public static string GetContentsItemTemplateString(string templateString, LowerNameValueCollection selectedItems, LowerNameValueCollection selectedValues, string containerClientId, PageInfo pageInfo, EContextType contextType, ContextInfo contextInfoRef)
         {
             var itemContainer = DbItemContainer.GetItemContainer(pageInfo);
-            var contentInfo = new BackgroundContentInfo(itemContainer.ContentItem.DataItem);
+            //var contentInfo = new BackgroundContentInfo(itemContainer.ContentItem.DataItem);
+
+            ContentItemInfo contentItemInfo = null;
+            if (pageInfo.ContentItems.Count > 0)
+            {
+                contentItemInfo = pageInfo.ContentItems.Peek();
+            }
+            if (contentItemInfo == null) return string.Empty;
+            var contentInfo = Cache.Content.GetContentInfo(pageInfo.PublishmentSystemId, contentItemInfo.ChannelId,
+                contentItemInfo.ContentId);
 
             var contextInfo = contextInfoRef.Clone();
             contextInfo.ContextType = contextType;
@@ -126,7 +135,7 @@ namespace SiteServer.CMS.StlParser.Utility
             }
             else if (StringUtils.EqualsIgnoreCase(itemType, StlItemTemplate.SelectedIsRecommend))//推荐的内容
             {
-                if (TranslateUtils.ToBool(contextInfo.ContentInfo.GetExtendedAttribute(BackgroundContentAttribute.IsRecommend)))
+                if (TranslateUtils.ToBool(contextInfo.ContentInfo.GetExtendedAttribute(ContentAttribute.IsRecommend)))
                 {
                     templateString = selectedItems.Get(itemTypes);
                     return true;
@@ -134,7 +143,7 @@ namespace SiteServer.CMS.StlParser.Utility
             }
             else if (StringUtils.EqualsIgnoreCase(itemType, StlItemTemplate.SelectedIsHot))//热点内容
             {
-                if (TranslateUtils.ToBool(contextInfo.ContentInfo.GetExtendedAttribute(BackgroundContentAttribute.IsHot)))
+                if (TranslateUtils.ToBool(contextInfo.ContentInfo.GetExtendedAttribute(ContentAttribute.IsHot)))
                 {
                     templateString = selectedItems.Get(itemTypes);
                     return true;
@@ -142,7 +151,7 @@ namespace SiteServer.CMS.StlParser.Utility
             }
             else if (StringUtils.EqualsIgnoreCase(itemType, StlItemTemplate.SelectedIsColor))//醒目内容
             {
-                if (TranslateUtils.ToBool(contextInfo.ContentInfo.GetExtendedAttribute(BackgroundContentAttribute.IsColor)))
+                if (TranslateUtils.ToBool(contextInfo.ContentInfo.GetExtendedAttribute(ContentAttribute.IsColor)))
                 {
                     templateString = selectedItems.Get(itemTypes);
                     return true;
@@ -175,7 +184,7 @@ namespace SiteServer.CMS.StlParser.Utility
         {
             var itemContainer = DbItemContainer.GetItemContainer(pageInfo);
 
-            var nodeId = SqlUtils.EvalInt(itemContainer.ChannelItem.DataItem, NodeAttribute.NodeId);
+            var nodeId = itemContainer.ChannelItem.ChannelId;
 
             var contextInfo = contextInfoRef.Clone();
             contextInfo.ContextType = contextType;

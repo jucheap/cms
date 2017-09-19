@@ -13,6 +13,22 @@ namespace BaiRong.Core.AuxiliaryTable
         private static bool _async = true;//缓存与数据库不同步
         private const string CacheKey = "BaiRong.Core.AuxiliaryTable.TableManager";
 
+        public static List<string> GetAllLowerAttributeNameList(ETableStyle tableStyle, string tableName)
+        {
+            List<string> list;
+            if (tableStyle == ETableStyle.BackgroundContent)
+            {
+                list = BackgroundContentAttribute.AllAttributes;
+            }
+            else
+            {
+                list = ContentAttribute.AllAttributes;
+                tableStyle = ETableStyle.Custom;
+            }
+            list.AddRange(GetAttributeNameList(tableStyle, tableName, true));
+            return list;
+        }
+
         /// <summary>
         /// 得到辅助表tableName数据库中的字段名称的集合
         /// </summary>
@@ -68,35 +84,6 @@ namespace BaiRong.Core.AuxiliaryTable
             return new List<string>();
         }
 
-        public static List<string> GetExcludeAttributeNames(ETableStyle tableStyle)
-        {
-            if (tableStyle == ETableStyle.BackgroundContent)
-            {
-                return BackgroundContentAttribute.ExcludeAttributes;
-            }
-            if (tableStyle == ETableStyle.GovPublicContent)
-            {
-                return GovPublicContentAttribute.ExcludeAttributes;
-            }
-            if (tableStyle == ETableStyle.GovInteractContent)
-            {
-                return GovInteractContentAttribute.ExcludeAttributes;
-            }
-            if (tableStyle == ETableStyle.VoteContent)
-            {
-                return VoteContentAttribute.ExcludeAttributes;
-            }
-            if (tableStyle == ETableStyle.JobContent)
-            {
-                return JobContentAttribute.ExcludeAttributes;
-            }
-            if (tableStyle == ETableStyle.UserDefined)
-            {
-                return ContentAttribute.ExcludeAttributes;
-            }
-            return new List<string>();
-        }
-
         public static bool IsAttributeNameExists(ETableStyle tableStyle, string tableName, string attributeName)
         {
             var list = GetAttributeNameList(tableStyle, tableName, true);
@@ -127,7 +114,7 @@ namespace BaiRong.Core.AuxiliaryTable
                                 break;
                             }
                         }
-                        if (!contains)
+                        if (!contains && !ContentAttribute.AllAttributes.Contains(metadataInfo.AttributeName.ToLower()))
                         {
                             metadataList.Add(metadataInfo);
                         }
@@ -146,7 +133,7 @@ namespace BaiRong.Core.AuxiliaryTable
                 if (_async || CacheUtils.Get(CacheKey) == null)
                 {
                     var tableHashtable = BaiRongDataProvider.TableMetadataDao.GetTableEnNameAndTableMetadataInfoListHashtable();
-                    CacheUtils.Max(CacheKey, tableHashtable);
+                    CacheUtils.Insert(CacheKey, tableHashtable);
                     _async = false;
                     return tableHashtable;
                 }
@@ -172,7 +159,7 @@ namespace BaiRong.Core.AuxiliaryTable
             var metadataInfo = GetTableMetadataInfo(tableName, attributeName);
             if (metadataInfo != null)
             {
-                return EDataTypeUtils.GetTextByAuxiliaryTable(metadataInfo.DataType, metadataInfo.DataLength);
+                return DataTypeUtils.GetTextByAuxiliaryTable(metadataInfo.DataType, metadataInfo.DataLength);
             }
             return string.Empty;
         }
@@ -224,7 +211,7 @@ namespace BaiRong.Core.AuxiliaryTable
                      * DBDefaultValue
                      * */
                     string serialize =
-                        $"AttributeName:{metadataInfo.AttributeName};DataType:{EDataTypeUtils.GetValue(metadataInfo.DataType)};DataLength={metadataInfo.DataLength}";
+                        $"AttributeName:{metadataInfo.AttributeName};DataType:{DataTypeUtils.GetValue(metadataInfo.DataType)};DataLength={metadataInfo.DataLength}";
                     sortedlist.Add(metadataInfo.AttributeName, serialize);
                 }
             }

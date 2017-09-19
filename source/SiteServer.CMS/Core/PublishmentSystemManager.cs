@@ -5,9 +5,9 @@ using System.Web.UI.WebControls;
 using BaiRong.Core;
 using BaiRong.Core.IO;
 using BaiRong.Core.Model.Enumerations;
-using SiteServer.CMS.Core.Permissions;
 using SiteServer.CMS.Core.Security;
 using SiteServer.CMS.Model;
+using SiteServer.CMS.Model.Enumerations;
 
 namespace SiteServer.CMS.Core
 {
@@ -173,37 +173,17 @@ namespace SiteServer.CMS.Core
         {
             return new List <string>
             {
-                publishmentSystemInfo.AuxiliaryTableForContent,
-                publishmentSystemInfo.AuxiliaryTableForGovInteract,
-                publishmentSystemInfo.AuxiliaryTableForGovPublic,
-                publishmentSystemInfo.AuxiliaryTableForJob,
-                publishmentSystemInfo.AuxiliaryTableForVote
+                publishmentSystemInfo.AuxiliaryTableForContent
             };
         }
 
         public static ETableStyle GetTableStyle(PublishmentSystemInfo publishmentSystemInfo, string tableName)
         {
-            var tableStyle = ETableStyle.UserDefined;
+            var tableStyle = ETableStyle.Custom;
 
             if (StringUtils.EqualsIgnoreCase(tableName, publishmentSystemInfo.AuxiliaryTableForContent))
             {
                 tableStyle = ETableStyle.BackgroundContent;
-            }
-            else if (StringUtils.EqualsIgnoreCase(tableName, publishmentSystemInfo.AuxiliaryTableForGovInteract))
-            {
-                tableStyle = ETableStyle.GovInteractContent;
-            }
-            else if (StringUtils.EqualsIgnoreCase(tableName, publishmentSystemInfo.AuxiliaryTableForGovPublic))
-            {
-                tableStyle = ETableStyle.GovPublicContent;
-            }
-            else if (StringUtils.EqualsIgnoreCase(tableName, publishmentSystemInfo.AuxiliaryTableForJob))
-            {
-                tableStyle = ETableStyle.JobContent;
-            }
-            else if (StringUtils.EqualsIgnoreCase(tableName, publishmentSystemInfo.AuxiliaryTableForVote))
-            {
-                tableStyle = ETableStyle.VoteContent;
             }
             else if (StringUtils.EqualsIgnoreCase(tableName, DataProvider.PublishmentSystemDao.TableName))
             {
@@ -316,28 +296,40 @@ namespace SiteServer.CMS.Core
             return parentPublishmentSystemId;
         }
 
-        public static void ClearCache(bool isAddAjaxUrl)
+        public static void ClearCache()
         {
             CacheUtils.Remove(CacheKey);
-            CacheManager.UpdateTemporaryCacheFile(CacheFileName);
+            CacheUtils.UpdateTemporaryCacheFile(CacheFileName);
         }
+
+        private static readonly object LockObject = new object();
 
         public static List<KeyValuePair<int, PublishmentSystemInfo>> GetPublishmentSystemInfoKeyValuePairList()
         {
-            if (CacheUtils.Get(CacheKey) != null) return CacheUtils.Get(CacheKey) as List<KeyValuePair<int, PublishmentSystemInfo>>;
+            var retval = CacheUtils.Get<List<KeyValuePair<int, PublishmentSystemInfo>>>(CacheKey);
+            if (retval != null) return retval;
 
-            var list = DataProvider.PublishmentSystemDao.GetPublishmentSystemInfoKeyValuePairList();
-            var sl = new List<KeyValuePair<int, PublishmentSystemInfo>>();
-            foreach (var pair in list)
+            lock (LockObject)
             {
-                var publishmentSystemInfo = pair.Value;
-                if (publishmentSystemInfo == null) continue;
+                retval = CacheUtils.Get<List<KeyValuePair<int, PublishmentSystemInfo>>>(CacheKey);
+                if (retval == null)
+                {
+                    var list = DataProvider.PublishmentSystemDao.GetPublishmentSystemInfoKeyValuePairList();
+                    retval = new List<KeyValuePair<int, PublishmentSystemInfo>>();
+                    foreach (var pair in list)
+                    {
+                        var publishmentSystemInfo = pair.Value;
+                        if (publishmentSystemInfo == null) continue;
 
-                publishmentSystemInfo.PublishmentSystemDir = GetPublishmentSystemDir(list, publishmentSystemInfo);
-                sl.Add(pair);
+                        publishmentSystemInfo.PublishmentSystemDir = GetPublishmentSystemDir(list, publishmentSystemInfo);
+                        retval.Add(pair);
+                    }
+
+                    CacheUtils.Insert(CacheKey, retval);
+                }
             }
-            CacheUtils.Max(CacheKey, sl);
-            return sl;
+
+            return retval;
         }
 
         private static string GetPublishmentSystemDir(List<KeyValuePair<int, PublishmentSystemInfo>> listFromDb, PublishmentSystemInfo publishmentSystemInfo)
@@ -416,7 +408,7 @@ namespace SiteServer.CMS.Core
                     var nodeList = DataProvider.NodeDao.GetNodeInfoListByPublishmentSystemId(publishmentSystemId, string.Empty);
                     foreach (var nodeInfo in nodeList)
                     {
-                        if (nodeInfo != null && EContentModelTypeUtils.Equals(nodeInfo.ContentModelId, EContentModelType.Content))
+                        if (nodeInfo != null)
                         {
                             nodeInfoList.Add(nodeInfo);
                         }
@@ -434,7 +426,7 @@ namespace SiteServer.CMS.Core
                         foreach (int ownNodeId in nodeIdList)
                         {
                             var nodeInfo = NodeManager.GetNodeInfo(publishmentSystemId, ownNodeId);
-                            if (nodeInfo != null && EContentModelTypeUtils.Equals(nodeInfo.ContentModelId, EContentModelType.Content))
+                            if (nodeInfo != null)
                             {
                                 nodeInfoList.Add(nodeInfo);
                             }

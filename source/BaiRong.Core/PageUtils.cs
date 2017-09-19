@@ -24,7 +24,7 @@ namespace BaiRong.Core
             //			}
             //			if (url.StartsWith("~"))
             //			{
-            //				retval = Combine(HttpContext.Current.Request.ApplicationPath ,url.Substring(1));
+            //				retval = Combine(ApplicationPath ,url.Substring(1));
             //			}
             //			else
             //			{
@@ -32,7 +32,7 @@ namespace BaiRong.Core
             //			}
             //			return retval;
             //            //return AddProtocolToUrl(retval);
-            return ParseNavigationUrl(url, WebConfigUtils.ApplicationPath);
+            return ParseNavigationUrl(url, ApplicationPath);
         }
 
         public static string ParseNavigationUrl(string url, string domainUrl)
@@ -260,18 +260,20 @@ namespace BaiRong.Core
                 }
             }
 
-            return (string.IsNullOrEmpty(scheme)) ? "http" : scheme.Trim().ToLower();
+            return string.IsNullOrEmpty(scheme) ? "http" : scheme.Trim().ToLower();
         }
+
+        public static string ApplicationPath => HttpContext.Current != null ? HttpContext.Current.Request.ApplicationPath : "/";
 
         // 系统根目录访问地址
         public static string GetRootUrl(string relatedUrl)
         {
-            return Combine(WebConfigUtils.ApplicationPath, relatedUrl);
+            return Combine(ApplicationPath, relatedUrl);
         }
 
         public static string GetTemporaryFilesUrl(string relatedUrl)
         {
-            return Combine(WebConfigUtils.ApplicationPath, DirectoryUtils.SiteFiles.DirectoryName, DirectoryUtils.SiteFiles.TemporaryFiles, relatedUrl);
+            return Combine(ApplicationPath, DirectoryUtils.SiteFiles.DirectoryName, DirectoryUtils.SiteFiles.TemporaryFiles, relatedUrl);
         }
 
         public static NameValueCollection GetQueryString(string url)
@@ -796,17 +798,23 @@ namespace BaiRong.Core
 
         public static string GetAdminDirectoryUrl(string relatedUrl)
         {
-            return Combine(WebConfigUtils.ApplicationPath, FileConfigManager.Instance.AdminDirectoryName, relatedUrl);
+            return Combine(ApplicationPath, WebConfigUtils.AdminDirectory, relatedUrl);
         }
 
         public static string GetSiteFilesUrl(string relatedUrl)
         {
-            return Combine(WebConfigUtils.ApplicationPath, DirectoryUtils.SiteFiles.DirectoryName, relatedUrl);
+            return Combine(ApplicationPath, DirectoryUtils.SiteFiles.DirectoryName, relatedUrl);
         }
 
-        public static string GetPluginUrl(string pluginId, string relatedUrl)
+        public static string GetPluginDirectoryUrl(string pluginId, string url)
         {
-            return GetSiteFilesUrl(Combine(DirectoryUtils.SiteFiles.Plugins, pluginId, relatedUrl));
+            if (string.IsNullOrEmpty(url)) return string.Empty;
+
+            if (!IsProtocolUrl(url))
+            {
+                return StringUtils.StartsWith(url, "@/") ? GetAdminDirectoryUrl(url.Substring(1)) : GetSiteFilesUrl(Combine(DirectoryUtils.SiteFiles.Plugins, pluginId, url));
+            }
+            return url;
         }
 
         public static string GetSiteServerUrl(string className, NameValueCollection queryString)
@@ -814,34 +822,9 @@ namespace BaiRong.Core
             return AddQueryString(GetAdminDirectoryUrl(className.ToLower() + ".aspx"), queryString);
         }
 
-        public static string GetPlatformUrl(string className, NameValueCollection queryString)
+        public static string GetPluginsUrl(string className, NameValueCollection queryString)
         {
-            return AddQueryString(GetAdminDirectoryUrl(Combine("platform", className.ToLower() + ".aspx")), queryString);
-        }
-
-        public static string GetAdminUrl(string className, NameValueCollection queryString)
-        {
-            return AddQueryString(GetAdminDirectoryUrl(Combine("admin", className.ToLower() + ".aspx")), queryString);
-        }
-
-        public static string GetAnalysisUrl(string className, NameValueCollection queryString)
-        {
-            return AddQueryString(GetAdminDirectoryUrl(Combine("analysis", className.ToLower() + ".aspx")), queryString);
-        }
-
-        public static string GetSysUrl(string className, NameValueCollection queryString)
-        {
-            return AddQueryString(GetAdminDirectoryUrl(Combine("sys", className.ToLower() + ".aspx")), queryString);
-        }
-
-        public static string GetUserUrl(string className, NameValueCollection queryString)
-        {
-            return AddQueryString(GetAdminDirectoryUrl(Combine("user", className.ToLower() + ".aspx")), queryString);
-        }
-
-        public static string GetServiceUrl(string className, NameValueCollection queryString)
-        {
-            return AddQueryString(GetAdminDirectoryUrl(Combine("service", className.ToLower() + ".aspx")), queryString);
+            return AddQueryString(GetAdminDirectoryUrl(Combine("plugins", className.ToLower() + ".aspx")), queryString);
         }
 
         public static string GetSettingsUrl(string className, NameValueCollection queryString)
@@ -875,7 +858,7 @@ namespace BaiRong.Core
             {
                 return ParseNavigationUrl(relatedUrl);
             }
-            return Combine(WebConfigUtils.ApplicationPath, DirectoryUtils.SiteFiles.DirectoryName, DirectoryUtils.SiteFiles.UserFiles, userName, relatedUrl);
+            return Combine(ApplicationPath, DirectoryUtils.SiteFiles.DirectoryName, DirectoryUtils.SiteFiles.UserFiles, userName, relatedUrl);
         }
 
         public static string GetUserFileSystemManagementDirectoryUrl(string userName, string currentRootPath)
@@ -972,12 +955,12 @@ namespace BaiRong.Core
 
         public static string GetApiUrl()
         {
-            return Combine(WebConfigUtils.ApplicationPath, "api").ToLower();
+            return Combine(ApplicationPath, "api").ToLower();
         }
 
         public static string GetHomeUrl()
         {
-            return Combine(WebConfigUtils.ApplicationPath, "home").ToLower();
+            return Combine(ApplicationPath, "home").ToLower();
         }
 
         public static string ParseConfigRootUrl(string url)
@@ -999,11 +982,11 @@ namespace BaiRong.Core
                 {
                     if (directoryName.Equals("~"))
                     {
-                        directoryUrl = WebConfigUtils.ApplicationPath;
+                        directoryUrl = ApplicationPath;
                     }
                     else if (directoryName.Equals("@"))
                     {
-                        directoryUrl = Combine(WebConfigUtils.ApplicationPath, publishementSystemDir);
+                        directoryUrl = Combine(ApplicationPath, publishementSystemDir);
                     }
                     else
                     {

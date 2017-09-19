@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.Web.UI.WebControls;
 using BaiRong.Core;
+using BaiRong.Core.Model;
 using BaiRong.Core.Model.Attributes;
 using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.Core;
@@ -46,15 +47,11 @@ namespace SiteServer.BackgroundPages.Cms
             _tableStyle = ETableStyleUtils.GetEnumType(Body.GetQueryString("TableStyle"));
             var relatedIdentity = Body.GetQueryInt("RelatedIdentity");
             var tagStyleInfo = DataProvider.TagStyleDao.GetTagStyleInfo(_styleId);
-            if (_tableStyle == ETableStyle.GovInteractContent)
-            {
-                _mailSmsInfo = new TagStyleGovInteractApplyInfo(tagStyleInfo.SettingsXML);
-            }
 
 			if (!IsPostBack)
 			{
                 ltlTips2.Text =
-                    $"[{ContentAttribute.AddDate}]代表提交时间，[{GovInteractContentAttribute.QueryCode}]代表查询码，";
+                    $"[{ContentAttribute.AddDate}]代表提交时间，";
 
                 var styleInfoList = RelatedIdentities.GetTableStyleInfoList(PublishmentSystemInfo, _tableStyle, relatedIdentity);
                 foreach (var styleInfo in styleInfoList)

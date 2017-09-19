@@ -2,9 +2,10 @@
 using System.Data;
 using BaiRong.Core;
 using BaiRong.Core.Data;
-using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.WeiXin.Model;
 using SiteServer.CMS.WeiXin.Model.Enumerations;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.WeiXin.Provider
 {
@@ -32,12 +33,12 @@ namespace SiteServer.CMS.WeiXin.Provider
 
             var parms = new IDataParameter[]
 			{
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, matchInfo.PublishmentSystemId),
-                GetParameter(ParmKeyword, EDataType.NVarChar, 255, matchInfo.Keyword),
-                GetParameter(ParmKeywordId, EDataType.Integer, matchInfo.KeywordId),
-                GetParameter(ParmIsDisabled, EDataType.VarChar, 18, matchInfo.IsDisabled.ToString()),
-                GetParameter(ParmKeywordType, EDataType.VarChar, 50, EKeywordTypeUtils.GetValue(matchInfo.KeywordType)),
-                GetParameter(ParmMatchType, EDataType.VarChar, 50, EMatchTypeUtils.GetValue(matchInfo.MatchType))
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, matchInfo.PublishmentSystemId),
+                GetParameter(ParmKeyword, DataType.NVarChar, 255, matchInfo.Keyword),
+                GetParameter(ParmKeywordId, DataType.Integer, matchInfo.KeywordId),
+                GetParameter(ParmIsDisabled, DataType.VarChar, 18, matchInfo.IsDisabled.ToString()),
+                GetParameter(ParmKeywordType, DataType.VarChar, 50, EKeywordTypeUtils.GetValue(matchInfo.KeywordType)),
+                GetParameter(ParmMatchType, DataType.VarChar, 50, EMatchTypeUtils.GetValue(matchInfo.MatchType))
 			};
 
             ExecuteNonQuery(sqlString, parms);
@@ -47,7 +48,7 @@ namespace SiteServer.CMS.WeiXin.Provider
         {
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmKeywordId, EDataType.Integer, keywordId)
+				GetParameter(ParmKeywordId, DataType.Integer, keywordId)
 			};
 
             ExecuteNonQuery(SqlDeleteByKeywordId, parms);
@@ -59,8 +60,8 @@ namespace SiteServer.CMS.WeiXin.Provider
 
             var parms = new IDataParameter[]
 			{
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, publishmentSystemId),
-                GetParameter(ParmKeywordType, EDataType.VarChar, 50, EKeywordTypeUtils.GetValue(keywordType))
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, publishmentSystemId),
+                GetParameter(ParmKeywordType, DataType.VarChar, 50, EKeywordTypeUtils.GetValue(keywordType))
 			};
 
             using (var rdr = ExecuteReader(SqlSelectKeyowrdByType, parms))
@@ -81,8 +82,8 @@ namespace SiteServer.CMS.WeiXin.Provider
 
             var parms = new IDataParameter[]
 			{
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, publishmentSystemId),
-                GetParameter(ParmIsDisabled, EDataType.VarChar, 18, false.ToString())
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, publishmentSystemId),
+                GetParameter(ParmIsDisabled, DataType.VarChar, 18, false.ToString())
 			};
 
             using (var rdr = ExecuteReader(SqlSelectKeyowrdEnabled, parms))

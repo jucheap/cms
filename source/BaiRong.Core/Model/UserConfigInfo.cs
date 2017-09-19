@@ -1,5 +1,6 @@
 ﻿using System;
 using BaiRong.Core.Model.Enumerations;
+using SiteServer.Plugin.Models;
 
 namespace BaiRong.Core.Model
 {
@@ -13,7 +14,7 @@ namespace BaiRong.Core.Model
 
         public override string ToString()
         {
-            return TranslateUtils.NameValueCollectionToString(Attributes);
+            return TranslateUtils.NameValueCollectionToString(NameValues);
         }
 
         /****************用户中心显示设置********************/

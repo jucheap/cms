@@ -1,10 +1,8 @@
-﻿using System;
-using System.Web;
-using System.Xml;
+﻿using System.Xml;
 using BaiRong.Core.Data;
-using BaiRong.Core.Data.Helper;
 using BaiRong.Core.Model.Enumerations;
 using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace BaiRong.Core
 {
@@ -13,11 +11,20 @@ namespace BaiRong.Core
         private const string NameIsProtectData = "IsProtectData";
         private const string NameDatabaseType = "DatabaseType";
         private const string NameConnectionString = "ConnectionString";
+        private const string NameAdminDirectory = "AdminDirectory";
+        private const string NameSecretKey = "SecretKey";
 
-        public static string PhysicalApplicationPath { get; }
-        public static string ApplicationPath { get; }
+        /// <summary>
+        /// 获取当前正在执行的服务器应用程序的根目录的物理文件系统路径。
+        /// </summary>
+        public static string PhysicalApplicationPath { get; private set; }
+
+        public static bool IsProtectData { get; private set; }
         public static EDatabaseType DatabaseType { get; private set; }
         public static string ConnectionString { get; private set; }
+
+        public static string AdminDirectory { get; private set; }
+        public static string SecretKey { get; private set; }
 
         private static IDbHelper _helper;
         public static IDbHelper Helper
@@ -38,27 +45,9 @@ namespace BaiRong.Core
             }
         }
 
-        static WebConfigUtils()
+        public static void Load(string physicalApplicationPath)
         {
-            string physicalApplicationPath;
-            var applicationPath = string.Empty;
-            if (HttpContext.Current != null)
-            {
-                physicalApplicationPath = HttpContext.Current.Request.PhysicalApplicationPath;
-                applicationPath = HttpContext.Current.Request.ApplicationPath;
-            }
-            else
-            {
-                physicalApplicationPath = Environment.CurrentDirectory;
-            }
-
-            if (string.IsNullOrEmpty(applicationPath))
-            {
-                applicationPath = "/";
-            }
-
             PhysicalApplicationPath = physicalApplicationPath;
-            ApplicationPath = applicationPath;
 
             var isProtectData = false;
             var databaseType = string.Empty;
@@ -105,6 +94,22 @@ namespace BaiRong.Core
                                         connectionString = attrValue.Value;
                                     }
                                 }
+                                else if (StringUtils.EqualsIgnoreCase(attrKey.Value, NameAdminDirectory))
+                                {
+                                    var attrValue = setting.Attributes["value"];
+                                    if (attrValue != null)
+                                    {
+                                        AdminDirectory = attrValue.Value;
+                                    }
+                                }
+                                else if (StringUtils.EqualsIgnoreCase(attrKey.Value, NameSecretKey))
+                                {
+                                    var attrValue = setting.Attributes["value"];
+                                    if (attrValue != null)
+                                    {
+                                        SecretKey = attrValue.Value;
+                                    }
+                                }
                             }
                         }
                     }
@@ -121,11 +126,20 @@ namespace BaiRong.Core
                 // ignored
             }
 
+            IsProtectData = isProtectData;
             DatabaseType = EDatabaseTypeUtils.GetEnumType(databaseType);
             ConnectionString = connectionString;
+            if (string.IsNullOrEmpty(AdminDirectory))
+            {
+                AdminDirectory = "siteserver";
+            }
+            if (string.IsNullOrEmpty(SecretKey))
+            {
+                SecretKey = "vEnfkn16t8aeaZKG3a4Gl9UUlzf4vgqU9xwh8ZV5";
+            }
         }
 
-        public static void UpdateWebConfig(bool isProtectData, EDatabaseType databaseType, string connectionString)
+        public static void UpdateWebConfig(bool isProtectData, EDatabaseType databaseType, string connectionString, string adminDirectory, string secretKey)
         {
             var configFilePath = PathUtils.MapPath("~/web.config");
 
@@ -177,6 +191,24 @@ namespace BaiRong.Core
                                     dirty = true;
                                 }
                             }
+                            else if (StringUtils.EqualsIgnoreCase(attrKey.Value, NameAdminDirectory))
+                            {
+                                var attrValue = setting.Attributes["value"];
+                                if (attrValue != null)
+                                {
+                                    attrValue.Value = adminDirectory;
+                                    dirty = true;
+                                }
+                            }
+                            else if (StringUtils.EqualsIgnoreCase(attrKey.Value, NameAdminDirectory))
+                            {
+                                var attrValue = setting.Attributes["value"];
+                                if (attrValue != null)
+                                {
+                                    attrValue.Value = adminDirectory;
+                                    dirty = true;
+                                }
+                            }
                         }
                     }
                 }
@@ -193,6 +225,7 @@ namespace BaiRong.Core
                 writer.Close();
             }
 
+            IsProtectData = isProtectData;
             DatabaseType = databaseType;
             ConnectionString = connectionString;
             _helper = null;

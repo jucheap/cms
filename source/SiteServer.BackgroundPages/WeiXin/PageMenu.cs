@@ -77,7 +77,7 @@ namespace SiteServer.BackgroundPages.WeiXin
             if (!IsPostBack)
             {
 
-                BreadCrumb(AppManager.WeiXin.LeftMenu.IdAccounts, AppManager.WeiXin.LeftMenu.Function.IdMenu, string.Empty, AppManager.WeiXin.Permission.WebSite.Menu);
+                BreadCrumb(AppManager.WeiXin.LeftMenu.IdAccounts, string.Empty, AppManager.WeiXin.Permission.WebSite.Menu);
                 var accountInfo = WeiXinManager.GetAccountInfo(PublishmentSystemId);
                 if (EWxAccountTypeUtils.Equals(accountInfo.AccountType, EWxAccountType.Subscribe))
                 {

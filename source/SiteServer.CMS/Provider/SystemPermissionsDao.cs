@@ -2,8 +2,9 @@
 using System.Data;
 using BaiRong.Core;
 using BaiRong.Core.Data;
-using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.Model;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.Provider
 {
@@ -29,11 +30,11 @@ namespace SiteServer.CMS.Provider
 
             var insertParms = new IDataParameter[]
 			{
-				GetParameter(ParmRoleRoleName, EDataType.NVarChar, 255, info.RoleName),
-				GetParameter(ParmPublishmentSystemId, EDataType.Integer, info.PublishmentSystemId),
-				GetParameter(ParmNodeIdCollection, EDataType.Text, info.NodeIdCollection),
-				GetParameter(ParmChannelPermissions, EDataType.Text, info.ChannelPermissions),
-				GetParameter(ParmWebsitePermissions, EDataType.Text, info.WebsitePermissions)
+				GetParameter(ParmRoleRoleName, DataType.NVarChar, 255, info.RoleName),
+				GetParameter(ParmPublishmentSystemId, DataType.Integer, info.PublishmentSystemId),
+				GetParameter(ParmNodeIdCollection, DataType.Text, info.NodeIdCollection),
+				GetParameter(ParmChannelPermissions, DataType.Text, info.ChannelPermissions),
+				GetParameter(ParmWebsitePermissions, DataType.Text, info.WebsitePermissions)
 			};
 
             ExecuteNonQuery(trans, SqlInsert, insertParms);
@@ -44,7 +45,7 @@ namespace SiteServer.CMS.Provider
         {
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmRoleRoleName, EDataType.NVarChar, 255, roleName)
+				GetParameter(ParmRoleRoleName, DataType.NVarChar, 255, roleName)
 			};
 
             ExecuteNonQuery(trans, SqlDelete, parms);
@@ -56,8 +57,8 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmRoleRoleName, EDataType.NVarChar, 255, roleName),
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, publishmentSystemId)
+				GetParameter(ParmRoleRoleName, DataType.NVarChar, 255, roleName),
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, publishmentSystemId)
 			};
 
             ExecuteNonQuery(trans, sqlString, parms);
@@ -71,8 +72,8 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmRoleRoleName, EDataType.NVarChar, 255, roleName),
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, publishmentSystemId)
+				GetParameter(ParmRoleRoleName, DataType.NVarChar, 255, roleName),
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, publishmentSystemId)
 			};
 
             using (var rdr = ExecuteReader(trans, sqlString, parms))
@@ -93,7 +94,7 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmRoleRoleName, EDataType.NVarChar, 255, roleName)
+				GetParameter(ParmRoleRoleName, DataType.NVarChar, 255, roleName)
 			};
 
             using (var rdr = ExecuteReader(SqlSelectAllByRoleName, parms))
@@ -200,7 +201,7 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
             {
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer,  publishmentSystemId)
+                GetParameter(ParmPublishmentSystemId, DataType.Integer,  publishmentSystemId)
             };
 
             using (var rdr = ExecuteReader(
@@ -232,8 +233,8 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
             {
-                GetParameter(ParmRoleRoleName, EDataType.NVarChar, 255, roleName),
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, publishmentSystemId)
+                GetParameter(ParmRoleRoleName, DataType.NVarChar, 255, roleName),
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, publishmentSystemId)
             };
 
             using (var rdr = ExecuteReader(SqlSelectAllByRp, parms))
@@ -268,11 +269,11 @@ namespace SiteServer.CMS.Provider
         {
             var updateParms = new IDataParameter[]
             {
-                GetParameter(ParmRoleRoleName, EDataType.NVarChar, 255, info.RoleName),
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, info.PublishmentSystemId),
-                GetParameter(ParmNodeIdCollection, EDataType.Text, info.NodeIdCollection),
-                GetParameter(ParmChannelPermissions, EDataType.Text, info.ChannelPermissions),
-                GetParameter(ParmWebsitePermissions, EDataType.Text, info.WebsitePermissions)
+                GetParameter(ParmRoleRoleName, DataType.NVarChar, 255, info.RoleName),
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, info.PublishmentSystemId),
+                GetParameter(ParmNodeIdCollection, DataType.Text, info.NodeIdCollection),
+                GetParameter(ParmChannelPermissions, DataType.Text, info.ChannelPermissions),
+                GetParameter(ParmWebsitePermissions, DataType.Text, info.WebsitePermissions)
             };
 
             ExecuteNonQuery(_sqlUpdate, updateParms);

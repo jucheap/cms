@@ -1,4 +1,5 @@
 ﻿using BaiRong.Core.Model.Enumerations;
+using SiteServer.Plugin.Models;
 
 namespace BaiRong.Core.Model
 {
@@ -12,19 +13,13 @@ namespace BaiRong.Core.Model
 
         public override string ToString()
         {
-            return TranslateUtils.NameValueCollectionToString(Attributes);
+            return TranslateUtils.NameValueCollectionToString(NameValues);
         }
 
         public string Cipherkey
         {
             get { return GetString("Cipherkey", string.Empty); }
             set { SetExtendedAttribute("Cipherkey", value); }
-        }
-
-        public ERestrictionType RestrictionType
-        {
-            get { return ERestrictionTypeUtils.GetEnumType(GetString("RestrictionType", string.Empty)); }
-            set { SetExtendedAttribute("RestrictionType", ERestrictionTypeUtils.GetValue(value)); }
         }
 
         public bool IsLogAdmin
@@ -54,14 +49,14 @@ namespace BaiRong.Core.Model
         /// </summary>
         public bool IsViewContentOnlySelf
         {
-            get { return GetBool("IsViewContentOnlySelf", false); }
+            get { return GetBool("IsViewContentOnlySelf"); }
             set { SetExtendedAttribute("IsViewContentOnlySelf", value.ToString()); }
         }
 
         // 是否开启时间阈值
         public bool IsTimeThreshold
         {
-            get { return GetBool("IsTimeThreshold", false); }
+            get { return GetBool("IsTimeThreshold"); }
             set { SetExtendedAttribute("IsTimeThreshold", value.ToString()); }
         }
 
@@ -74,7 +69,7 @@ namespace BaiRong.Core.Model
         // 是否开启条数阈值
         public bool IsCounterThreshold
         {
-            get { return GetBool("IsCounterThreshold", false); }
+            get { return GetBool("IsCounterThreshold"); }
             set { SetExtendedAttribute("IsCounterThreshold", value.ToString()); }
         }
 
@@ -86,7 +81,7 @@ namespace BaiRong.Core.Model
 
         public int LoginUserNameMinLength
         {
-            get { return GetInt("LoginUserNameMinLength", 0); }
+            get { return GetInt("LoginUserNameMinLength"); }
             set { SetExtendedAttribute("LoginUserNameMinLength", value.ToString()); }
         }
 
@@ -104,7 +99,7 @@ namespace BaiRong.Core.Model
 
         public bool IsLoginFailToLock
         {
-            get { return GetBool("IsLoginFailToLock", false); }
+            get { return GetBool("IsLoginFailToLock"); }
             set { SetExtendedAttribute("IsLoginFailToLock", value.ToString()); }
         }
 
@@ -128,7 +123,7 @@ namespace BaiRong.Core.Model
 
         public bool IsFindPassword
         {
-            get { return GetBool("IsFindPassword", false); }
+            get { return GetBool("IsFindPassword"); }
             set { SetExtendedAttribute("IsFindPassword", value.ToString()); }
         }
 
@@ -150,16 +145,28 @@ namespace BaiRong.Core.Model
             set { SetExtendedAttribute("SmsAppKey", value); }
         }
 
-        public string SmsAppSecret
+        public EPaymentProviderType PaymentProviderType
         {
-            get { return GetString("SmsAppSecret", string.Empty); }
-            set { SetExtendedAttribute("SmsAppSecret", value); }
+            get { return EPaymentProviderTypeUtils.GetEnumType(GetString("PaymentProviderType", EPaymentProviderTypeUtils.GetValue(EPaymentProviderType.None))); }
+            set { SetExtendedAttribute("PaymentProviderType", EPaymentProviderTypeUtils.GetValue(value)); }
         }
 
-        public string SmsSignName
+        public string PaymentChannels
         {
-            get { return GetString("SmsSignName", string.Empty); }
-            set { SetExtendedAttribute("SmsSignName", value); }
+            get { return GetString("PaymentChannels", string.Empty); }
+            set { SetExtendedAttribute("PaymentChannels", value); }
+        }
+
+        public string PaymentPingxxAppId
+        {
+            get { return GetString("PaymentPingxxAppId", string.Empty); }
+            set { SetExtendedAttribute("PaymentPingxxAppId", value); }
+        }
+
+        public string PaymentPingxxSecretKey
+        {
+            get { return GetString("PaymentPingxxSecretKey", string.Empty); }
+            set { SetExtendedAttribute("PaymentPingxxSecretKey", value); }
         }
     }
 }

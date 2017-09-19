@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Xml;
 using BaiRong.Core;
 using SiteServer.CMS.Controllers.Stl;
 using SiteServer.CMS.StlParser.Model;
@@ -24,40 +22,31 @@ namespace SiteServer.CMS.StlParser.StlElement
             {AttributeIsPageRefresh, "翻页时是否刷新页面"}
         };
 
-        internal static string Parse(string stlElement, XmlNode node, PageInfo pageInfo, ContextInfo contextInfoRef)
+        internal static string Parse(PageInfo pageInfo, ContextInfo contextInfo)
         {
-            string parsedContent;
-            var contextInfo = contextInfoRef.Clone();
-            try
+            // 如果是实体标签则返回空
+            if (contextInfo.IsCurlyBrace)
             {
-                var isPageRefresh = false;
+                return string.Empty;
+            }
 
-                var ie = node.Attributes?.GetEnumerator();
-                if (ie != null)
+            var isPageRefresh = false;
+
+            foreach (var name in contextInfo.Attributes.Keys)
+            {
+                var value = contextInfo.Attributes[name];
+
+                if (StringUtils.EqualsIgnoreCase(name, AttributeContext))
                 {
-                    while (ie.MoveNext())
-                    {
-                        var attr = (XmlAttribute)ie.Current;
-
-                        if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeContext))
-                        {
-                            contextInfo.ContextType = EContextTypeUtils.GetEnumType(attr.Value);
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeIsPageRefresh))
-                        {
-                            isPageRefresh = TranslateUtils.ToBool(attr.Value);
-                        }
-                    }
+                    contextInfo.ContextType = EContextTypeUtils.GetEnumType(value);
                 }
-
-                parsedContent = ParseImpl(pageInfo, contextInfo, node.InnerXml, isPageRefresh);
-            }
-            catch (Exception ex)
-            {
-                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, ex);
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeIsPageRefresh))
+                {
+                    isPageRefresh = TranslateUtils.ToBool(value);
+                }
             }
 
-            return parsedContent;
+            return ParseImpl(pageInfo, contextInfo, contextInfo.InnerXml, isPageRefresh);
         }
 
         private static string ParseImpl(PageInfo pageInfo, ContextInfo contextInfo, string templateContent, bool isPageRefresh)
@@ -74,7 +63,7 @@ namespace SiteServer.CMS.StlParser.StlElement
             }
 
             var apiUrl = ActionsDynamic.GetUrl(pageInfo.ApiUrl);
-            var currentPageUrl = StlUtility.GetStlCurrentUrl(pageInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo);
+            var currentPageUrl = StlUtility.GetStlCurrentUrl(pageInfo.PublishmentSystemInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo, pageInfo.TemplateInfo.TemplateType, pageInfo.TemplateInfo.TemplateId);
             currentPageUrl = PageUtils.AddQuestionOrAndToUrl(currentPageUrl);
             var apiParameters = ActionsDynamic.GetParameters(pageInfo.PublishmentSystemId, contextInfo.ChannelId, contextInfo.ContentId, pageInfo.TemplateInfo.TemplateId, currentPageUrl, ajaxDivId, isPageRefresh, templateContent);
 

@@ -1,5 +1,6 @@
 using BaiRong.Core;
 using BaiRong.Core.Model;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.Model
 {
@@ -97,7 +98,7 @@ namespace SiteServer.CMS.Model
 
         public override string ToString()
         {
-            return TranslateUtils.NameValueCollectionToString(Attributes);
+            return TranslateUtils.NameValueCollectionToString(NameValues);
         }
     }
 }

@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Text;
-using System.Xml;
 using BaiRong.Core;
 using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.Core;
 using SiteServer.CMS.StlParser.Model;
-using SiteServer.CMS.StlParser.Parser;
+using SiteServer.CMS.StlParser.Parsers;
 using SiteServer.CMS.StlParser.Utility;
 using BaiRong.Core.AuxiliaryTable;
 using BaiRong.Core.Model;
 using SiteServer.CMS.Controllers.Stl;
 using SiteServer.CMS.Model;
+using SiteServer.CMS.StlParser.Cache;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.StlParser.StlElement
 {
@@ -29,67 +30,55 @@ namespace SiteServer.CMS.StlParser.StlElement
             {AttributeInputName, "提交表单名称"}
         };
 
-        public static string Parse(string stlElement, XmlNode node, PageInfo pageInfo, ContextInfo contextInfo)
+        public static string Parse(PageInfo pageInfo, ContextInfo contextInfo)
         {
-            string parsedContent;
-            try
+            var inputName = string.Empty;
+
+            foreach (var name in contextInfo.Attributes.Keys)
             {
-                var inputName = string.Empty;
+                var value = contextInfo.Attributes[name];
 
-                var ie = node.Attributes?.GetEnumerator();
-                if (ie != null)
+                if (StringUtils.EqualsIgnoreCase(name, AttributeInputName))
                 {
-                    while (ie.MoveNext())
-                    {
-                        var attr = (XmlAttribute)ie.Current;
-
-                        if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeInputName))
-                        {
-                            inputName = StlEntityParser.ReplaceStlEntitiesForAttributeValue(attr.Value, pageInfo, contextInfo);
-                        }
-                    }
+                    inputName = StlEntityParser.ReplaceStlEntitiesForAttributeValue(value, pageInfo, contextInfo);
                 }
-
-                var inputId = DataProvider.InputDao.GetInputIdAsPossible(inputName, pageInfo.PublishmentSystemId);
-                if (inputId <= 0) return string.Empty;
-
-                var inputInfo = DataProvider.InputDao.GetInputInfo(inputId);
-                var relatedIdentities = RelatedIdentities.GetRelatedIdentities(ETableStyle.InputContent, pageInfo.PublishmentSystemId, inputInfo.InputId);
-                var styleInfoList = TableStyleManager.GetTableStyleInfoList(ETableStyle.InputContent, DataProvider.InputContentDao.TableName, relatedIdentities);
-                var pageScripts = new NameValueCollection();
-                var attributesHtml = GetAttributesHtml(pageScripts, pageInfo.PublishmentSystemInfo, styleInfoList);
-
-                string template;
-                string loading;
-                string yes;
-                string no;
-                StlInnerUtility.GetTemplateLoadingYesNo(node, pageInfo, out template, out loading, out yes, out no);
-
-                if (string.IsNullOrEmpty(template))
-                {
-                    template = attributesHtml + StlCacheManager.FileContent.GetContentByFilePath(SiteFilesAssets.Input.TemplatePath);
-                }
-                if (string.IsNullOrEmpty(loading))
-                {
-                    loading = StlCacheManager.FileContent.GetContentByFilePath(SiteFilesAssets.Input.LoadingPath);
-                }
-                if (string.IsNullOrEmpty(yes))
-                {
-                    yes = StlCacheManager.FileContent.GetContentByFilePath(SiteFilesAssets.Input.YesPath);
-                }
-                if (string.IsNullOrEmpty(no))
-                {
-                    no = StlCacheManager.FileContent.GetContentByFilePath(SiteFilesAssets.Input.NoPath);
-                }
-
-                parsedContent = ParseImpl(pageInfo, contextInfo, inputInfo, pageScripts, styleInfoList, template, loading, yes, no);
-            }
-            catch (Exception ex)
-            {
-                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, ex);
             }
 
-            return parsedContent;
+            //var inputId = DataProvider.InputDao.GetInputIdAsPossible(inputName, pageInfo.PublishmentSystemId);
+            var inputId = Input.GetInputIdAsPossible(inputName, pageInfo.PublishmentSystemId);
+            if (inputId <= 0) return string.Empty;
+
+            //var inputInfo = DataProvider.InputDao.GetInputInfo(inputId);
+            var inputInfo = Input.GetInputInfo(inputId);
+            var relatedIdentities = RelatedIdentities.GetRelatedIdentities(ETableStyle.InputContent, pageInfo.PublishmentSystemId, inputInfo.InputId);
+            var styleInfoList = TableStyleManager.GetTableStyleInfoList(ETableStyle.InputContent, DataProvider.InputContentDao.TableName, relatedIdentities);
+            var pageScripts = new NameValueCollection();
+            var attributesHtml = GetAttributesHtml(pageScripts, pageInfo.PublishmentSystemInfo, styleInfoList);
+
+            string template;
+            string loading;
+            string yes;
+            string no;
+            StlInnerUtility.GetTemplateLoadingYesNo(contextInfo.InnerXml, out template, out loading, out yes, out no);
+
+            if (string.IsNullOrEmpty(template))
+            {
+                template = attributesHtml + TemplateManager.GetContentByFilePath(SiteFilesAssets.Input.TemplatePath);
+            }
+            if (string.IsNullOrEmpty(loading))
+            {
+                loading = TemplateManager.GetContentByFilePath(SiteFilesAssets.Input.LoadingPath);
+            }
+            if (string.IsNullOrEmpty(yes))
+            {
+                yes = TemplateManager.GetContentByFilePath(SiteFilesAssets.Input.YesPath);
+            }
+            if (string.IsNullOrEmpty(no))
+            {
+                no = TemplateManager.GetContentByFilePath(SiteFilesAssets.Input.NoPath);
+            }
+
+            return ParseImpl(pageInfo, contextInfo, inputInfo, pageScripts, styleInfoList, template, loading, yes, no);
         }
 
         private static string ParseImpl(PageInfo pageInfo, ContextInfo contextInfo, InputInfo inputInfo, NameValueCollection pageScripts, List<TableStyleInfo> styleInfoList, string template, string loading, string yes, string no)
@@ -171,10 +160,10 @@ namespace SiteServer.CMS.StlParser.StlElement
             var styleInfoList = TableStyleManager.GetTableStyleInfoList(ETableStyle.InputContent, DataProvider.InputContentDao.TableName, relatedIdentities);
             var attributesHtml = GetAttributesHtml(pageScripts, publishmentSystemInfo, styleInfoList);
 
-            var template = attributesHtml + StlCacheManager.FileContent.GetContentByFilePath(SiteFilesAssets.Input.TemplatePath);
-            var loading = StlCacheManager.FileContent.GetContentByFilePath(SiteFilesAssets.Input.LoadingPath);
-            var yes = StlCacheManager.FileContent.GetContentByFilePath(SiteFilesAssets.Input.YesPath);
-            var no = StlCacheManager.FileContent.GetContentByFilePath(SiteFilesAssets.Input.NoPath);
+            var template = attributesHtml + TemplateManager.GetContentByFilePath(SiteFilesAssets.Input.TemplatePath);
+            var loading = TemplateManager.GetContentByFilePath(SiteFilesAssets.Input.LoadingPath);
+            var yes = TemplateManager.GetContentByFilePath(SiteFilesAssets.Input.YesPath);
+            var no = TemplateManager.GetContentByFilePath(SiteFilesAssets.Input.NoPath);
 
             return $@"
 <stl:input inputName=""{inputInfo.InputName}"">
@@ -222,7 +211,7 @@ namespace SiteServer.CMS.StlParser.StlElement
         private static string GetValidateHtmlString(TableStyleInfo styleInfo, out string validateAttributes)
         {
             validateAttributes = string.Empty;
-            if (!styleInfo.Additional.IsValidate || EInputTypeUtils.Equals(styleInfo.InputType, EInputType.TextEditor)) return string.Empty;
+            if (!styleInfo.Additional.IsValidate || InputTypeUtils.Equals(styleInfo.InputType, InputType.TextEditor)) return string.Empty;
 
             var builder = new StringBuilder();
             validateAttributes = InputParserUtils.GetValidateAttributes(styleInfo.Additional.IsValidate, styleInfo.DisplayName, styleInfo.Additional.IsRequired, styleInfo.Additional.MinNum, styleInfo.Additional.MaxNum, styleInfo.Additional.ValidateType, styleInfo.Additional.RegExp, styleInfo.Additional.ErrorMessage);

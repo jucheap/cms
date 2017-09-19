@@ -8,6 +8,8 @@ using BaiRong.Core.Cryptography;
 using BaiRong.Core.Data;
 using BaiRong.Core.Model;
 using BaiRong.Core.Model.Enumerations;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace BaiRong.Core.Provider
 {
@@ -75,23 +77,23 @@ namespace BaiRong.Core.Provider
         {
             IDataParameter[] insertParms =
             {
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, info.UserName),
-                GetParameter(ParmPassword, EDataType.NVarChar, 255, info.Password),
-                GetParameter(ParmPasswordFormat, EDataType.VarChar, 50, EPasswordFormatUtils.GetValue(info.PasswordFormat)),
-                GetParameter(ParmPasswordSalt, EDataType.NVarChar, 128, info.PasswordSalt),
-                GetParameter(ParmCreationDate, EDataType.DateTime, info.CreationDate),
-                GetParameter(ParmLastActivityDate, EDataType.DateTime, info.LastActivityDate),
-                GetParameter(ParmCountOfLogin, EDataType.Integer, info.CountOfLogin),
-                GetParameter(ParmCountOfFailedLogin, EDataType.Integer, info.CountOfFailedLogin),
-                GetParameter(ParmCreatorUsername, EDataType.NVarChar, 255, info.CreatorUserName),
-                GetParameter(ParmIsLockedOut, EDataType.VarChar, 18, info.IsLockedOut.ToString()),
-                GetParameter(ParmPublishmentsystemidCollection, EDataType.VarChar, 50, info.PublishmentSystemIdCollection),
-                GetParameter(ParmPublishmentsystemid, EDataType.Integer, info.PublishmentSystemId),
-                GetParameter(ParmDepartmentId, EDataType.Integer, info.DepartmentId),
-                GetParameter(ParmAreaId, EDataType.Integer, info.AreaId),
-                GetParameter(ParmDisplayname, EDataType.NVarChar, 255, info.DisplayName),
-                GetParameter(ParmEmail, EDataType.NVarChar, 255, info.Email),
-                GetParameter(ParmMobile, EDataType.VarChar, 20, info.Mobile)
+                GetParameter(ParmUsername, DataType.NVarChar, 255, info.UserName),
+                GetParameter(ParmPassword, DataType.NVarChar, 255, info.Password),
+                GetParameter(ParmPasswordFormat, DataType.VarChar, 50, EPasswordFormatUtils.GetValue(info.PasswordFormat)),
+                GetParameter(ParmPasswordSalt, DataType.NVarChar, 128, info.PasswordSalt),
+                GetParameter(ParmCreationDate, DataType.DateTime, info.CreationDate),
+                GetParameter(ParmLastActivityDate, DataType.DateTime, info.LastActivityDate),
+                GetParameter(ParmCountOfLogin, DataType.Integer, info.CountOfLogin),
+                GetParameter(ParmCountOfFailedLogin, DataType.Integer, info.CountOfFailedLogin),
+                GetParameter(ParmCreatorUsername, DataType.NVarChar, 255, info.CreatorUserName),
+                GetParameter(ParmIsLockedOut, DataType.VarChar, 18, info.IsLockedOut.ToString()),
+                GetParameter(ParmPublishmentsystemidCollection, DataType.VarChar, 50, info.PublishmentSystemIdCollection),
+                GetParameter(ParmPublishmentsystemid, DataType.Integer, info.PublishmentSystemId),
+                GetParameter(ParmDepartmentId, DataType.Integer, info.DepartmentId),
+                GetParameter(ParmAreaId, DataType.Integer, info.AreaId),
+                GetParameter(ParmDisplayname, DataType.NVarChar, 255, info.DisplayName),
+                GetParameter(ParmEmail, DataType.NVarChar, 255, info.Email),
+                GetParameter(ParmMobile, DataType.VarChar, 20, info.Mobile)
             };
 
             ExecuteNonQuery(SqlInsertUser, insertParms);
@@ -104,18 +106,18 @@ namespace BaiRong.Core.Provider
         {
             IDataParameter[] parms =
             {
-                GetParameter(ParmLastActivityDate, EDataType.DateTime, info.LastActivityDate),
-                GetParameter(ParmCountOfLogin, EDataType.Integer, info.CountOfLogin),
-                GetParameter(ParmCountOfFailedLogin, EDataType.Integer, info.CountOfFailedLogin),
-                GetParameter(ParmIsLockedOut, EDataType.VarChar, 18, info.IsLockedOut.ToString()),
-                GetParameter(ParmPublishmentsystemidCollection, EDataType.VarChar, 50, info.PublishmentSystemIdCollection),
-                GetParameter(ParmPublishmentsystemid, EDataType.Integer, info.PublishmentSystemId),
-                GetParameter(ParmDepartmentId, EDataType.Integer, info.DepartmentId),
-                GetParameter(ParmAreaId, EDataType.Integer, info.AreaId),
-                GetParameter(ParmDisplayname, EDataType.NVarChar, 255, info.DisplayName),
-                GetParameter(ParmEmail, EDataType.NVarChar, 255, info.Email),
-                GetParameter(ParmMobile, EDataType.VarChar, 20, info.Mobile),
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, info.UserName)
+                GetParameter(ParmLastActivityDate, DataType.DateTime, info.LastActivityDate),
+                GetParameter(ParmCountOfLogin, DataType.Integer, info.CountOfLogin),
+                GetParameter(ParmCountOfFailedLogin, DataType.Integer, info.CountOfFailedLogin),
+                GetParameter(ParmIsLockedOut, DataType.VarChar, 18, info.IsLockedOut.ToString()),
+                GetParameter(ParmPublishmentsystemidCollection, DataType.VarChar, 50, info.PublishmentSystemIdCollection),
+                GetParameter(ParmPublishmentsystemid, DataType.Integer, info.PublishmentSystemId),
+                GetParameter(ParmDepartmentId, DataType.Integer, info.DepartmentId),
+                GetParameter(ParmAreaId, DataType.Integer, info.AreaId),
+                GetParameter(ParmDisplayname, DataType.NVarChar, 255, info.DisplayName),
+                GetParameter(ParmEmail, DataType.NVarChar, 255, info.Email),
+                GetParameter(ParmMobile, DataType.VarChar, 20, info.Mobile),
+                GetParameter(ParmUsername, DataType.NVarChar, 255, info.UserName)
             };
 
             ExecuteNonQuery(SqlUpdateUser, parms);
@@ -133,8 +135,8 @@ namespace BaiRong.Core.Provider
                 var sqlString = $"UPDATE bairong_Administrator SET LastActivityDate = @LastActivityDate, {SqlUtils.GetAddOne("CountOfFailedLogin")} WHERE UserName = @UserName";
 
                 IDataParameter[] updateParms = {
-                    GetParameter(ParmLastActivityDate, EDataType.DateTime, DateTime.Now),
-                    GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                    GetParameter(ParmLastActivityDate, DataType.DateTime, DateTime.Now),
+                    GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
                 };
 
                 ExecuteNonQuery(sqlString, updateParms);
@@ -150,8 +152,8 @@ namespace BaiRong.Core.Provider
                 var sqlString = $"UPDATE bairong_Administrator SET LastActivityDate = @LastActivityDate, {SqlUtils.GetAddOne("CountOfLogin")}, CountOfFailedLogin = 0 WHERE UserName = @UserName";
 
                 IDataParameter[] updateParms = {
-                    GetParameter(ParmLastActivityDate, EDataType.DateTime, DateTime.Now),
-                    GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                    GetParameter(ParmLastActivityDate, DataType.DateTime, DateTime.Now),
+                    GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
                 };
 
                 ExecuteNonQuery(sqlString, updateParms);
@@ -165,8 +167,8 @@ namespace BaiRong.Core.Provider
             if (!string.IsNullOrEmpty(userName))
             {
                 IDataParameter[] updateParms = {
-                    GetParameter(ParmPublishmentsystemidCollection, EDataType.VarChar, 50, publishmentSystemIdCollection),
-                    GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                    GetParameter(ParmPublishmentsystemidCollection, DataType.VarChar, 50, publishmentSystemIdCollection),
+                    GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
                 };
 
                 ExecuteNonQuery(SqlUpdatePublishmentsystemidCollection, updateParms);
@@ -180,8 +182,8 @@ namespace BaiRong.Core.Provider
             if (!string.IsNullOrEmpty(userName))
             {
                 IDataParameter[] updateParms = {
-                    GetParameter(ParmPublishmentsystemid, EDataType.Integer, publishmentSystemId),
-                    GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                    GetParameter(ParmPublishmentsystemid, DataType.Integer, publishmentSystemId),
+                    GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
                 };
 
                 ExecuteNonQuery(SqlUpdatePublishmentsystemid, updateParms);
@@ -194,10 +196,10 @@ namespace BaiRong.Core.Provider
         {
             var isSuccess = false;
             IDataParameter[] updateParms = {
-                GetParameter(ParmPassword, EDataType.NVarChar, 255, password),
-                GetParameter(ParmPasswordFormat, EDataType.VarChar, 50, EPasswordFormatUtils.GetValue(passwordFormat)),
-                GetParameter(ParmPasswordSalt, EDataType.NVarChar, 128, passwordSalt),
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                GetParameter(ParmPassword, DataType.NVarChar, 255, password),
+                GetParameter(ParmPasswordFormat, DataType.VarChar, 50, EPasswordFormatUtils.GetValue(passwordFormat)),
+                GetParameter(ParmPasswordSalt, DataType.NVarChar, 128, passwordSalt),
+                GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
             };
 
             try
@@ -217,7 +219,7 @@ namespace BaiRong.Core.Provider
         public void Delete(string userName)
         {
             IDataParameter[] deleteParms = {
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
             };
 
             ExecuteNonQuery(SqlDeleteUser, deleteParms);
@@ -259,7 +261,7 @@ namespace BaiRong.Core.Provider
                 sqlString = SqlSelectUserByMobile;
                 parms = new IDataParameter[]
                 {
-                    GetParameter(ParmMobile, EDataType.VarChar, 50, account)
+                    GetParameter(ParmMobile, DataType.VarChar, 50, account)
                 };
             }
             else if (StringUtils.IsEmail(account))
@@ -267,7 +269,7 @@ namespace BaiRong.Core.Provider
                 sqlString = SqlSelectUserByEmail;
                 parms = new IDataParameter[]
                 {
-                    GetParameter(ParmEmail, EDataType.VarChar, 50, account)
+                    GetParameter(ParmEmail, DataType.VarChar, 50, account)
                 };
             }
             else
@@ -275,7 +277,7 @@ namespace BaiRong.Core.Provider
                 sqlString = SqlSelectUser;
                 parms = new IDataParameter[]
                 {
-                    GetParameter(ParmUsername, EDataType.NVarChar, 255, account)
+                    GetParameter(ParmUsername, DataType.NVarChar, 255, account)
                 };
             }
 
@@ -298,7 +300,7 @@ namespace BaiRong.Core.Provider
 
             IDataParameter[] parms =
             {
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
             };
 
             using (var rdr = ExecuteReader(SqlSelectUser, parms))
@@ -319,7 +321,7 @@ namespace BaiRong.Core.Provider
             var departmentId = 0;
 
             IDataParameter[] parms = {
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
             };
 
             using (var rdr = ExecuteReader(SqlSelectDepartmentId, parms))
@@ -339,7 +341,7 @@ namespace BaiRong.Core.Provider
             var areaId = 0;
 
             IDataParameter[] parms = {
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
             };
 
             using (var rdr = ExecuteReader(SqlSelectAreaId, parms))
@@ -463,7 +465,7 @@ namespace BaiRong.Core.Provider
             var exists = false;
 
             IDataParameter[] parms = {
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
             };
 
             using (var rdr = ExecuteReader(SqlSelectUsername, parms))
@@ -487,7 +489,7 @@ namespace BaiRong.Core.Provider
             var userName = string.Empty;
 
             IDataParameter[] parms = {
-                GetParameter(ParmEmail, EDataType.NVarChar, 50, email)
+                GetParameter(ParmEmail, DataType.NVarChar, 50, email)
             };
 
             using (var rdr = ExecuteReader(SqlSelectUsernameByEmail, parms))
@@ -511,7 +513,7 @@ namespace BaiRong.Core.Provider
             var userName = string.Empty;
 
             IDataParameter[] parms = {
-                GetParameter(ParmMobile, EDataType.VarChar, 50, mobile)
+                GetParameter(ParmMobile, DataType.VarChar, 50, mobile)
             };
 
             using (var rdr = ExecuteReader(SqlSelectUsernameByMobile, parms))
@@ -535,7 +537,7 @@ namespace BaiRong.Core.Provider
             var mobile = string.Empty;
 
             IDataParameter[] parms = {
-                GetParameter(ParmUsername, EDataType.NVarChar, 50, userName)
+                GetParameter(ParmUsername, DataType.NVarChar, 50, userName)
             };
 
             using (var rdr = ExecuteReader(SqlSelectMobileByUsername, parms))
@@ -554,7 +556,7 @@ namespace BaiRong.Core.Provider
             var creatorUserName = string.Empty;
 
             IDataParameter[] parms = {
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
             };
 
             using (var rdr = ExecuteReader(SqlSelectCreatorUserName, parms))
@@ -573,7 +575,7 @@ namespace BaiRong.Core.Provider
             var displayName = string.Empty;
 
             IDataParameter[] parms = {
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
             };
 
             using (var rdr = ExecuteReader(SqlSelectDisplayName, parms))
@@ -593,7 +595,7 @@ namespace BaiRong.Core.Provider
             var publishmentSystemIdList = new List<int>();
 
             IDataParameter[] parms = {
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
             };
 
             using (var rdr = ExecuteReader(SqlSelectPublishmentsystemidCollection, parms))
@@ -616,7 +618,7 @@ namespace BaiRong.Core.Provider
             var publishmentSystemId = 0;
 
             IDataParameter[] parms = {
-                GetParameter(ParmUsername, EDataType.NVarChar, 255, userName)
+                GetParameter(ParmUsername, DataType.NVarChar, 255, userName)
             };
 
             using (var rdr = ExecuteReader(SqlSelectPublishmentsystemid, parms))
@@ -638,7 +640,7 @@ namespace BaiRong.Core.Provider
                 const string sqlString = "SELECT UserName FROM bairong_Administrator WHERE CreatorUserName = @CreatorUserName";
 
                 IDataParameter[] parms = {
-                    GetParameter(ParmCreatorUsername, EDataType.NVarChar, 255, creatorUserName)
+                    GetParameter(ParmCreatorUsername, DataType.NVarChar, 255, creatorUserName)
                 };
 
                 using (var rdr = ExecuteReader(sqlString, parms))

@@ -29,8 +29,9 @@ using System.Data.SqlClient;
 using System.Data.OleDb;
 using System.Xml;
 using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
-namespace BaiRong.Core.Data.Helper
+namespace BaiRong.Core.Data
 {
 	/// <summary>
 	/// The SqlServer class is intended to encapsulate high performance, scalable best practices for 

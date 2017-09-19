@@ -1,14 +1,14 @@
 using System.Collections;
-using System.Collections.Specialized;
-using System.Text;
+using System.Collections.Generic;
 using System.Web.UI.HtmlControls;
 using BaiRong.Core;
-using BaiRong.Core.AuxiliaryTable;
 using BaiRong.Core.Model;
 using BaiRong.Core.Model.Attributes;
 using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.Controllers.Stl;
 using SiteServer.CMS.Model;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.Core
 {
@@ -27,13 +27,13 @@ namespace SiteServer.CMS.Core
             return string.Empty;
         }
 
-        public static string GetContentByTableStyle(string content, string separator, PublishmentSystemInfo publishmentSystemInfo, ETableStyle tableStyle, TableStyleInfo styleInfo, string formatString, StringDictionary attributes, string innerXml, bool isStlEntity)
+        public static string GetContentByTableStyle(string content, string separator, PublishmentSystemInfo publishmentSystemInfo, ETableStyle tableStyle, TableStyleInfo styleInfo, string formatString, Dictionary<string, string> attributes, string innerXml, bool isStlEntity)
         {
             var parsedContent = content;
 
-            var inputType = EInputTypeUtils.GetEnumType(styleInfo.InputType);
+            var inputType = InputTypeUtils.GetEnumType(styleInfo.InputType);
 
-            if (inputType == EInputType.Date)
+            if (inputType == InputType.Date)
             {
                 var dateTime = TranslateUtils.ToDateTime(content);
                 if (dateTime != DateUtils.SqlMinValue)
@@ -49,7 +49,7 @@ namespace SiteServer.CMS.Core
                     parsedContent = string.Empty;
                 }
             }
-            else if (inputType == EInputType.DateTime)
+            else if (inputType == InputType.DateTime)
             {
                 var dateTime = TranslateUtils.ToDateTime(content);
                 if (dateTime != DateUtils.SqlMinValue)
@@ -65,7 +65,7 @@ namespace SiteServer.CMS.Core
                     parsedContent = string.Empty;
                 }
             }
-            else if (inputType == EInputType.CheckBox || inputType == EInputType.Radio || inputType == EInputType.SelectMultiple || inputType == EInputType.SelectOne)//选择类型
+            else if (inputType == InputType.CheckBox || inputType == InputType.Radio || inputType == InputType.SelectMultiple || inputType == InputType.SelectOne)//选择类型
             {
                 var selectedTexts = new ArrayList();
                 var selectedValues = TranslateUtils.StringCollectionToStringList(content);
@@ -80,24 +80,24 @@ namespace SiteServer.CMS.Core
                 }
                 parsedContent = separator == null ? TranslateUtils.ObjectCollectionToString(selectedTexts) : TranslateUtils.ObjectCollectionToString(selectedTexts, separator);
             }
-            //else if (styleInfo.InputType == EInputType.TextArea)
+            //else if (styleInfo.InputType == InputType.TextArea)
             //{
             //    parsedContent = StringUtils.ReplaceNewlineToBR(parsedContent);
             //}
-            else if (inputType == EInputType.TextEditor)
+            else if (inputType == InputType.TextEditor)
             {
                 /****获取编辑器中内容，解析@符号，添加了远程路径处理 20151103****/
                 parsedContent = StringUtility.TextEditorContentDecode(parsedContent, publishmentSystemInfo, true);
             }
-            else if (inputType == EInputType.Image)
+            else if (inputType == InputType.Image)
             {
                 parsedContent = GetImageOrFlashHtml(publishmentSystemInfo, parsedContent, attributes, isStlEntity);
             }
-            else if (inputType == EInputType.Video)
+            else if (inputType == InputType.Video)
             {
                 parsedContent = GetVideoHtml(publishmentSystemInfo, parsedContent, attributes, isStlEntity);
             }
-            else if (inputType == EInputType.File)
+            else if (inputType == InputType.File)
             {
                 parsedContent = GetFileHtmlWithoutCount(publishmentSystemInfo, parsedContent, attributes, innerXml, isStlEntity);
             }
@@ -105,14 +105,14 @@ namespace SiteServer.CMS.Core
             return parsedContent;
         }
 
-        public static string GetContentByTableStyle(ContentInfo contentInfo, string separator, PublishmentSystemInfo publishmentSystemInfo, ETableStyle tableStyle, TableStyleInfo styleInfo, string formatString, int no, StringDictionary attributes, string innerXml, bool isStlEntity)
+        public static string GetContentByTableStyle(ContentInfo contentInfo, string separator, PublishmentSystemInfo publishmentSystemInfo, ETableStyle tableStyle, TableStyleInfo styleInfo, string formatString, int no, Dictionary<string, string> attributes, string innerXml, bool isStlEntity)
         {
             var value = contentInfo.GetExtendedAttribute(styleInfo.AttributeName);
             var parsedContent = string.Empty;
 
-            var inputType = EInputTypeUtils.GetEnumType(styleInfo.InputType);
+            var inputType = InputTypeUtils.GetEnumType(styleInfo.InputType);
 
-            if (inputType == EInputType.Date)
+            if (inputType == InputType.Date)
             {
                 var dateTime = TranslateUtils.ToDateTime(value);
                 if (dateTime != DateUtils.SqlMinValue)
@@ -124,7 +124,7 @@ namespace SiteServer.CMS.Core
                     parsedContent = DateUtils.Format(dateTime, formatString);
                 }
             }
-            else if (inputType == EInputType.DateTime)
+            else if (inputType == InputType.DateTime)
             {
                 var dateTime = TranslateUtils.ToDateTime(value);
                 if (dateTime != DateUtils.SqlMinValue)
@@ -136,7 +136,7 @@ namespace SiteServer.CMS.Core
                     parsedContent = DateUtils.Format(dateTime, formatString);
                 }
             }
-            else if (inputType == EInputType.CheckBox || inputType == EInputType.Radio || inputType == EInputType.SelectMultiple || inputType == EInputType.SelectOne)//选择类型
+            else if (inputType == InputType.CheckBox || inputType == InputType.Radio || inputType == InputType.SelectMultiple || inputType == InputType.SelectOne)//选择类型
             {
                 var selectedTexts = new ArrayList();
                 var selectedValues = TranslateUtils.StringCollectionToStringList(value);
@@ -151,12 +151,12 @@ namespace SiteServer.CMS.Core
                 }
                 parsedContent = separator == null ? TranslateUtils.ObjectCollectionToString(selectedTexts) : TranslateUtils.ObjectCollectionToString(selectedTexts, separator);
             }
-            else if (inputType == EInputType.TextEditor)
+            else if (inputType == InputType.TextEditor)
             {
                 /****获取编辑器中内容，解析@符号，添加了远程路径处理 20151103****/
                 parsedContent = StringUtility.TextEditorContentDecode(value, publishmentSystemInfo, true);
             }
-            else if (inputType == EInputType.Image)
+            else if (inputType == InputType.Image)
             {
                 if (no <= 1)
                 {
@@ -181,7 +181,7 @@ namespace SiteServer.CMS.Core
                     }
                 }
             }
-            else if (inputType == EInputType.Video)
+            else if (inputType == InputType.Video)
             {
                 if (no <= 1)
                 {
@@ -206,7 +206,7 @@ namespace SiteServer.CMS.Core
                     }
                 }
             }
-            else if (inputType == EInputType.File)
+            else if (inputType == InputType.File)
             {
                 if (no <= 1)
                 {
@@ -239,15 +239,7 @@ namespace SiteServer.CMS.Core
             return parsedContent;
         }
 
-        
-
-        
-
-        
-
-        
-
-        public static string GetImageOrFlashHtml(PublishmentSystemInfo publishmentSystemInfo, string imageUrl, StringDictionary attributes, bool isStlEntity)
+        public static string GetImageOrFlashHtml(PublishmentSystemInfo publishmentSystemInfo, string imageUrl, Dictionary<string, string> attributes, bool isStlEntity)
         {
             var retval = string.Empty;
             if (!string.IsNullOrEmpty(imageUrl))
@@ -308,7 +300,7 @@ namespace SiteServer.CMS.Core
             return retval;
         }
 
-        public static string GetVideoHtml(PublishmentSystemInfo publishmentSystemInfo, string videoUrl, StringDictionary attributes, bool isStlEntity)
+        public static string GetVideoHtml(PublishmentSystemInfo publishmentSystemInfo, string videoUrl, Dictionary<string, string> attributes, bool isStlEntity)
         {
             var retval = string.Empty;
             if (!string.IsNullOrEmpty(videoUrl))
@@ -329,7 +321,7 @@ namespace SiteServer.CMS.Core
             return retval;
         }
 
-        public static string GetFileHtmlWithCount(PublishmentSystemInfo publishmentSystemInfo, int nodeId, int contentId, string fileUrl, StringDictionary attributes, string innerXml, bool isStlEntity)
+        public static string GetFileHtmlWithCount(PublishmentSystemInfo publishmentSystemInfo, int nodeId, int contentId, string fileUrl, Dictionary<string, string> attributes, string innerXml, bool isStlEntity)
         {
             var retval = string.Empty;
             if (!string.IsNullOrEmpty(fileUrl))
@@ -351,7 +343,7 @@ namespace SiteServer.CMS.Core
             return retval;
         }
 
-        public static string GetFileHtmlWithoutCount(PublishmentSystemInfo publishmentSystemInfo, string fileUrl, StringDictionary attributes, string innerXml, bool isStlEntity)
+        public static string GetFileHtmlWithoutCount(PublishmentSystemInfo publishmentSystemInfo, string fileUrl, Dictionary<string, string> attributes, string innerXml, bool isStlEntity)
         {
             if (publishmentSystemInfo != null)
             {

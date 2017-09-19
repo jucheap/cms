@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web.Http;
 using BaiRong.Core;
+using BaiRong.Core.Model;
 using BaiRong.Core.Model.Attributes;
 using BaiRong.Core.Model.Enumerations;
 using SiteServer.API.Model;
@@ -37,7 +38,7 @@ namespace SiteServer.API.Controllers.Writing
 
                 var postCollection = body.GetPostCollection();
 
-                InputTypeParser.AddValuesToAttributes(tableStyle, tableName, publishmentSystemInfo, relatedIdentities, postCollection, contentInfo.Attributes, ContentAttribute.HiddenAttributes);
+                InputTypeParser.AddValuesToAttributes(tableStyle, tableName, publishmentSystemInfo, relatedIdentities, postCollection, contentInfo.NameValues, ContentAttribute.HiddenAttributes);
 
                 contentInfo.IsChecked = false;
                 contentInfo.PublishmentSystemId = publishmentSystemId;

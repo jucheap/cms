@@ -641,16 +641,34 @@ namespace BaiRong.Core
 
         public static string NameValueCollectionToString(NameValueCollection attributes, char seperator)
         {
+            if (attributes == null || attributes.Count <= 0) return string.Empty;
+
             var builder = new StringBuilder();
-            if (attributes != null && attributes.Count > 0)
+            foreach (string key in attributes.Keys)
             {
-                foreach (string key in attributes.Keys)
-                {
-                    builder.Append(
-                        $@"{StringUtils.ValueToUrl(key)}={StringUtils.ValueToUrl(attributes[key])}{seperator}");
-                }
-                builder.Length--;
+                builder.Append(
+                    $@"{StringUtils.ValueToUrl(key)}={StringUtils.ValueToUrl(attributes[key])}{seperator}");
             }
+            builder.Length--;
+            return builder.ToString();
+        }
+
+        public static string NameValueCollectionToString(LowerNameValueCollection attributes)
+        {
+            return NameValueCollectionToString(attributes, '&');
+        }
+
+        public static string NameValueCollectionToString(LowerNameValueCollection attributes, char seperator)
+        {
+            if (attributes == null || attributes.Count <= 0) return string.Empty;
+
+            var builder = new StringBuilder();
+            foreach (var key in attributes.Keys)
+            {
+                builder.Append(
+                    $@"{StringUtils.ValueToUrl(key)}={StringUtils.ValueToUrl(attributes.Get(key))}{seperator}");
+            }
+            builder.Length--;
             return builder.ToString();
         }
 
@@ -718,6 +736,25 @@ namespace BaiRong.Core
             if (attributes != null && attributes.Count > 0)
             {
                 foreach (string key in attributes.Keys)
+                {
+                    var value = attributes[key];
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        value = value.Replace("\"", "'");
+                    }
+                    builder.Append($@"{key}=""{value}"" ");
+                }
+                builder.Length--;
+            }
+            return builder.ToString();
+        }
+
+        public static string ToAttributesString(Dictionary<string, string> attributes)
+        {
+            var builder = new StringBuilder();
+            if (attributes != null && attributes.Count > 0)
+            {
+                foreach (var key in attributes.Keys)
                 {
                     var value = attributes[key];
                     if (!string.IsNullOrEmpty(value))
@@ -1132,7 +1169,7 @@ namespace BaiRong.Core
             var encryptor = new DESEncryptor
             {
                 InputString = inputString,
-                EncryptKey = FileConfigManager.Instance.SecretKey
+                EncryptKey = WebConfigUtils.SecretKey
             };
             encryptor.DesEncrypt();
 
@@ -1151,7 +1188,7 @@ namespace BaiRong.Core
             var encryptor = new DESEncryptor
             {
                 InputString = inputString,
-                DecryptKey = FileConfigManager.Instance.SecretKey
+                DecryptKey = WebConfigUtils.SecretKey
             };
             encryptor.DesDecrypt();
 

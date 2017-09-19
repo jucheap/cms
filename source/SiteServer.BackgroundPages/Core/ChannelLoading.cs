@@ -4,7 +4,6 @@ using BaiRong.Core;
 using System.Collections.Specialized;
 using BaiRong.Core.Model.Enumerations;
 using SiteServer.BackgroundPages.Cms;
-using SiteServer.BackgroundPages.Wcm;
 using SiteServer.CMS.Core;
 using SiteServer.CMS.Core.Security;
 using SiteServer.CMS.Model;
@@ -16,7 +15,7 @@ namespace SiteServer.BackgroundPages.Core
     {
         public static string GetChannelRowHtml(PublishmentSystemInfo publishmentSystemInfo, NodeInfo nodeInfo, bool enabled, ELoadingType loadingType, NameValueCollection additional, string administratorName)
         {
-            var nodeTreeItem = NodeTreeItem.CreateInstance(nodeInfo, enabled, administratorName);
+            var nodeTreeItem = NodeTreeItem.CreateInstance(publishmentSystemInfo, nodeInfo, enabled, administratorName);
             var title = nodeTreeItem.GetItemHtml(loadingType, PageChannel.GetRedirectUrl(publishmentSystemInfo.PublishmentSystemId, nodeInfo.NodeId), additional);
 
             var rowHtml = string.Empty;
@@ -40,7 +39,7 @@ namespace SiteServer.BackgroundPages.Core
 
                 if (enabled)
                 {
-                    if (AdminUtility.HasChannelPermissions(administratorName, nodeInfo.PublishmentSystemId, nodeInfo.NodeId, AppManager.Cms.Permission.Channel.ChannelEdit))
+                    if (AdminUtility.HasChannelPermissions(administratorName, nodeInfo.PublishmentSystemId, nodeInfo.NodeId, AppManager.Permissions.Channel.ChannelEdit))
                     {
                         var urlEdit = PageChannelEdit.GetRedirectUrl(nodeInfo.PublishmentSystemId, nodeInfo.NodeId, PageChannel.GetRedirectUrl(nodeInfo.PublishmentSystemId, nodeInfo.NodeId));
                         editUrl = $"<a href=\"{urlEdit}\">编辑</a>";
@@ -147,7 +146,7 @@ namespace SiteServer.BackgroundPages.Core
                     editChannelLink = $"<a href=\"javascript:;\" onclick=\"{showPopWinString}\">触发栏目</a>";
                 }
 
-                if (nodeInfo.Additional.Attributes.Count > 0)
+                if (nodeInfo.Additional.NameValues.Count > 0)
                 {
                     var nodeNameBuilder = new StringBuilder();
                     var nodeIdList = TranslateUtils.StringCollectionToIntList(nodeInfo.Additional.CreateChannelIDsIfContentChanged);
@@ -237,119 +236,7 @@ namespace SiteServer.BackgroundPages.Core
 </tr>
 ";
             }
-            else if (loadingType == ELoadingType.ChannelSelect || loadingType == ELoadingType.GovPublicChannelAdd || loadingType == ELoadingType.GovPublicChannelTree)
-            {
-                rowHtml = $@"
-<tr treeItemLevel=""{nodeInfo.ParentsCount + 1}"">
-	<td nowrap>{title}</td>
-</tr>
-";
-            }
-            else if (loadingType == ELoadingType.GovPublicChannel)
-            {
-                var editUrl = string.Empty;
-                var upLink = string.Empty;
-                var downLink = string.Empty;
-                var checkBoxHtml = string.Empty;
-
-                if (!EContentModelTypeUtils.Equals(EContentModelType.GovPublic, nodeInfo.ContentModelId))
-                {
-                    enabled = false;
-                }
-
-                if (enabled)
-                {
-                    editUrl =
-                        $@"<a href=""javascript:;"" onclick=""{ModalGovPublicChannelAdd
-                            .GetOpenWindowStringToEdit(publishmentSystemInfo.PublishmentSystemId, nodeInfo.NodeId,
-                                string.Empty)}"">编辑</a>";
-
-                    var urlUp = PageUtils.GetWcmUrl(nameof(PageGovPublicChannel), new NameValueCollection
-                    {
-                        {"PublishmentSystemID", nodeInfo.PublishmentSystemId.ToString()},
-                        {"NodeID", nodeInfo.NodeId.ToString()},
-                        {"Subtract", true.ToString()}
-                    });
-                    upLink = $@"<a href=""{urlUp}""><img src=""../Pic/icon/up.gif"" border=""0"" alt=""上升"" /></a>";
-
-                    var urlDown = PageUtils.GetWcmUrl(nameof(PageGovPublicChannel), new NameValueCollection
-                    {
-                        {"PublishmentSystemID", nodeInfo.PublishmentSystemId.ToString()},
-                        {"NodeID", nodeInfo.NodeId.ToString()},
-                        {"Add", true.ToString()}
-                    });
-                    downLink =
-                        $@"<a href=""{urlDown}""><img src=""../Pic/icon/down.gif"" border=""0"" alt=""下降"" /></a>";
-
-                    checkBoxHtml = $"<input type='checkbox' name='ChannelIDCollection' value='{nodeInfo.NodeId}' />";
-                }
-
-                var channelCode = DataProvider.GovPublicChannelDao.GetCode(nodeInfo.NodeId);
-
-                rowHtml = $@"
-<tr treeItemLevel=""{nodeInfo.ParentsCount + 1}"">
-    <td>{title}</td>
-    <td>{channelCode}</td>
-    <td class=""center"">{upLink}</td>
-    <td class=""center"">{downLink}</td>
-    <td class=""center"">{editUrl}</td>
-    <td class=""center"">{checkBoxHtml}</td>
-</tr>
-";
-            }
-            else if (loadingType == ELoadingType.GovInteractChannel)
-            {
-                var editUrl = string.Empty;
-                var upLink = string.Empty;
-                var downLink = string.Empty;
-                var styleAddUrl = string.Empty;
-                var checkBoxHtml = string.Empty;
-
-                if (enabled)
-                {
-                    var applyStyleId = DataProvider.GovInteractChannelDao.GetApplyStyleId(nodeInfo.PublishmentSystemId, nodeInfo.NodeId);
-                    editUrl =
-                        $@"<a href=""javascript:;"" onclick=""{ModalGovInteractChannelAdd
-                            .GetOpenWindowStringToEdit(publishmentSystemInfo.PublishmentSystemId, nodeInfo.NodeId,
-                                string.Empty)}"">编辑</a>";
-
-                    var urlUp = PageUtils.GetWcmUrl(nameof(PageGovInteractChannel), new NameValueCollection
-                    {
-                        {"PublishmentSystemID", nodeInfo.PublishmentSystemId.ToString()},
-                        {"NodeID", nodeInfo.NodeId.ToString()},
-                        {"Subtract", true.ToString()}
-                    });
-                    upLink = $@"<a href=""{urlUp}""><img src=""../Pic/icon/up.gif"" border=""0"" alt=""上升"" /></a>";
-
-                    var urlDown = PageUtils.GetWcmUrl(nameof(PageGovInteractChannel), new NameValueCollection
-                    {
-                        {"PublishmentSystemID", nodeInfo.PublishmentSystemId.ToString()},
-                        {"NodeID", nodeInfo.NodeId.ToString()},
-                        {"Add", true.ToString()}
-                    });
-                    downLink =
-                        $@"<a href=""{urlDown}""><img src=""../Pic/icon/down.gif"" border=""0"" alt=""下降"" /></a>";
-
-                    styleAddUrl =
-                        $@"<a href=""javascript:;"" onclick=""{ModalTagStyleGovInteractApplyAdd.GetOpenWindowStringToEdit(publishmentSystemInfo.PublishmentSystemId, applyStyleId)}"">提交设置</a>";
-                    checkBoxHtml = $"<input type='checkbox' name='ChannelIDCollection' value='{nodeInfo.NodeId}' />";
-                }
-
-                var summary = DataProvider.GovInteractChannelDao.GetSummary(nodeInfo.NodeId);
-
-                rowHtml = $@"
-<tr treeItemLevel=""{nodeInfo.ParentsCount + 1}"">
-    <td>{title}</td>
-    <td>{summary}</td>
-    <td class=""center"">{upLink}</td>
-    <td class=""center"">{downLink}</td>
-    <td class=""center"">{styleAddUrl}</td>
-    <td class=""center"">{editUrl}</td>
-    <td class=""center"">{checkBoxHtml}</td>
-</tr>
-";
-            }
-            else if (loadingType == ELoadingType.GovPublicChannelAdd || loadingType == ELoadingType.GovPublicChannelTree)
+            else if (loadingType == ELoadingType.ChannelSelect)
             {
                 rowHtml = $@"
 <tr treeItemLevel=""{nodeInfo.ParentsCount + 1}"">

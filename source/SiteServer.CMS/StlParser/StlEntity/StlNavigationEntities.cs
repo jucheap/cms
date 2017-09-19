@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using BaiRong.Core;
 using SiteServer.CMS.Core;
+using SiteServer.CMS.StlParser.Cache;
 using SiteServer.CMS.StlParser.Model;
 using SiteServer.CMS.StlParser.Utility;
 
@@ -42,7 +43,8 @@ namespace SiteServer.CMS.StlParser.StlEntity
                 {
                     var taxis = nodeInfo.Taxis;
                     var isNextChannel = !StringUtils.EqualsIgnoreCase(attributeName, PreviousChannel);
-                    var siblingNodeId = DataProvider.NodeDao.GetNodeIdByParentIdAndTaxis(nodeInfo.ParentId, taxis, isNextChannel);
+                    //var siblingNodeId = DataProvider.NodeDao.GetNodeIdByParentIdAndTaxis(nodeInfo.ParentId, taxis, isNextChannel);
+                    var siblingNodeId = Node.GetNodeIdByParentIdAndTaxis(nodeInfo.ParentId, taxis, isNextChannel);
                     if (siblingNodeId != 0)
                     {
                         var siblingNodeInfo = NodeManager.GetNodeInfo(pageInfo.PublishmentSystemId, siblingNodeId);
@@ -57,10 +59,12 @@ namespace SiteServer.CMS.StlParser.StlEntity
                         var isNextContent = !StringUtils.EqualsIgnoreCase(attributeName, PreviousContent);
                         var tableStyle = NodeManager.GetTableStyle(pageInfo.PublishmentSystemInfo, contextInfo.ChannelId);
                         var tableName = NodeManager.GetTableName(pageInfo.PublishmentSystemInfo, contextInfo.ChannelId);
-                        var siblingContentId = BaiRongDataProvider.ContentDao.GetContentId(tableName, contextInfo.ChannelId, taxis, isNextContent);
+                        //var siblingContentId = BaiRongDataProvider.ContentDao.GetContentId(tableName, contextInfo.ChannelId, taxis, isNextContent);
+                        var siblingContentId = Content.GetContentId(tableName, contextInfo.ChannelId, taxis, isNextContent);
                         if (siblingContentId != 0)
                         {
-                            var contentInfo = DataProvider.ContentDao.GetContentInfo(tableStyle, tableName, siblingContentId);
+                            //var contentInfo = DataProvider.ContentDao.GetContentInfo(tableStyle, tableName, siblingContentId);
+                            var contentInfo = Content.GetContentInfo(tableStyle, tableName, siblingContentId);
                             parsedContent = PageUtility.GetContentUrl(pageInfo.PublishmentSystemInfo, contentInfo);
                         }
                     }

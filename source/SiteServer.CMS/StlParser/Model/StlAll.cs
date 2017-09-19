@@ -99,22 +99,6 @@ namespace SiteServer.CMS.StlParser.Model
                         (StlAttribute) Attribute.GetCustomAttribute(typeof(StlFocusViewer), stlAttribute)
                     },
                     {
-                        StlGovInteractApply.ElementName,
-                        (StlAttribute) Attribute.GetCustomAttribute(typeof(StlGovInteractApply), stlAttribute)
-                    },
-                    {
-                        StlGovInteractQuery.ElementName,
-                        (StlAttribute) Attribute.GetCustomAttribute(typeof(StlGovInteractQuery), stlAttribute)
-                    },
-                    {
-                        StlGovPublicApply.ElementName,
-                        (StlAttribute) Attribute.GetCustomAttribute(typeof(StlGovPublicApply), stlAttribute)
-                    },
-                    {
-                        StlGovPublicQuery.ElementName,
-                        (StlAttribute) Attribute.GetCustomAttribute(typeof(StlGovPublicQuery), stlAttribute)
-                    },
-                    {
                         StlIf.ElementName,
                         (StlAttribute) Attribute.GetCustomAttribute(typeof(StlIf), stlAttribute)
                     },
@@ -125,10 +109,6 @@ namespace SiteServer.CMS.StlParser.Model
                     {
                         StlInclude.ElementName, 
                         (StlAttribute) Attribute.GetCustomAttribute(typeof(StlInclude), stlAttribute)
-                    },
-                    {
-                        StlInput.ElementName, 
-                        (StlAttribute) Attribute.GetCustomAttribute(typeof(StlInput), stlAttribute)
                     },
                     {
                         StlInputContent.ElementName,
@@ -211,10 +191,6 @@ namespace SiteServer.CMS.StlParser.Model
                         (StlAttribute) Attribute.GetCustomAttribute(typeof(StlQueryString), stlAttribute)
                     },
                     {
-                        StlResume.ElementName, 
-                        (StlAttribute) Attribute.GetCustomAttribute(typeof(StlResume), stlAttribute)
-                    },
-                    {
                         StlRss.ElementName, 
                         (StlAttribute) Attribute.GetCustomAttribute(typeof(StlRss), stlAttribute)
                     },
@@ -275,10 +251,6 @@ namespace SiteServer.CMS.StlParser.Model
                         (StlAttribute) Attribute.GetCustomAttribute(typeof(StlVideo), stlAttribute)
                     },
                     {
-                        StlVote.ElementName, 
-                        (StlAttribute) Attribute.GetCustomAttribute(typeof(StlVote), stlAttribute)
-                    },
-                    {
                         StlYes.ElementName, 
                         (StlAttribute) Attribute.GetCustomAttribute(typeof(StlYes), stlAttribute)
                     },
@@ -311,14 +283,9 @@ namespace SiteServer.CMS.StlParser.Model
                 {StlFile.ElementName, StlFile.AttributeList},
                 {StlFlash.ElementName, StlFlash.AttributeList},
                 {StlFocusViewer.ElementName, StlFocusViewer.AttributeList},
-                {StlGovInteractApply.ElementName, StlGovInteractApply.AttributeList},
-                {StlGovInteractQuery.ElementName, StlGovInteractQuery.AttributeList},
-                {StlGovPublicApply.ElementName, StlGovPublicApply.AttributeList},
-                {StlGovPublicQuery.ElementName, StlGovPublicQuery.AttributeList},
                 {StlIf.ElementName, StlIf.AttributeList},
                 {StlImage.ElementName, StlImage.AttributeList},
                 {StlInclude.ElementName, StlInclude.AttributeList},
-                {StlInput.ElementName, StlInput.AttributeList},
                 {StlInputContent.ElementName, StlInputContent.AttributeList},
                 {StlInputContents.ElementName, StlInputContents.AttributeList},
                 {StlItemTemplate.ElementName, StlItemTemplate.AttributeList},
@@ -339,7 +306,6 @@ namespace SiteServer.CMS.StlParser.Model
                 {StlPlayer.ElementName, StlPlayer.AttributeList},
                 {StlPrinter.ElementName, StlPrinter.AttributeList},
                 {StlQueryString.ElementName, StlQueryString.AttributeList},
-                {StlResume.ElementName, StlResume.AttributeList},
                 {StlRss.ElementName, StlRss.AttributeList},
                 {StlSearch.ElementName, StlSearch.AttributeList},
                 {StlSelect.ElementName, StlSelect.AttributeList},
@@ -355,7 +321,6 @@ namespace SiteServer.CMS.StlParser.Model
                 {StlTree.ElementName, StlTree.AttributeList},
                 {StlValue.ElementName, StlValue.AttributeList},
                 {StlVideo.ElementName, StlVideo.AttributeList},
-                {StlVote.ElementName, StlVote.AttributeList},
                 {StlYes.ElementName, StlYes.AttributeList},
                 {StlZoom.ElementName, StlZoom.AttributeList}
             };

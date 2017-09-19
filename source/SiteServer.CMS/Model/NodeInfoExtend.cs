@@ -1,6 +1,9 @@
-﻿using BaiRong.Core;
+﻿using System.Collections.Generic;
+using BaiRong.Core;
 using BaiRong.Core.Model;
+using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.Model.Enumerations;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.Model
 {
@@ -62,16 +65,16 @@ namespace SiteServer.CMS.Model
             set { SetExtendedAttribute("TransType", ECrossSiteTransTypeUtils.GetValue(value)); }
         }
 
-        public int TransPublishmentSystemID
+        public int TransPublishmentSystemId
         {
-            get { return TranslateUtils.ToInt(GetExtendedAttribute("TransPublishmentSystemID")); }
-            set { SetExtendedAttribute("TransPublishmentSystemID", value.ToString()); }
+            get { return TranslateUtils.ToInt(GetExtendedAttribute("TransPublishmentSystemId")); }
+            set { SetExtendedAttribute("TransPublishmentSystemId", value.ToString()); }
         }
 
-        public string TransNodeIDs
+        public string TransNodeIds
         {
-            get { return GetExtendedAttribute("TransNodeIDs"); }
-            set { SetExtendedAttribute("TransNodeIDs", value); }
+            get { return GetExtendedAttribute("TransNodeIds"); }
+            set { SetExtendedAttribute("TransNodeIds", value); }
         }
 
         public string TransNodeNames
@@ -86,7 +89,7 @@ namespace SiteServer.CMS.Model
             set { SetExtendedAttribute("TransIsAutomatic", value.ToString()); }
         }
 
-        //夸张转发操作类型：复制 引用地址 引用内容
+        //跨站转发操作类型：复制 引用地址 引用内容
         public ETranslateContentType TransDoneType
         {
             get { return ETranslateContentTypeUtils.GetEnumType(GetExtendedAttribute("TransDoneType")); }
@@ -97,6 +100,12 @@ namespace SiteServer.CMS.Model
         {
             get { return GetBool("IsPreviewContents", false); }
             set { SetExtendedAttribute("IsPreviewContents", value.ToString()); }
+        }
+
+        public string DefaultTaxisType
+        {
+            get { return GetString("DefaultTaxisType", ETaxisTypeUtils.GetValue(ETaxisType.OrderByTaxisDesc)); }
+            set { SetExtendedAttribute("DefaultTaxisType", value); }
         }
 
         /****************内容签收设置********************/
@@ -137,9 +146,15 @@ namespace SiteServer.CMS.Model
             set { SetExtendedAttribute("SigninEndDate", value); }
         }
 
+        public string PluginIds
+        {
+            get { return GetExtendedAttribute("PluginIds"); }
+            set { SetExtendedAttribute("PluginIds", value); }
+        }
+
         public override string ToString()
         {
-            return TranslateUtils.NameValueCollectionToString(Attributes);
+            return TranslateUtils.NameValueCollectionToString(NameValues);
         }
     }
 }

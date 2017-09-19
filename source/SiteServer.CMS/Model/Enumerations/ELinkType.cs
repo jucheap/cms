@@ -6,133 +6,126 @@ namespace SiteServer.CMS.Model.Enumerations
 	
 	public enum ELinkType
 	{
-		LinkNoRelatedToChannelAndContent,	//默认
-		NoLinkIfContentNotExists,			//无内容时不可链接
-		LinkToOnlyOneContent,				//仅一条内容时链接到此内容
-		NoLinkIfContentNotExistsAndLinkToOnlyOneContent,						//无内容时不可链接，仅一条内容时链接到此内容
-		LinkToFirstContent,				//链接到第一条内容
+		LinkNoRelatedToChannelAndContent,	                                //默认
+		NoLinkIfContentNotExists,			                                //无内容时不可链接
+		LinkToOnlyOneContent,				                                //仅一条内容时链接到此内容
+		NoLinkIfContentNotExistsAndLinkToOnlyOneContent,					//无内容时不可链接，仅一条内容时链接到此内容
+		LinkToFirstContent,				                                    //链接到第一条内容
 		NoLinkIfContentNotExistsAndLinkToFirstContent,						//无内容时不可链接，有内容时链接到第一条内容
-		NoLinkIfChannelNotExists,			//无栏目时不可链接
-		LinkToLastAddChannel,				//链接到最近增加的子栏目
-		LinkToFirstChannel,					//链接到第一个子栏目
-		NoLinkIfChannelNotExistsAndLinkToLastAddChannel,							//无栏目时不可链接，有栏目时链接到最近增加的子栏目
+		NoLinkIfChannelNotExists,			                                //无栏目时不可链接
+		LinkToLastAddChannel,				                                //链接到最近增加的子栏目
+		LinkToFirstChannel,					                                //链接到第一个子栏目
+		NoLinkIfChannelNotExistsAndLinkToLastAddChannel,					//无栏目时不可链接，有栏目时链接到最近增加的子栏目
 		NoLinkIfChannelNotExistsAndLinkToFirstChannel,						//无栏目时不可链接，有栏目时链接到第一个子栏目
-		NoLink								//不可链接
+		NoLink								                                //不可链接
 	}
-
 
 	public class ELinkTypeUtils
 	{
 		public static string GetValue(ELinkType type)
 		{
-			if (type == ELinkType.LinkNoRelatedToChannelAndContent)
+		    if (type == ELinkType.LinkNoRelatedToChannelAndContent)
 			{
 				return "LinkNoRelatedToChannelAndContent";
 			}
-			else if (type == ELinkType.NoLinkIfContentNotExists)
-			{
-				return "NoLinkIfContentNotExists";
-			}
-			else if (type == ELinkType.LinkToOnlyOneContent)
-			{
-				return "LinkToOnlyOneContent";
-			}
-			else if (type == ELinkType.NoLinkIfContentNotExistsAndLinkToOnlyOneContent)
-			{
-				return "NoLinkIfContentNotExistsAndLinkToOnlyOneContent";
-			}
-			else if (type == ELinkType.LinkToFirstContent)
-			{
-				return "LinkToFirstContent";
-			}
-			else if (type == ELinkType.NoLinkIfContentNotExistsAndLinkToFirstContent)
-			{
-				return "NoLinkIfContentNotExistsAndLinkToFirstContent";
-			}
-			else if (type == ELinkType.NoLinkIfChannelNotExists)
-			{
-				return "NoLinkIfChannelNotExists";
-			}
-			else if (type == ELinkType.LinkToLastAddChannel)
-			{
-				return "LinkToLastAddChannel";
-			}
-			else if (type == ELinkType.LinkToFirstChannel)
-			{
-				return "LinkToFirstChannel";
-			}
-			else if (type == ELinkType.NoLinkIfChannelNotExistsAndLinkToLastAddChannel)
-			{
-				return "NoLinkIfChannelNotExistsAndLinkToLastAddChannel";
-			}
-			else if (type == ELinkType.NoLinkIfChannelNotExistsAndLinkToFirstChannel)
-			{
-				return "NoLinkIfChannelNotExistsAndLinkToFirstChannel";
-			}
-			else if (type == ELinkType.NoLink)
-			{
-				return "NoLink";
-			}
-			else
-			{
-				throw new Exception();
-			}
+		    if (type == ELinkType.NoLinkIfContentNotExists)
+		    {
+		        return "NoLinkIfContentNotExists";
+		    }
+		    if (type == ELinkType.LinkToOnlyOneContent)
+		    {
+		        return "LinkToOnlyOneContent";
+		    }
+		    if (type == ELinkType.NoLinkIfContentNotExistsAndLinkToOnlyOneContent)
+		    {
+		        return "NoLinkIfContentNotExistsAndLinkToOnlyOneContent";
+		    }
+		    if (type == ELinkType.LinkToFirstContent)
+		    {
+		        return "LinkToFirstContent";
+		    }
+		    if (type == ELinkType.NoLinkIfContentNotExistsAndLinkToFirstContent)
+		    {
+		        return "NoLinkIfContentNotExistsAndLinkToFirstContent";
+		    }
+		    if (type == ELinkType.NoLinkIfChannelNotExists)
+		    {
+		        return "NoLinkIfChannelNotExists";
+		    }
+		    if (type == ELinkType.LinkToLastAddChannel)
+		    {
+		        return "LinkToLastAddChannel";
+		    }
+		    if (type == ELinkType.LinkToFirstChannel)
+		    {
+		        return "LinkToFirstChannel";
+		    }
+		    if (type == ELinkType.NoLinkIfChannelNotExistsAndLinkToLastAddChannel)
+		    {
+		        return "NoLinkIfChannelNotExistsAndLinkToLastAddChannel";
+		    }
+		    if (type == ELinkType.NoLinkIfChannelNotExistsAndLinkToFirstChannel)
+		    {
+		        return "NoLinkIfChannelNotExistsAndLinkToFirstChannel";
+		    }
+		    if (type == ELinkType.NoLink)
+		    {
+		        return "NoLink";
+		    }
+		    throw new Exception();
 		}
 
 		public static string GetText(ELinkType type)
 		{
-			if (type == ELinkType.NoLinkIfContentNotExists)
+		    if (type == ELinkType.NoLinkIfContentNotExists)
 			{
 				return "无内容时不可链接";
 			}
-			else if (type == ELinkType.LinkToOnlyOneContent)
-			{
-				return "仅一条内容时链接到此内容";
-			}
-			else if (type == ELinkType.NoLinkIfContentNotExistsAndLinkToOnlyOneContent)
-			{
-				return "无内容时不可链接，仅一条内容时链接到此内容";
-			}
-			else if (type == ELinkType.LinkToFirstContent)
-			{
-				return "链接到第一条内容";
-			}
-			else if (type == ELinkType.NoLinkIfContentNotExistsAndLinkToFirstContent)
-			{
-				return "无内容时不可链接，有内容时链接到第一条内容";
-			}
-			else if (type == ELinkType.NoLinkIfChannelNotExists)
-			{
-				return "无栏目时不可链接";
-			}
-			else if (type == ELinkType.LinkToLastAddChannel)
-			{
-				return "链接到最近增加的子栏目";
-			}
-			else if (type == ELinkType.LinkToFirstChannel)
-			{
-				return "链接到第一个子栏目";
-			}
-			else if (type == ELinkType.NoLinkIfChannelNotExistsAndLinkToLastAddChannel)
-			{
-				return "无栏目时不可链接，有栏目时链接到最近增加的子栏目";
-			}
-			else if (type == ELinkType.NoLinkIfChannelNotExistsAndLinkToFirstChannel)
-			{
-				return "无栏目时不可链接，有栏目时链接到第一个子栏目";
-			}
-			else if (type == ELinkType.NoLink)
-			{
-				return "不可链接";
-			}
-			else if (type == ELinkType.LinkNoRelatedToChannelAndContent)
-			{
-				return "默认";
-			}
-			else
-			{
-				throw new Exception();
-			}
+		    if (type == ELinkType.LinkToOnlyOneContent)
+		    {
+		        return "仅一条内容时链接到此内容";
+		    }
+		    if (type == ELinkType.NoLinkIfContentNotExistsAndLinkToOnlyOneContent)
+		    {
+		        return "无内容时不可链接，仅一条内容时链接到此内容";
+		    }
+		    if (type == ELinkType.LinkToFirstContent)
+		    {
+		        return "链接到第一条内容";
+		    }
+		    if (type == ELinkType.NoLinkIfContentNotExistsAndLinkToFirstContent)
+		    {
+		        return "无内容时不可链接，有内容时链接到第一条内容";
+		    }
+		    if (type == ELinkType.NoLinkIfChannelNotExists)
+		    {
+		        return "无栏目时不可链接";
+		    }
+		    if (type == ELinkType.LinkToLastAddChannel)
+		    {
+		        return "链接到最近增加的子栏目";
+		    }
+		    if (type == ELinkType.LinkToFirstChannel)
+		    {
+		        return "链接到第一个子栏目";
+		    }
+		    if (type == ELinkType.NoLinkIfChannelNotExistsAndLinkToLastAddChannel)
+		    {
+		        return "无栏目时不可链接，有栏目时链接到最近增加的子栏目";
+		    }
+		    if (type == ELinkType.NoLinkIfChannelNotExistsAndLinkToFirstChannel)
+		    {
+		        return "无栏目时不可链接，有栏目时链接到第一个子栏目";
+		    }
+		    if (type == ELinkType.NoLink)
+		    {
+		        return "不可链接";
+		    }
+		    if (type == ELinkType.LinkNoRelatedToChannelAndContent)
+		    {
+		        return "默认";
+		    }
+		    throw new Exception();
 		}
 
 		public static ELinkType GetEnumType(string typeStr)
@@ -243,102 +236,36 @@ namespace SiteServer.CMS.Model.Enumerations
             {
                 isCreatable = true;
             }
-            else if (nodeInfo.LinkType == ELinkType.NoLink)
-            {
-                isCreatable = false;
-            }
             else if (nodeInfo.LinkType == ELinkType.NoLinkIfContentNotExists)
             {
-                if (nodeInfo.ContentNum == 0)
-                {
-                    isCreatable = false;
-                }
-                else
-                {
-                    isCreatable = true;
-                }
+                isCreatable = nodeInfo.ContentNum != 0;
             }
             else if (nodeInfo.LinkType == ELinkType.LinkToOnlyOneContent)
             {
-                if (nodeInfo.ContentNum == 1)
-                {
-                    isCreatable = false;
-                }
-                else
-                {
-                    isCreatable = true;
-                }
+                isCreatable = nodeInfo.ContentNum != 1;
             }
             else if (nodeInfo.LinkType == ELinkType.NoLinkIfContentNotExistsAndLinkToOnlyOneContent)
             {
-                if (nodeInfo.ContentNum == 0)
-                {
-                    isCreatable = false;
-                }
-                else if (nodeInfo.ContentNum == 1)
-                {
-                    isCreatable = false;
-                }
-                else
+                if (nodeInfo.ContentNum != 0 && nodeInfo.ContentNum != 1)
                 {
                     isCreatable = true;
                 }
             }
             else if (nodeInfo.LinkType == ELinkType.LinkToFirstContent)
             {
-                if (nodeInfo.ContentNum >= 1)
-                {
-                    isCreatable = false;
-                }
-                else
-                {
-                    isCreatable = true;
-                }
-            }
-            else if (nodeInfo.LinkType == ELinkType.NoLinkIfContentNotExistsAndLinkToFirstContent)
-            {
-                isCreatable = false;
+                isCreatable = nodeInfo.ContentNum < 1;
             }
             else if (nodeInfo.LinkType == ELinkType.NoLinkIfChannelNotExists)
             {
-                if (nodeInfo.ChildrenCount == 0)
-                {
-                    isCreatable = false;
-                }
-                else
-                {
-                    isCreatable = true;
-                }
+                isCreatable = nodeInfo.ChildrenCount != 0;
             }
             else if (nodeInfo.LinkType == ELinkType.LinkToLastAddChannel)
             {
-                if (nodeInfo.ChildrenCount > 0)
-                {
-                    isCreatable = false;
-                }
-                else
-                {
-                    isCreatable = true;
-                }
+                isCreatable = nodeInfo.ChildrenCount <= 0;
             }
             else if (nodeInfo.LinkType == ELinkType.LinkToFirstChannel)
             {
-                if (nodeInfo.ChildrenCount > 0)
-                {
-                    isCreatable = false;
-                }
-                else
-                {
-                    isCreatable = true;
-                }
-            }
-            else if (nodeInfo.LinkType == ELinkType.NoLinkIfChannelNotExistsAndLinkToLastAddChannel)
-            {
-                isCreatable = false;
-            }
-            else if (nodeInfo.LinkType == ELinkType.NoLinkIfChannelNotExistsAndLinkToFirstChannel)
-            {
-                isCreatable = false;
+                isCreatable = nodeInfo.ChildrenCount <= 0;
             }
 
             return isCreatable;

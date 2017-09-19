@@ -32,7 +32,7 @@ namespace SiteServer.API.Controllers.Stl
                 var publishmentSystemInfo = PublishmentSystemManager.GetPublishmentSystemInfo(publishmentSystemId);
                 var nodeIdList = DataProvider.NodeDao.GetNodeIdListByParentId(publishmentSystemId, parentId);
 
-                foreach (int nodeId in nodeIdList)
+                foreach (var nodeId in nodeIdList)
                 {
                     var nodeInfo = NodeManager.GetNodeInfo(publishmentSystemId, nodeId);
 

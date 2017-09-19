@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Data;
 using BaiRong.Core;
 using BaiRong.Core.Data;
-using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.WeiXin.Model;
 using SiteServer.CMS.WeiXin.Model.Enumerations;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.WeiXin.Provider
 {
@@ -47,18 +48,18 @@ namespace SiteServer.CMS.WeiXin.Provider
             var taxis = GetMaxTaxis(resourceInfo.KeywordId) + 1;
             var parms = new IDataParameter[]
 			{
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, resourceInfo.PublishmentSystemId),
-                GetParameter(ParmKeywordId, EDataType.Integer, resourceInfo.KeywordId),
-                GetParameter(ParmTitle, EDataType.NVarChar, 255, resourceInfo.Title),
-                GetParameter(ParmImageUrl, EDataType.VarChar, 200, resourceInfo.ImageUrl),
-                GetParameter(ParmSummary, EDataType.NVarChar, 255, resourceInfo.Summary),
-                GetParameter(ParmResourceType, EDataType.VarChar, 50, EResourceTypeUtils.GetValue(resourceInfo.ResourceType)),
-                GetParameter(ParmIsShowCoverPic, EDataType.VarChar, 18, resourceInfo.IsShowCoverPic.ToString()),
-                GetParameter(ParmContent, EDataType.NText, resourceInfo.Content),
-                GetParameter(ParmNavigationUrl, EDataType.VarChar, 200, resourceInfo.NavigationUrl),
-                GetParameter(ParmChannelId, EDataType.Integer, resourceInfo.ChannelId),
-                GetParameter(ParmContentId, EDataType.Integer, resourceInfo.ContentId),
-                GetParameter(ParmTaxis, EDataType.Integer, taxis)
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, resourceInfo.PublishmentSystemId),
+                GetParameter(ParmKeywordId, DataType.Integer, resourceInfo.KeywordId),
+                GetParameter(ParmTitle, DataType.NVarChar, 255, resourceInfo.Title),
+                GetParameter(ParmImageUrl, DataType.VarChar, 200, resourceInfo.ImageUrl),
+                GetParameter(ParmSummary, DataType.NVarChar, 255, resourceInfo.Summary),
+                GetParameter(ParmResourceType, DataType.VarChar, 50, EResourceTypeUtils.GetValue(resourceInfo.ResourceType)),
+                GetParameter(ParmIsShowCoverPic, DataType.VarChar, 18, resourceInfo.IsShowCoverPic.ToString()),
+                GetParameter(ParmContent, DataType.NText, resourceInfo.Content),
+                GetParameter(ParmNavigationUrl, DataType.VarChar, 200, resourceInfo.NavigationUrl),
+                GetParameter(ParmChannelId, DataType.Integer, resourceInfo.ChannelId),
+                GetParameter(ParmContentId, DataType.Integer, resourceInfo.ContentId),
+                GetParameter(ParmTaxis, DataType.Integer, taxis)
 			};
 
             using (var conn = GetConnection())
@@ -86,19 +87,19 @@ namespace SiteServer.CMS.WeiXin.Provider
         {
             var parms = new IDataParameter[]
 			{
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, resourceInfo.PublishmentSystemId),
-                GetParameter(ParmKeywordId, EDataType.Integer, resourceInfo.KeywordId),
-                GetParameter(ParmTitle, EDataType.NVarChar, 255, resourceInfo.Title),
-                GetParameter(ParmImageUrl, EDataType.VarChar, 200, resourceInfo.ImageUrl),
-                GetParameter(ParmSummary, EDataType.NVarChar, 255, resourceInfo.Summary),
-                GetParameter(ParmResourceType, EDataType.VarChar, 50, EResourceTypeUtils.GetValue(resourceInfo.ResourceType)),
-                GetParameter(ParmIsShowCoverPic, EDataType.VarChar, 18, resourceInfo.IsShowCoverPic.ToString()),
-                GetParameter(ParmContent, EDataType.NText, resourceInfo.Content),
-                GetParameter(ParmNavigationUrl, EDataType.VarChar, 200, resourceInfo.NavigationUrl),
-                GetParameter(ParmChannelId, EDataType.Integer, resourceInfo.ChannelId),
-                GetParameter(ParmContentId, EDataType.Integer, resourceInfo.ContentId),
-                GetParameter(ParmTaxis, EDataType.Integer, resourceInfo.Taxis),
-                GetParameter(ParmResourceId, EDataType.Integer, resourceInfo.ResourceId)
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, resourceInfo.PublishmentSystemId),
+                GetParameter(ParmKeywordId, DataType.Integer, resourceInfo.KeywordId),
+                GetParameter(ParmTitle, DataType.NVarChar, 255, resourceInfo.Title),
+                GetParameter(ParmImageUrl, DataType.VarChar, 200, resourceInfo.ImageUrl),
+                GetParameter(ParmSummary, DataType.NVarChar, 255, resourceInfo.Summary),
+                GetParameter(ParmResourceType, DataType.VarChar, 50, EResourceTypeUtils.GetValue(resourceInfo.ResourceType)),
+                GetParameter(ParmIsShowCoverPic, DataType.VarChar, 18, resourceInfo.IsShowCoverPic.ToString()),
+                GetParameter(ParmContent, DataType.NText, resourceInfo.Content),
+                GetParameter(ParmNavigationUrl, DataType.VarChar, 200, resourceInfo.NavigationUrl),
+                GetParameter(ParmChannelId, DataType.Integer, resourceInfo.ChannelId),
+                GetParameter(ParmContentId, DataType.Integer, resourceInfo.ContentId),
+                GetParameter(ParmTaxis, DataType.Integer, resourceInfo.Taxis),
+                GetParameter(ParmResourceId, DataType.Integer, resourceInfo.ResourceId)
 			};
 
             ExecuteNonQuery(SqlUpdate, parms);
@@ -108,7 +109,7 @@ namespace SiteServer.CMS.WeiXin.Provider
         {
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmResourceId, EDataType.Integer, resourceId)
+				GetParameter(ParmResourceId, DataType.Integer, resourceId)
 			};
 
             ExecuteNonQuery(SqlDelete, parms);
@@ -120,7 +121,7 @@ namespace SiteServer.CMS.WeiXin.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmResourceId, EDataType.Integer, resourceId)
+				GetParameter(ParmResourceId, DataType.Integer, resourceId)
 			};
 
             using (var rdr = ExecuteReader(SqlSelect, parms))
@@ -141,7 +142,7 @@ namespace SiteServer.CMS.WeiXin.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmKeywordId, EDataType.Integer, keywordId)
+				GetParameter(ParmKeywordId, DataType.Integer, keywordId)
 			};
 
             using (var rdr = ExecuteReader(SqlSelectFirst, parms))
@@ -160,7 +161,7 @@ namespace SiteServer.CMS.WeiXin.Provider
         {
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmKeywordId, EDataType.Integer, keywordId)
+				GetParameter(ParmKeywordId, DataType.Integer, keywordId)
 			};
 
             var enumerable = (IEnumerable)ExecuteReader(SqlSelectAll, parms);
@@ -179,7 +180,7 @@ namespace SiteServer.CMS.WeiXin.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmKeywordId, EDataType.Integer, keywordId)
+				GetParameter(ParmKeywordId, DataType.Integer, keywordId)
 			};
 
             using (var rdr = ExecuteReader(SqlSelectAll, parms))
@@ -201,7 +202,7 @@ namespace SiteServer.CMS.WeiXin.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmKeywordId, EDataType.Integer, keywordId)
+				GetParameter(ParmKeywordId, DataType.Integer, keywordId)
 			};
 
             using (var rdr = ExecuteReader(SqlSelectAllId, parms))
@@ -306,8 +307,8 @@ namespace SiteServer.CMS.WeiXin.Provider
 
             var parms = new IDataParameter[]
 			{
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, publishmentSystemId),
-				GetParameter(ParmKeywordId, EDataType.Integer, keywordId)
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, publishmentSystemId),
+				GetParameter(ParmKeywordId, DataType.Integer, keywordId)
 			};
 
             using (var rdr = ExecuteReader(SqlSelectAll, parms))

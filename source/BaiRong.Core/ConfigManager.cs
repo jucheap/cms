@@ -6,17 +6,26 @@ namespace BaiRong.Core
     public class ConfigManager
     {
         private const string CacheKey = "BaiRong.Core.ConfigManager";
+        private static readonly object LockObject = new object();
 
         public static ConfigInfo Instance
         {
             get
             {
-                var configInfo = CacheUtils.Get(CacheKey) as ConfigInfo;
-                if (configInfo != null) return configInfo;
+                var retval = CacheUtils.Get<ConfigInfo>(CacheKey);
+                if (retval != null) return retval;
 
-                configInfo = BaiRongDataProvider.ConfigDao.GetConfigInfo();
-                CacheUtils.Max(CacheKey, configInfo);
-                return configInfo;
+                lock (LockObject)
+                {
+                    retval = CacheUtils.Get<ConfigInfo>(CacheKey);
+                    if (retval == null)
+                    {
+                        retval = BaiRongDataProvider.ConfigDao.GetConfigInfo();
+                        CacheUtils.Insert(CacheKey, retval);
+                    }
+                }
+
+                return retval;
             }
         }
 

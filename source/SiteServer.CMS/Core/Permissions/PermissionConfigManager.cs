@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using System.Web.Caching;
 using System.Xml;
 using BaiRong.Core;
-using SiteServer.CMS.Core.Plugin;
+using SiteServer.CMS.Plugin;
 
 namespace SiteServer.CMS.Core.Permissions
 {
@@ -10,7 +9,7 @@ namespace SiteServer.CMS.Core.Permissions
 	{
         public const string CacheKey = "SiteServer.CMS.Core.Permissions.PermissionConfigManager";
 
-        public const string FilePath = "~/SiteFiles/Configuration/Menus/Permissions.config";
+        public const string FilePath = "~/SiteFiles/Configuration/Permissions.config";
 
 	    public List<PermissionConfig> GeneralPermissions { get; } = new List<PermissionConfig>();
 
@@ -41,7 +40,7 @@ namespace SiteServer.CMS.Core.Permissions
 			        permissionManager.LoadValuesFromConfigurationXml(doc);
 			    }
 
-			    CacheUtils.Max(CacheKey, permissionManager, new CacheDependency(path));
+			    CacheUtils.Insert(CacheKey, permissionManager, path);
 			    return permissionManager;
 			}
 		}
@@ -157,7 +156,8 @@ namespace SiteServer.CMS.Core.Permissions
 		        }
 		    }
 
-            WebsitePermissions.AddRange(PluginManager.GetAllPermissions());
+            GeneralPermissions.AddRange(PluginCache.GetTopPermissions());
+            WebsitePermissions.AddRange(PluginCache.GetSitePermissions(0));
 		}
 
         private static void GetPermissions(XmlNode node, List<PermissionConfig> list) 

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Text;
-using System.Xml;
 using BaiRong.Core;
 using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.Core;
 using SiteServer.CMS.Model;
 using SiteServer.CMS.StlParser.Model;
-using SiteServer.CMS.StlParser.Parser;
+using SiteServer.CMS.StlParser.Parsers;
 using SiteServer.CMS.StlParser.Utility;
 using System.Collections.Generic;
+using SiteServer.CMS.StlParser.Cache;
 
 namespace SiteServer.CMS.StlParser.StlElement
 {
@@ -33,7 +33,6 @@ namespace SiteServer.CMS.StlParser.StlElement
         public const string AttributeChildMenuWidth = "childMenuWidth";
         public const string AttributeChildMenuHeight = "childMenuHeight";
         public const string AttributeTarget = "target";
-        public const string AttributeIsDynamic = "isDynamic";
 
         public static SortedList<string, string> AttributeList => new SortedList<string, string>
         {
@@ -50,130 +49,111 @@ namespace SiteServer.CMS.StlParser.StlElement
             {AttributeChildMenuDisplay, "二级菜单显示方式"},
             {AttributeChildMenuWidth, "二级菜单宽度"},
             {AttributeChildMenuHeight, "二级菜单高度"},
-            {AttributeTarget, "打开窗口目标"},
-            {AttributeIsDynamic, "是否动态显示"}
+            {AttributeTarget, "打开窗口目标"}
         };
 
 
-        internal static string Parse(string stlElement, XmlNode node, PageInfo pageInfo, ContextInfo contextInfo)
+        internal static string Parse(PageInfo pageInfo, ContextInfo contextInfo)
         {
-            string parsedContent;
-            try
-            {
-                var channelIndex = string.Empty;
-                var channelName = string.Empty;
-                var groupChannel = string.Empty;
-                var groupChannelNot = string.Empty;
-                var isShowChildren = false;
-                var styleName = string.Empty;
-                var menuWidth = string.Empty;
-                var menuHeight = string.Empty;
-                var xPosition = string.Empty;
-                var yPosition = string.Empty;
-                var childMenuDisplay = string.Empty;
-                var childMenuWidth = string.Empty;
-                var childMenuHeight = string.Empty;
-                var target = string.Empty;
-                var isDynamic = false;
+            var channelIndex = string.Empty;
+            var channelName = string.Empty;
+            var groupChannel = string.Empty;
+            var groupChannelNot = string.Empty;
+            var isShowChildren = false;
+            var styleName = string.Empty;
+            var menuWidth = string.Empty;
+            var menuHeight = string.Empty;
+            var xPosition = string.Empty;
+            var yPosition = string.Empty;
+            var childMenuDisplay = string.Empty;
+            var childMenuWidth = string.Empty;
+            var childMenuHeight = string.Empty;
+            var target = string.Empty;
 
-                var ie = node.Attributes?.GetEnumerator();
-                if (ie != null)
+            foreach (var name in contextInfo.Attributes.Keys)
+            {
+                var value = contextInfo.Attributes[name];
+
+                if (StringUtils.EqualsIgnoreCase(name, AttributeStyleName))
                 {
-                    while (ie.MoveNext())
-                    {
-                        var attr = (XmlAttribute)ie.Current;
-
-                        if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeStyleName))
-                        {
-                            styleName = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeChannelIndex))
-                        {
-                            channelIndex = StlEntityParser.ReplaceStlEntitiesForAttributeValue(attr.Value, pageInfo, contextInfo);
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeChannelName))
-                        {
-                            channelName = StlEntityParser.ReplaceStlEntitiesForAttributeValue(attr.Value, pageInfo, contextInfo);
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeGroupChannel))
-                        {
-                            groupChannel = StlEntityParser.ReplaceStlEntitiesForAttributeValue(attr.Value, pageInfo, contextInfo);
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeGroupChannelNot))
-                        {
-                            groupChannelNot = StlEntityParser.ReplaceStlEntitiesForAttributeValue(attr.Value, pageInfo, contextInfo);
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeIsShowChildren))
-                        {
-                            isShowChildren = TranslateUtils.ToBool(attr.Value);
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeMenuWidth))
-                        {
-                            menuWidth = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeMenuHeight))
-                        {
-                            menuHeight = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeXPosition))
-                        {
-                            xPosition = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeYPosition))
-                        {
-                            yPosition = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeChildMenuDisplay))
-                        {
-                            childMenuDisplay = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeChildMenuWidth))
-                        {
-                            childMenuWidth = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeChildMenuHeight))
-                        {
-                            childMenuHeight = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeTarget))
-                        {
-                            target = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeIsDynamic))
-                        {
-                            isDynamic = TranslateUtils.ToBool(attr.Value);
-                        }
-                    }
+                    styleName = value;
                 }
-
-                parsedContent = isDynamic ? StlDynamic.ParseDynamicElement(stlElement, pageInfo, contextInfo) : ParseImpl(node, pageInfo, contextInfo, channelIndex, channelName, groupChannel, groupChannelNot, isShowChildren, styleName, menuWidth, menuHeight, xPosition, yPosition, childMenuDisplay, childMenuWidth, childMenuHeight, target);
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeChannelIndex))
+                {
+                    channelIndex = StlEntityParser.ReplaceStlEntitiesForAttributeValue(value, pageInfo, contextInfo);
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeChannelName))
+                {
+                    channelName = StlEntityParser.ReplaceStlEntitiesForAttributeValue(value, pageInfo, contextInfo);
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeGroupChannel))
+                {
+                    groupChannel = StlEntityParser.ReplaceStlEntitiesForAttributeValue(value, pageInfo, contextInfo);
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeGroupChannelNot))
+                {
+                    groupChannelNot = StlEntityParser.ReplaceStlEntitiesForAttributeValue(value, pageInfo, contextInfo);
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeIsShowChildren))
+                {
+                    isShowChildren = TranslateUtils.ToBool(value);
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeMenuWidth))
+                {
+                    menuWidth = value;
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeMenuHeight))
+                {
+                    menuHeight = value;
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeXPosition))
+                {
+                    xPosition = value;
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeYPosition))
+                {
+                    yPosition = value;
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeChildMenuDisplay))
+                {
+                    childMenuDisplay = value;
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeChildMenuWidth))
+                {
+                    childMenuWidth = value;
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeChildMenuHeight))
+                {
+                    childMenuHeight = value;
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeTarget))
+                {
+                    target = value;
+                }
             }
-            catch (Exception ex)
-            {
-                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, ex);
-            }
 
-            return parsedContent;
+            return ParseImpl(pageInfo, contextInfo, channelIndex, channelName, groupChannel, groupChannelNot, isShowChildren, styleName, menuWidth, menuHeight, xPosition, yPosition, childMenuDisplay, childMenuWidth, childMenuHeight, target);
         }
 
-        private static string ParseImpl(XmlNode node, PageInfo pageInfo, ContextInfo contextInfo, string channelIndex, string channelName, string groupChannel, string groupChannelNot, bool isShowChildren, string styleName, string menuWidth, string menuHeight, string xPosition, string yPosition, string childMenuDisplay, string childMenuWidth, string childMenuHeight, string target)
+        private static string ParseImpl(PageInfo pageInfo, ContextInfo contextInfo, string channelIndex, string channelName, string groupChannel, string groupChannelNot, bool isShowChildren, string styleName, string menuWidth, string menuHeight, string xPosition, string yPosition, string childMenuDisplay, string childMenuWidth, string childMenuHeight, string target)
         {
             string parsedContent;
 
-            var channelId = StlCacheManager.NodeId.GetNodeIdByChannelIdOrChannelIndexOrChannelName(pageInfo.PublishmentSystemId, contextInfo.ChannelId, channelIndex, channelName);
+            var channelId = StlDataUtility.GetNodeIdByChannelIdOrChannelIndexOrChannelName(pageInfo.PublishmentSystemId, contextInfo.ChannelId, channelIndex, channelName);
             var nodeInfo = NodeManager.GetNodeInfo(pageInfo.PublishmentSystemId, channelId);
 
             var innerHtml = nodeInfo.NodeName.Trim();
-            if (!string.IsNullOrEmpty(node.InnerXml))
+            if (!string.IsNullOrEmpty(contextInfo.InnerXml))
             {
-                var innerBuilder = new StringBuilder(node.InnerXml);
+                var innerBuilder = new StringBuilder(contextInfo.InnerXml);
                 StlParserManager.ParseInnerContent(innerBuilder, pageInfo, contextInfo);
                 innerHtml = innerBuilder.ToString();
             }
 
             var nodeInfoArrayList = new ArrayList();//需要显示的栏目列表
 
-            var childNodeIdList = DataProvider.NodeDao.GetNodeIdListByScopeType(nodeInfo, EScopeType.Children, groupChannel, groupChannelNot);
+            //var childNodeIdList = DataProvider.NodeDao.GetNodeIdListByScopeType(nodeInfo.NodeId, nodeInfo.ChildrenCount, EScopeType.Children, groupChannel, groupChannelNot);
+            var childNodeIdList = Node.GetNodeIdListByScopeType(nodeInfo.NodeId, nodeInfo.ChildrenCount, EScopeType.Children, groupChannel, groupChannelNot);
             if (childNodeIdList != null && childNodeIdList.Count > 0)
             {
                 foreach (int childNodeId in childNodeIdList)
@@ -189,13 +169,15 @@ namespace SiteServer.CMS.StlParser.StlElement
             }
             else
             {
-                var menuDisplayId = DataProvider.MenuDisplayDao.GetMenuDisplayIdByName(pageInfo.PublishmentSystemId, styleName);
-                var menuDisplayInfo = menuDisplayId == 0 ? DataProvider.MenuDisplayDao.GetDefaultMenuDisplayInfo(pageInfo.PublishmentSystemId) : DataProvider.MenuDisplayDao.GetMenuDisplayInfo(menuDisplayId);
+                //var menuDisplayId = DataProvider.MenuDisplayDao.GetMenuDisplayIdByName(pageInfo.PublishmentSystemId, styleName);
+                var menuDisplayId = MenuDisplay.GetMenuDisplayIdByName(pageInfo.PublishmentSystemId, styleName);
+                //var menuDisplayInfo = menuDisplayId == 0 ? DataProvider.MenuDisplayDao.GetDefaultMenuDisplayInfo(pageInfo.PublishmentSystemId) : DataProvider.MenuDisplayDao.GetMenuDisplayInfo(menuDisplayId);
+                var menuDisplayInfo = menuDisplayId == 0 ? MenuDisplay.GetDefaultMenuDisplayInfo(pageInfo.PublishmentSystemId) : MenuDisplay.GetMenuDisplayInfo(menuDisplayId);
                 var level2MenuDisplayInfo = menuDisplayInfo;
                 if (isShowChildren && !string.IsNullOrEmpty(childMenuDisplay))
                 {
-                    var childMenuDisplayId = DataProvider.MenuDisplayDao.GetMenuDisplayIdByName(pageInfo.PublishmentSystemId, childMenuDisplay);
-                    level2MenuDisplayInfo = childMenuDisplayId == 0 ? DataProvider.MenuDisplayDao.GetDefaultMenuDisplayInfo(pageInfo.PublishmentSystemId) : DataProvider.MenuDisplayDao.GetMenuDisplayInfo(childMenuDisplayId);
+                    var childMenuDisplayId = MenuDisplay.GetMenuDisplayIdByName(pageInfo.PublishmentSystemId, childMenuDisplay);
+                    level2MenuDisplayInfo = childMenuDisplayId == 0 ? MenuDisplay.GetDefaultMenuDisplayInfo(pageInfo.PublishmentSystemId) : MenuDisplay.GetMenuDisplayInfo(childMenuDisplayId);
                 }
 
                 if (string.IsNullOrEmpty(menuWidth)) menuWidth = menuDisplayInfo.MenuWidth.ToString();
@@ -225,7 +207,8 @@ namespace SiteServer.CMS.StlParser.StlElement
                     {
                         var level2NodeInfoArrayList = new ArrayList();
 
-                        var level2NodeIdList = DataProvider.NodeDao.GetNodeIdListByScopeType(theNodeInfo, EScopeType.Children, groupChannel, groupChannelNot);
+                        //var level2NodeIdList = DataProvider.NodeDao.GetNodeIdListByScopeType(theNodeInfo.NodeId, theNodeInfo.ChildrenCount, EScopeType.Children, groupChannel, groupChannelNot);
+                        var level2NodeIdList = Node.GetNodeIdListByScopeType(theNodeInfo.NodeId, theNodeInfo.ChildrenCount, EScopeType.Children, groupChannel, groupChannelNot);
                         if (level2NodeIdList != null && level2NodeIdList.Count > 0)
                         {
                             foreach (int level2NodeId in level2NodeIdList)

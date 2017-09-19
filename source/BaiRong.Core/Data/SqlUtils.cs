@@ -9,6 +9,7 @@ using System.Web.UI;
 using BaiRong.Core.Model;
 using BaiRong.Core.Model.Enumerations;
 using MySql.Data.MySqlClient;
+using SiteServer.Plugin.Models;
 
 namespace BaiRong.Core.Data
 {
@@ -97,33 +98,33 @@ namespace BaiRong.Core.Data
             }
         }
 
-        public static IDbDataParameter GetIDbDataParameter(string parameterName, EDataType dataType, int size)
+        public static IDbDataParameter GetIDbDataParameter(string parameterName, DataType dataType, int size)
         {
             IDbDataParameter parameter = null;
 
             if (WebConfigUtils.DatabaseType == EDatabaseType.MySql)
             {
-                parameter = new MySqlParameter(parameterName, EDataTypeUtils.ToMySqlDbType(dataType), size);
+                parameter = new MySqlParameter(parameterName, DataTypeUtils.ToMySqlDbType(dataType), size);
             }
             else if (WebConfigUtils.DatabaseType == EDatabaseType.SqlServer)
             {
-                parameter = new SqlParameter(parameterName, EDataTypeUtils.ToSqlDbType(dataType), size);
+                parameter = new SqlParameter(parameterName, DataTypeUtils.ToSqlDbType(dataType), size);
             }
 
             return parameter;
         }
 
-        public static IDbDataParameter GetIDbDataParameter(string parameterName, EDataType dataType)
+        public static IDbDataParameter GetIDbDataParameter(string parameterName, DataType dataType)
         {
             IDbDataParameter parameter = null;
 
             if (WebConfigUtils.DatabaseType == EDatabaseType.MySql)
             {
-                parameter = new MySqlParameter(parameterName, EDataTypeUtils.ToMySqlDbType(dataType));
+                parameter = new MySqlParameter(parameterName, DataTypeUtils.ToMySqlDbType(dataType));
             }
             else if (WebConfigUtils.DatabaseType == EDatabaseType.SqlServer)
             {
-                parameter = new SqlParameter(parameterName, EDataTypeUtils.ToSqlDbType(dataType));
+                parameter = new SqlParameter(parameterName, DataTypeUtils.ToSqlDbType(dataType));
             }
 
             return parameter;
@@ -216,18 +217,18 @@ namespace BaiRong.Core.Data
         {
             if (topN > 0)
             {
-                return WebConfigUtils.DatabaseType == EDatabaseType.MySql ? $"SELECT {columns} FROM {tableName} {whereAndOrder} LIMIT {topN}" : $"SELECT TOP {topN} {columns} FROM {tableName} {whereAndOrder}";
+                return WebConfigUtils.DatabaseType == EDatabaseType.MySql ? $"SELECT {columns} FROM {GetTableName(tableName)} {whereAndOrder} LIMIT {topN}" : $"SELECT TOP {topN} {columns} FROM {GetTableName(tableName)} {whereAndOrder}";
             }
-            return $"SELECT {columns} FROM {tableName} {whereAndOrder}";
+            return $"SELECT {columns} FROM {GetTableName(tableName)} {whereAndOrder}";
         }
 
         public static string GetDistinctTopSqlString(string tableName, string columns, string whereAndOrder, int topN)
         {
             if (topN > 0)
             {
-                return WebConfigUtils.DatabaseType == EDatabaseType.MySql ? $"SELECT DISTINCT {columns} FROM {tableName} {whereAndOrder} LIMIT {topN}" : $"SELECT DISTINCT TOP {topN} {columns} FROM {tableName} {whereAndOrder}";
+                return WebConfigUtils.DatabaseType == EDatabaseType.MySql ? $"SELECT DISTINCT {columns} FROM {GetTableName(tableName)} {whereAndOrder} LIMIT {topN}" : $"SELECT DISTINCT TOP {topN} {columns} FROM {GetTableName(tableName)} {whereAndOrder}";
             }
-            return $"SELECT DISTINCT {columns} FROM {tableName} {whereAndOrder}";
+            return $"SELECT DISTINCT {columns} FROM {GetTableName(tableName)} {whereAndOrder}";
         }
 
         public static string GetInTopSqlString(string tableName, string columns, string whereAndOrder, int topN)
@@ -242,58 +243,60 @@ namespace BaiRong.Core.Data
                 $"SELECT {builder} FROM ({GetTopSqlString(tableName, columns, whereAndOrder, topN)}) AS T";
         }
 
-        public static string GetColumnSqlString(EDataType dataType, string attributeName, int length)
+        public static string GetColumnSqlString(DataType dataType, string attributeName, int length)
         {
             return WebConfigUtils.DatabaseType == EDatabaseType.MySql ? GetMySqlColumnSqlString(dataType, attributeName, length) : GetSqlServerColumnSqlString(dataType, attributeName, length);
         }
 
-        public static string GetMySqlColumnSqlString(EDataType dataType, string attributeName, int length)
+        public static string GetMySqlColumnSqlString(DataType dataType, string attributeName, int length)
         {
             string retval;
-            var sqlDbType = EDataTypeUtils.ToSqlDbType(dataType);
-            switch (sqlDbType)
+            switch (dataType)
             {
-                case SqlDbType.Char:
-                    retval = $"{attributeName} VARCHAR({length})";
+                case DataType.Char:
+                    retval = $"`{attributeName}` varchar({length})";
                     break;
-                case SqlDbType.DateTime:
-                    retval = $"{attributeName} DATETIME";
+                case DataType.DateTime:
+                    retval = $"`{attributeName}` datetime";
                     break;
-                case SqlDbType.Decimal:
-                    retval = $"{attributeName} DECIMAL(18, 2)";
+                case DataType.Decimal:
+                    retval = $"`{attributeName}` decimal(18, 2)";
                     break;
-                case SqlDbType.Float:
-                    retval = $"{attributeName} FLOAT(18, 2)";
+                case DataType.Float:
+                    retval = $"`{attributeName}` float(18, 2)";
                     break;
-                case SqlDbType.Int:
-                    retval = $"{attributeName} INT";
+                case DataType.Integer:
+                    retval = $"`{attributeName}` int";
                     break;
-                case SqlDbType.NChar:
-                    retval = $"{attributeName} VARCHAR({length})";
+                case DataType.NChar:
+                    retval = $"`{attributeName}` varchar({length})";
                     break;
-                case SqlDbType.NText:
-                    retval = $"{attributeName} LONGTEXT";
+                case DataType.NText:
+                    retval = $"`{attributeName}` longtext";
                     break;
-                case SqlDbType.NVarChar:
-                    retval = $"{attributeName} VARCHAR({length})";
+                case DataType.NVarChar:
+                    retval = $"`{attributeName}` varchar({length})";
                     break;
-                case SqlDbType.Text:
-                    retval = $"{attributeName} LONGTEXT";
+                case DataType.Text:
+                    retval = $"`{attributeName}` longtext";
                     break;
-                case SqlDbType.VarChar:
-                    retval = $"{attributeName} VARCHAR({length})";
+                case DataType.VarChar:
+                    retval = $"`{attributeName}` varchar({length})";
+                    break;
+                case DataType.Bit:
+                    retval = $"`{attributeName}` tinyint(1)";
                     break;
                 default:
-                    retval = $"{attributeName} VARCHAR({length})";
+                    retval = $"`{attributeName}` varchar({length})";
                     break;
             }
             return retval;
         }
 
-        public static string GetSqlServerColumnSqlString(EDataType dataType, string attributeName, int length)
+        public static string GetSqlServerColumnSqlString(DataType dataType, string attributeName, int length)
         {
             var retval = string.Empty;
-            var sqlDbType = EDataTypeUtils.ToSqlDbType(dataType);
+            var sqlDbType = DataTypeUtils.ToSqlDbType(dataType);
             switch (sqlDbType)
             {
                 case SqlDbType.BigInt:
@@ -369,46 +372,46 @@ namespace BaiRong.Core.Data
 
         public static string GetDefaultDateString()
         {
-            return EDataTypeUtils.GetDefaultString(EDataType.DateTime);
+            return DataTypeUtils.GetDefaultString(DataType.DateTime);
         }
 
-        public static string Parse(EDataType dataType, string valueStr, int length)
+        public static string Parse(DataType dataType, string valueStr, int length)
         {
             string retval;
 
             switch (dataType)
             {
-                case EDataType.Bit:
+                case DataType.Bit:
                     retval = ParseToIntString(valueStr);
                     break;
-                case EDataType.Char:
+                case DataType.Char:
                     retval = ParseToSqlStringWithQuote(valueStr, length);
                     break;
-                case EDataType.DateTime:
+                case DataType.DateTime:
                     retval = ParseToDateTimeString(valueStr);
                     break;
-                case EDataType.Decimal:
+                case DataType.Decimal:
                     retval = ParseToDoubleString(valueStr);
                     break;
-                case EDataType.Float:
+                case DataType.Float:
                     retval = ParseToDoubleString(valueStr);
                     break;
-                case EDataType.Integer:
+                case DataType.Integer:
                     retval = ParseToIntString(valueStr);
                     break;
-                case EDataType.NChar:
+                case DataType.NChar:
                     retval = ParseToSqlStringWithNAndQuote(valueStr, length);
                     break;
-                case EDataType.NText:
+                case DataType.NText:
                     retval = ParseToSqlStringWithNAndQuote(valueStr);
                     break;
-                case EDataType.NVarChar:
+                case DataType.NVarChar:
                     retval = ParseToSqlStringWithNAndQuote(valueStr, length);
                     break;
-                case EDataType.Text:
+                case DataType.Text:
                     retval = ParseToSqlStringWithQuote(valueStr);
                     break;
-                case EDataType.VarChar:
+                case DataType.VarChar:
                     retval = ParseToSqlStringWithQuote(valueStr, length);
                     break;
                 default:
@@ -628,6 +631,11 @@ namespace BaiRong.Core.Data
             return $"DATEPART([DAYOFYEAR], {fieldName})";
         }
 
+        public static string GetTableName(string tableName)
+        {
+            return WebConfigUtils.DatabaseType == EDatabaseType.MySql ? $"`{tableName}`" : tableName;
+        }
+
         public static string GetAddOne(string fieldName)
         {
             return GetAddNum(fieldName, 1);
@@ -649,6 +657,15 @@ namespace BaiRong.Core.Data
                 return $"{fieldName} = IFNULL({fieldName}, 0) - {minusNum}";
             }
             return $"{fieldName} = ISNULL({fieldName}, 0) - {minusNum}";
+        }
+
+        public static string GetOrderByRandom()
+        {
+            if (WebConfigUtils.DatabaseType == EDatabaseType.MySql)
+            {
+                return "ORDER BY RAND()";
+            }
+            return "ORDER BY NEWID() DESC";
         }
 
         public static int GetMaxLengthForNVarChar()
@@ -730,13 +747,13 @@ namespace BaiRong.Core.Data
         private static string Cache_GetTableStructureCacheString(string connectionString, string databaseName, string tableId)
         {
             return
-                $"BaiRong.Core.Data.SqlUtils.GetTableStructureCacheString.{connectionString}.{databaseName}.{tableId}";
+                $"BaiRong.Core.Data.SqlUtils.GetTableStructureCacheString.{TranslateUtils.EncryptStringBySecretKey($"{connectionString}.{databaseName}.{tableId}")}";
         }
 
         public static void Cache_CacheTableColumnInfoList(string connectionString, string databaseName, string tableId, List<TableColumnInfo> tableColumnInfoList)
         {
             var cacheKey = Cache_GetTableStructureCacheString(connectionString, databaseName, tableId);
-            CacheUtils.Max(cacheKey, tableColumnInfoList);
+            CacheUtils.Insert(cacheKey, tableColumnInfoList);
         }
 
         public static List<TableColumnInfo> Cache_GetTableColumnInfoListCache(string connectionString, string databaseName, string tableId)
@@ -753,7 +770,7 @@ namespace BaiRong.Core.Data
         public static void Cache_CacheTableID(string databaseName, string tableName, string tableId)
         {
             var cacheKey = Cache_GetTableIDCacheString(databaseName, tableName);
-            CacheUtils.Max(cacheKey, tableId);
+            CacheUtils.Insert(cacheKey, tableId);
         }
 
         public static string Cache_GetTableIDCache(string databaseName, string tableName)

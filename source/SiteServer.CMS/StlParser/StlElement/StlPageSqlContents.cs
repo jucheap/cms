@@ -17,6 +17,7 @@ namespace SiteServer.CMS.StlParser.StlElement
 
         public const string AttributePageNum = "pageNum";
 
+        private readonly string _stlPageSqlContentsElement;
         private readonly XmlNode _node;
         private readonly ListInfo _listInfo;
         private readonly PageInfo _pageInfo;
@@ -33,22 +34,40 @@ namespace SiteServer.CMS.StlParser.StlElement
             }
         }
 
-        public static string Translate(string stlElement)
-        {
-            return TranslateUtils.EncryptStringBySecretKey(stlElement);
-        }
-
         public StlPageSqlContents(string stlPageSqlContentsElement, PageInfo pageInfo, ContextInfo contextInfo, bool isXmlContent, bool isLoadData)
         {
+            _stlPageSqlContentsElement = stlPageSqlContentsElement;
             _pageInfo = pageInfo;
-            _contextInfo = contextInfo;
             try
             {
-                var xmlDocument = StlParserUtility.GetXmlDocument(stlPageSqlContentsElement, isXmlContent);
+                var xmlDocument = StlParserUtility.GetXmlDocument(_stlPageSqlContentsElement, isXmlContent);
                 _node = xmlDocument.DocumentElement;
                 _node = _node?.FirstChild;
 
-                _listInfo = ListInfo.GetListInfoByXmlNode(_node, pageInfo, _contextInfo, EContextType.SqlContent);
+                var attributes = new Dictionary<string, string>();
+                var ie = _node?.Attributes?.GetEnumerator();
+                if (ie != null)
+                {
+                    while (ie.MoveNext())
+                    {
+                        var attr = (XmlAttribute)ie.Current;
+
+                        var key = attr.Name;
+                        if (!string.IsNullOrEmpty(key))
+                        {
+                            var value = attr.Value;
+                            if (string.IsNullOrEmpty(value))
+                            {
+                                value = string.Empty;
+                            }
+                            attributes[key] = value;
+                        }
+                    }
+                }
+
+                _contextInfo = contextInfo.Clone(stlPageSqlContentsElement, attributes, _node?.InnerXml, _node?.ChildNodes);
+
+                _listInfo = ListInfo.GetListInfoByXmlNode(_pageInfo, _contextInfo, EContextType.SqlContent);
                 if (isLoadData)
                 {
                     _dataSet = StlDataUtility.GetPageSqlContentsDataSet(_listInfo.ConnectionString, _listInfo.QueryString, _listInfo.StartNum, _listInfo.TotalNum, _listInfo.OrderByString);
@@ -63,14 +82,36 @@ namespace SiteServer.CMS.StlParser.StlElement
         public StlPageSqlContents(string stlPageSqlContentsElement, PageInfo pageInfo, ContextInfo contextInfo, bool isXmlContent)
         {
             _pageInfo = pageInfo;
-            _contextInfo = contextInfo;
             try
             {
                 var xmlDocument = StlParserUtility.GetXmlDocument(stlPageSqlContentsElement, isXmlContent);
                 _node = xmlDocument.DocumentElement;
                 _node = _node?.FirstChild;
 
-                _listInfo = ListInfo.GetListInfoByXmlNode(_node, pageInfo, _contextInfo, EContextType.SqlContent);
+                var attributes = new Dictionary<string, string>();
+                var ie = _node?.Attributes?.GetEnumerator();
+                if (ie != null)
+                {
+                    while (ie.MoveNext())
+                    {
+                        var attr = (XmlAttribute)ie.Current;
+
+                        var key = attr.Name;
+                        if (!string.IsNullOrEmpty(key))
+                        {
+                            var value = attr.Value;
+                            if (string.IsNullOrEmpty(value))
+                            {
+                                value = string.Empty;
+                            }
+                            attributes[key] = value;
+                        }
+                    }
+                }
+
+                _contextInfo = contextInfo.Clone(stlPageSqlContentsElement, attributes, _node?.InnerXml, _node?.ChildNodes);
+
+                _listInfo = ListInfo.GetListInfoByXmlNode(_pageInfo, _contextInfo, EContextType.SqlContent);
                 _dataSet = StlDataUtility.GetPageSqlContentsDataSet(_listInfo.ConnectionString, _listInfo.QueryString, _listInfo.StartNum, _listInfo.TotalNum, _listInfo.OrderByString);
             }
             catch
@@ -201,7 +242,7 @@ namespace SiteServer.CMS.StlParser.StlElement
             }
             catch (Exception ex)
             {
-                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, ex);
+                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, _stlPageSqlContentsElement, ex);
             }
 
             //还原翻页为0，使得其他列表能够正确解析ItemIndex

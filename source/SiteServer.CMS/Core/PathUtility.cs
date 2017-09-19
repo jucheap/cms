@@ -9,6 +9,9 @@ using BaiRong.Core.AuxiliaryTable;
 using System.Text.RegularExpressions;
 using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.Model.Enumerations;
+using SiteServer.CMS.StlParser.Cache;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.Core
 {
@@ -333,11 +336,11 @@ namespace SiteServer.CMS.Core
             else
             {
                 var publishmentSystemDir = GetCurrentSiteDir();
-                publishmentSystemId = !string.IsNullOrEmpty(publishmentSystemDir) ? DataProvider.PublishmentSystemDao.GetPublishmentSystemIdByPublishmentSystemDir(publishmentSystemDir) : DataProvider.PublishmentSystemDao.GetPublishmentSystemIdByIsHeadquarters();
+                publishmentSystemId = !string.IsNullOrEmpty(publishmentSystemDir) ? PublishmentSystem.GetPublishmentSystemIdByPublishmentSystemDir(publishmentSystemDir) : PublishmentSystem.GetPublishmentSystemIdByIsHeadquarters();
 
                 if (publishmentSystemId == 0)
                 {
-                    publishmentSystemId = DataProvider.PublishmentSystemDao.GetPublishmentSystemIdByIsHeadquarters();
+                    publishmentSystemId = PublishmentSystem.GetPublishmentSystemIdByIsHeadquarters();
                 }
             }
             return publishmentSystemId;
@@ -360,7 +363,7 @@ namespace SiteServer.CMS.Core
         public static string GetAdminDirectoryPath(string relatedPath)
         {
             relatedPath = PathUtils.RemoveParentPath(relatedPath);
-            return PathUtils.Combine(WebConfigUtils.PhysicalApplicationPath, FileConfigManager.Instance.AdminDirectoryName, relatedPath);
+            return PathUtils.Combine(WebConfigUtils.PhysicalApplicationPath, WebConfigUtils.AdminDirectory, relatedPath);
         }
 
         public static string MapPath(PublishmentSystemInfo publishmentSystemInfo, string virtualPath)
@@ -437,7 +440,7 @@ namespace SiteServer.CMS.Core
             foreach (var originalImageSrc in originalImageSrcs)
             {
                 if (!PageUtils.IsProtocolUrl(originalImageSrc) ||
-                    StringUtils.StartsWithIgnoreCase(originalImageSrc, WebConfigUtils.ApplicationPath) ||
+                    StringUtils.StartsWithIgnoreCase(originalImageSrc, PageUtils.ApplicationPath) ||
                     StringUtils.StartsWithIgnoreCase(originalImageSrc, publishmentSystemInfo.PublishmentSystemUrl))
                     continue;
                 var fileExtName = PageUtils.GetExtensionFromUrl(originalImageSrc);
@@ -466,6 +469,12 @@ namespace SiteServer.CMS.Core
                 }
             }
             return content;
+        }
+
+        public static string GetTemporaryFilesPath(string relatedPath)
+        {
+            relatedPath = PathUtils.RemoveParentPath(relatedPath);
+            return PathUtils.Combine(WebConfigUtils.PhysicalApplicationPath, DirectoryUtils.SiteFiles.DirectoryName, DirectoryUtils.SiteFiles.TemporaryFiles, relatedPath);
         }
 
         public static string GetSiteTemplatesPath(string relatedPath)
@@ -570,7 +579,7 @@ namespace SiteServer.CMS.Core
                 var styleInfoList = TableStyleManager.GetTableStyleInfoList(ETableStyle.Channel, DataProvider.NodeDao.TableName, relatedIdentities);
                 foreach (var styleInfo in styleInfoList)
                 {
-                    if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.Text))
+                    if (InputTypeUtils.Equals(styleInfo.InputType, InputType.Text))
                     {
                         dictionary.Add($@"{{@{StringUtils.LowerFirst(styleInfo.AttributeName)}}}", styleInfo.DisplayName);
                         dictionary.Add($@"{{@lower{styleInfo.AttributeName}}}", styleInfo.DisplayName + "(小写)");
@@ -635,7 +644,7 @@ namespace SiteServer.CMS.Core
                     }
                     else if (StringUtils.EqualsIgnoreCase(element, Sequence))
                     {
-                        value = DataProvider.NodeDao.GetSequence(publishmentSystemInfo.PublishmentSystemId, nodeId).ToString();
+                        value = Node.GetSequence(publishmentSystemInfo.PublishmentSystemId, nodeId).ToString();
                     }
                     else if (StringUtils.EqualsIgnoreCase(element, ParentRule))
                     {
@@ -745,7 +754,7 @@ namespace SiteServer.CMS.Core
                 var styleInfoList = TableStyleManager.GetTableStyleInfoList(tableStyle, tableName, relatedIdentities);
                 foreach (var styleInfo in styleInfoList)
                 {
-                    if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.Text))
+                    if (InputTypeUtils.Equals(styleInfo.InputType, InputType.Text))
                     {
                         dictionary.Add($@"{{@{StringUtils.LowerFirst(styleInfo.AttributeName)}}}", styleInfo.DisplayName);
                         dictionary.Add($@"{{@lower{styleInfo.AttributeName}}}", styleInfo.DisplayName + "(小写)");
@@ -760,19 +769,19 @@ namespace SiteServer.CMS.Core
                 var contentFilePathRule = GetContentFilePathRule(publishmentSystemInfo, nodeId);
                 var tableStyle = NodeManager.GetTableStyle(publishmentSystemInfo, nodeId);
                 var tableName = NodeManager.GetTableName(publishmentSystemInfo, nodeId);
-                var contentInfo = DataProvider.ContentDao.GetContentInfo(tableStyle, tableName, contentId);
+                var contentInfo = Content.GetContentInfo(tableStyle, tableName, contentId);
                 var filePath = ParseContentPath(publishmentSystemInfo, nodeId, contentInfo, contentFilePathRule);
                 return filePath;
             }
 
-            public static string Parse(PublishmentSystemInfo publishmentSystemInfo, int nodeId, ContentInfo contentInfo)
+            public static string Parse(PublishmentSystemInfo publishmentSystemInfo, int nodeId, IContentInfo contentInfo)
             {
                 var contentFilePathRule = GetContentFilePathRule(publishmentSystemInfo, nodeId);
                 var filePath = ParseContentPath(publishmentSystemInfo, nodeId, contentInfo, contentFilePathRule);
                 return filePath;
             }
 
-            private static string ParseContentPath(PublishmentSystemInfo publishmentSystemInfo, int nodeId, ContentInfo contentInfo, string contentFilePathRule)
+            private static string ParseContentPath(PublishmentSystemInfo publishmentSystemInfo, int nodeId, IContentInfo contentInfo, string contentFilePathRule)
             {
                 var filePath = contentFilePathRule.Trim();
                 var regex = "(?<element>{@[^}]+})";
@@ -794,7 +803,7 @@ namespace SiteServer.CMS.Core
                     else if (StringUtils.EqualsIgnoreCase(element, Sequence))
                     {
                         var tableName = NodeManager.GetTableName(publishmentSystemInfo, nodeId);
-                        value = BaiRongDataProvider.ContentDao.GetSequence(tableName, nodeId, contentId).ToString();
+                        value = Content.GetSequence(tableName, nodeId, contentId).ToString();
                     }
                     else if (StringUtils.EqualsIgnoreCase(element, ParentRule))//继承父级设置 20151113 sessionliang
                     {
@@ -843,7 +852,7 @@ namespace SiteServer.CMS.Core
                         if (addDate == DateTime.MinValue)
                         {
                             var tableName = NodeManager.GetTableName(publishmentSystemInfo, nodeId);
-                            addDate = BaiRongDataProvider.ContentDao.GetAddDate(tableName, contentId);
+                            addDate = Content.GetAddDate(tableName, contentId);
                         }
 
                         if (StringUtils.EqualsIgnoreCase(element, Year))
@@ -884,7 +893,7 @@ namespace SiteServer.CMS.Core
                             attributeName = attributeName.Substring(5);
                         }
 
-                        value = contentInfo.GetExtendedAttribute(attributeName);
+                        value = contentInfo.Attributes.GetExtendedAttribute(attributeName);
                         if (isLower)
                         {
                             value = value.ToLower();
@@ -1023,7 +1032,7 @@ namespace SiteServer.CMS.Core
         {
             var tableStyle = NodeManager.GetTableStyle(publishmentSystemInfo, nodeId);
             var tableName = NodeManager.GetTableName(publishmentSystemInfo, nodeId);
-            var contentInfo = DataProvider.ContentDao.GetContentInfo(tableStyle, tableName, contentId);
+            var contentInfo = Content.GetContentInfo(tableStyle, tableName, contentId);
             return GetContentPageFilePath(publishmentSystemInfo, nodeId, contentInfo, currentPageIndex);
         }
 

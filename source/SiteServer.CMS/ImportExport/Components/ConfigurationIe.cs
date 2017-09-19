@@ -32,10 +32,6 @@ namespace SiteServer.CMS.ImportExport.Components
             AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.PublishmentSystemId, psInfo.PublishmentSystemId.ToString());
 			AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.PublishmentSystemName, psInfo.PublishmentSystemName);
 			AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.AuxiliaryTableForContent, psInfo.AuxiliaryTableForContent);
-            AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.AuxiliaryTableForGovPublic, psInfo.AuxiliaryTableForGovPublic);
-            AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.AuxiliaryTableForGovInteract, psInfo.AuxiliaryTableForGovInteract);
-            AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.AuxiliaryTableForJob, psInfo.AuxiliaryTableForJob);
-            AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.AuxiliaryTableForVote, psInfo.AuxiliaryTableForVote);
             AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.IsCheckContentUseLevel, psInfo.IsCheckContentUseLevel.ToString());
 			AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.CheckContentLevel, psInfo.CheckContentLevel.ToString());
 			AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.PublishmentSystemDir, psInfo.PublishmentSystemDir);
@@ -45,28 +41,28 @@ namespace SiteServer.CMS.ImportExport.Components
             AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.Taxis, psInfo.Taxis.ToString());
             AtomUtility.AddDcElement(feed.AdditionalElements, PublishmentSystemAttribute.SettingsXml, psInfo.Additional.ToString());
 
-			var indexTemplateId = TemplateManager.GetDefaultTemplateID(psInfo.PublishmentSystemId, ETemplateType.IndexPageTemplate);
+			var indexTemplateId = TemplateManager.GetDefaultTemplateId(psInfo.PublishmentSystemId, ETemplateType.IndexPageTemplate);
 			if (indexTemplateId != 0)
 			{
                 var indexTemplateName = TemplateManager.GetTemplateName(_publishmentSystemId, indexTemplateId);
 				AtomUtility.AddDcElement(feed.AdditionalElements, DefaultIndexTemplateName, indexTemplateName);
 			}
 
-            var channelTemplateId = TemplateManager.GetDefaultTemplateID(psInfo.PublishmentSystemId, ETemplateType.ChannelTemplate);
+            var channelTemplateId = TemplateManager.GetDefaultTemplateId(psInfo.PublishmentSystemId, ETemplateType.ChannelTemplate);
 			if (channelTemplateId != 0)
 			{
                 var channelTemplateName = TemplateManager.GetTemplateName(_publishmentSystemId, channelTemplateId);
 				AtomUtility.AddDcElement(feed.AdditionalElements, DefaultChannelTemplateName, channelTemplateName);
 			}
 
-            var contentTemplateId = TemplateManager.GetDefaultTemplateID(psInfo.PublishmentSystemId, ETemplateType.ContentTemplate);
+            var contentTemplateId = TemplateManager.GetDefaultTemplateId(psInfo.PublishmentSystemId, ETemplateType.ContentTemplate);
 			if (contentTemplateId != 0)
 			{
                 var contentTemplateName = TemplateManager.GetTemplateName(_publishmentSystemId, contentTemplateId);
 				AtomUtility.AddDcElement(feed.AdditionalElements, DefaultContentTemplateName, contentTemplateName);
 			}
 
-            var fileTemplateId = TemplateManager.GetDefaultTemplateID(psInfo.PublishmentSystemId, ETemplateType.FileTemplate);
+            var fileTemplateId = TemplateManager.GetDefaultTemplateId(psInfo.PublishmentSystemId, ETemplateType.FileTemplate);
 			if (fileTemplateId != 0)
 			{
                 var fileTemplateName = TemplateManager.GetTemplateName(psInfo.PublishmentSystemId, fileTemplateId);
@@ -160,7 +156,7 @@ namespace SiteServer.CMS.ImportExport.Components
 			var indexTemplateName = AtomUtility.GetDcElementContent(feed.AdditionalElements, DefaultIndexTemplateName);
 			if (!string.IsNullOrEmpty(indexTemplateName))
 			{
-				var indexTemplateId = TemplateManager.GetTemplateIDByTemplateName(publishmentSystemInfo.PublishmentSystemId, ETemplateType.IndexPageTemplate, indexTemplateName);
+				var indexTemplateId = TemplateManager.GetTemplateIdByTemplateName(publishmentSystemInfo.PublishmentSystemId, ETemplateType.IndexPageTemplate, indexTemplateName);
 				if (indexTemplateId != 0)
 				{
 					DataProvider.TemplateDao.SetDefault(publishmentSystemInfo.PublishmentSystemId, indexTemplateId);
@@ -170,7 +166,7 @@ namespace SiteServer.CMS.ImportExport.Components
 			var channelTemplateName = AtomUtility.GetDcElementContent(feed.AdditionalElements, DefaultChannelTemplateName);
 			if (!string.IsNullOrEmpty(channelTemplateName))
 			{
-                var channelTemplateId = TemplateManager.GetTemplateIDByTemplateName(publishmentSystemInfo.PublishmentSystemId, ETemplateType.ChannelTemplate, channelTemplateName);
+                var channelTemplateId = TemplateManager.GetTemplateIdByTemplateName(publishmentSystemInfo.PublishmentSystemId, ETemplateType.ChannelTemplate, channelTemplateName);
 				if (channelTemplateId != 0)
 				{
 					DataProvider.TemplateDao.SetDefault(publishmentSystemInfo.PublishmentSystemId, channelTemplateId);
@@ -180,7 +176,7 @@ namespace SiteServer.CMS.ImportExport.Components
 			var contentTemplateName = AtomUtility.GetDcElementContent(feed.AdditionalElements, DefaultContentTemplateName);
 			if (!string.IsNullOrEmpty(contentTemplateName))
 			{
-                var contentTemplateId = TemplateManager.GetTemplateIDByTemplateName(publishmentSystemInfo.PublishmentSystemId, ETemplateType.ContentTemplate, contentTemplateName);
+                var contentTemplateId = TemplateManager.GetTemplateIdByTemplateName(publishmentSystemInfo.PublishmentSystemId, ETemplateType.ContentTemplate, contentTemplateName);
 				if (contentTemplateId != 0)
 				{
 					DataProvider.TemplateDao.SetDefault(publishmentSystemInfo.PublishmentSystemId, contentTemplateId);
@@ -190,7 +186,7 @@ namespace SiteServer.CMS.ImportExport.Components
 			var fileTemplateName = AtomUtility.GetDcElementContent(feed.AdditionalElements, DefaultFileTemplateName);
 			if (!string.IsNullOrEmpty(fileTemplateName))
 			{
-                var fileTemplateId = TemplateManager.GetTemplateIDByTemplateName(publishmentSystemInfo.PublishmentSystemId, ETemplateType.FileTemplate, fileTemplateName);
+                var fileTemplateId = TemplateManager.GetTemplateIdByTemplateName(publishmentSystemInfo.PublishmentSystemId, ETemplateType.FileTemplate, fileTemplateName);
 				if (fileTemplateId != 0)
 				{
 					DataProvider.TemplateDao.SetDefault(publishmentSystemInfo.PublishmentSystemId, fileTemplateId);

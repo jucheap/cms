@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using BaiRong.Core;
 using SiteServer.CMS.StlParser.Model;
-using SiteServer.CMS.StlParser.Parser;
+using SiteServer.CMS.StlParser.Parsers;
 using SiteServer.CMS.StlParser.Utility;
 
 namespace SiteServer.CMS.StlParser.StlElement
@@ -20,11 +20,6 @@ namespace SiteServer.CMS.StlParser.StlElement
         {
             {AttributeContext, "所处上下文"}
         };
-
-        public static string Translate(string stlElement)
-        {
-            return TranslateUtils.EncryptStringBySecretKey(stlElement);
-        }
 
         //对“翻页项容器”（stl:pageItems）元素进行解析，此元素在生成页面时单独解析，不包含在ParseStlElement方法中。
         public static string Parse(string stlElement, PageInfo pageInfo, int nodeId, int contentId, int currentPageIndex, int pageCount, int totalNum, EContextType contextType)
@@ -74,7 +69,7 @@ namespace SiteServer.CMS.StlParser.StlElement
             }
             catch (Exception ex)
             {
-                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, ex);
+                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, stlElement, ex);
             }
 
             return parsedContent;
@@ -112,7 +107,7 @@ namespace SiteServer.CMS.StlParser.StlElement
             }
             catch (Exception ex)
             {
-                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, ex);
+                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, stlElement, ex);
             }
 
             return parsedContent;
@@ -147,7 +142,7 @@ namespace SiteServer.CMS.StlParser.StlElement
             }
             catch (Exception ex)
             {
-                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, ex);
+                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, stlElement, ex);
             }
 
             return parsedContent;

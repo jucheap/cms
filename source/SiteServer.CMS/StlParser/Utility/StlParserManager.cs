@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using BaiRong.Core;
+using SiteServer.CMS.Core;
 using SiteServer.CMS.Model;
 using SiteServer.CMS.StlParser.Model;
-using SiteServer.CMS.StlParser.Parser;
+using SiteServer.CMS.StlParser.Parsers;
 using SiteServer.CMS.StlParser.StlElement;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.StlParser.Utility
 {
@@ -41,6 +43,18 @@ namespace SiteServer.CMS.StlParser.Utility
             contextInfo.IsInnerElement = isInnerElement;
         }
 
+        public static string ParseTemplateContent(string template, int publishmentSystemId, int channelId, int contentId)
+        {
+            if (string.IsNullOrEmpty(template)) return string.Empty;
+
+            var builder = new StringBuilder(template);
+            var publishmentSystemInfo = PublishmentSystemManager.GetPublishmentSystemInfo(publishmentSystemId);
+            var pageInfo = new PageInfo(channelId, contentId, publishmentSystemInfo, null, null);
+            var contextInfo = new ContextInfo(pageInfo);
+            ParseTemplateContent(builder, pageInfo, contextInfo);
+            return builder.ToString();
+        }
+
         public static void ParseInnerContent(StringBuilder builder, PageInfo pageInfo, ContextInfo contextInfo)
         {
             var isInnerElement = contextInfo.IsInnerElement;
@@ -59,6 +73,26 @@ namespace SiteServer.CMS.StlParser.Utility
             return builder.ToString();
         }
 
+        public static string ParseInnerContent(string template, int publishmentSystemId, int channelId, int contentId)
+        {
+            if (string.IsNullOrEmpty(template)) return string.Empty;
+
+            var builder = new StringBuilder(template);
+            var publishmentSystemInfo = PublishmentSystemManager.GetPublishmentSystemInfo(publishmentSystemId);
+            var pageInfo = new PageInfo(channelId, contentId, publishmentSystemInfo, null, null);
+            var contextInfo = new ContextInfo(pageInfo);
+            ParseInnerContent(builder, pageInfo, contextInfo);
+            return builder.ToString();
+        }
+
+        public static void ParseInnerContent(StringBuilder builder, int publishmentSystemId, int channelId, int contentId)
+        {
+            var publishmentSystemInfo = PublishmentSystemManager.GetPublishmentSystemInfo(publishmentSystemId);
+            var pageInfo = new PageInfo(channelId, contentId, publishmentSystemInfo, null, null);
+            var contextInfo = new ContextInfo(pageInfo);
+            ParseInnerContent(builder, pageInfo, contextInfo);
+        }
+
         public static void ReplacePageElementsInContentPage(StringBuilder parsedBuilder, PageInfo pageInfo, List<string> labelList, int nodeId, int contentId, int currentPageIndex, int pageCount)
         {
             //替换分页模板
@@ -68,7 +102,7 @@ namespace SiteServer.CMS.StlParser.Utility
                 {
                     var stlElement = labelString;
                     var pageHtml = StlPageElementParser.ParseStlPageInContentPage(stlElement, pageInfo, nodeId, contentId, currentPageIndex, pageCount);
-                    parsedBuilder.Replace(StlPageItems.Translate(stlElement), pageHtml);
+                    parsedBuilder.Replace(TranslateUtils.EncryptStringBySecretKey(stlElement), pageHtml);
                 }
                 else if (StlParserUtility.IsSpecifiedStlElement(labelString, StlPageItem.ElementName))
                 {
@@ -88,7 +122,7 @@ namespace SiteServer.CMS.StlParser.Utility
                 {
                     var stlElement = labelString;
                     var pageHtml = StlPageElementParser.ParseStlPageInChannelPage(stlElement, pageInfo, nodeId, currentPageIndex, pageCount, totalNum);
-                    parsedBuilder.Replace(StlPageItems.Translate(stlElement), pageHtml);
+                    parsedBuilder.Replace(TranslateUtils.EncryptStringBySecretKey(stlElement), pageHtml);
                 }
                 else if (StlParserUtility.IsSpecifiedStlElement(labelString, StlPageItem.ElementName))
                 {
@@ -144,7 +178,7 @@ namespace SiteServer.CMS.StlParser.Utility
             var builder = new StringBuilder();
 
             builder.Append(
-                $@"<script>var $pageInfo = {{publishmentSystemID : {pageInfo.PublishmentSystemId}, channelID : {pageInfo.PageNodeId}, contentID : {pageInfo.PageContentId}, siteUrl : ""{pageInfo.PublishmentSystemInfo.PublishmentSystemUrl.TrimEnd('/')}"", homeUrl : ""{pageInfo.HomeUrl.TrimEnd('/')}"", currentUrl : ""{StlUtility.GetStlCurrentUrl(pageInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo)}"", rootUrl : ""{PageUtils.GetRootUrl(string.Empty).TrimEnd('/')}"", apiUrl : ""{pageInfo.ApiUrl.TrimEnd('/')}""}};</script>");
+                $@"<script>var $pageInfo = {{publishmentSystemID : {pageInfo.PublishmentSystemId}, channelID : {pageInfo.PageNodeId}, contentID : {pageInfo.PageContentId}, siteUrl : ""{pageInfo.PublishmentSystemInfo.PublishmentSystemUrl.TrimEnd('/')}"", homeUrl : ""{pageInfo.HomeUrl.TrimEnd('/')}"", currentUrl : ""{StlUtility.GetStlCurrentUrl(pageInfo.PublishmentSystemInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo, pageInfo.TemplateInfo.TemplateType, pageInfo.TemplateInfo.TemplateId)}"", rootUrl : ""{PageUtils.GetRootUrl(string.Empty).TrimEnd('/')}"", apiUrl : ""{pageInfo.ApiUrl.TrimEnd('/')}""}};</script>");
 
             foreach (string key in pageInfo.PageHeadScriptKeys)
             {

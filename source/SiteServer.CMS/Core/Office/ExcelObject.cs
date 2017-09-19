@@ -1,13 +1,12 @@
 ﻿using System.Collections;
-using System.Data.OleDb;
 using BaiRong.Core;
 using BaiRong.Core.AuxiliaryTable;
 using BaiRong.Core.IO;
 using SiteServer.CMS.Model;
 using System;
-using System.Data;
 using System.Collections.Specialized;
 using System.Collections.Generic;
+using BaiRong.Core.Model;
 using BaiRong.Core.Model.Attributes;
 using BaiRong.Core.Model.Enumerations;
 
@@ -55,7 +54,7 @@ namespace SiteServer.CMS.Core.Office
 
                     foreach (var tableStyleInfo in tableStyleInfoList)
                     {
-                        var value = contentInfo.Attributes.Get(tableStyleInfo.AttributeName);
+                        var value = contentInfo.NameValues.Get(tableStyleInfo.AttributeName);
 
                         if (!string.IsNullOrEmpty(value))
                         {
@@ -91,14 +90,12 @@ namespace SiteServer.CMS.Core.Office
 
             var relatedidentityes =
                 RelatedIdentities.GetChannelRelatedIdentities(publishmentSystemInfo.PublishmentSystemId, nodeInfo.NodeId);
-            var modelInfo = ContentModelManager.GetContentModelInfo(publishmentSystemInfo, nodeInfo.ContentModelId);
             var tableStyle = NodeManager.GetTableStyle(publishmentSystemInfo, nodeInfo);
-            var tableStyleInfoList = TableStyleManager.GetTableStyleInfoList(tableStyle, modelInfo.TableName,
+            var tableName = NodeManager.GetTableName(publishmentSystemInfo, nodeInfo);
+            var tableStyleInfoList = TableStyleManager.GetTableStyleInfoList(tableStyle, tableName,
                 relatedidentityes);
             tableStyleInfoList = ContentUtility.GetAllTableStyleInfoList(publishmentSystemInfo, tableStyle,
                 tableStyleInfoList);
-
-            var tableName = NodeManager.GetTableName(publishmentSystemInfo, nodeInfo);
 
             foreach (var tableStyleInfo in tableStyleInfoList)
             {
@@ -559,13 +556,11 @@ namespace SiteServer.CMS.Core.Office
                 var relatedidentityes =
                     RelatedIdentities.GetChannelRelatedIdentities(
                         publishmentSystemInfo.PublishmentSystemId, nodeInfo.NodeId);
-                var modelInfo = ContentModelManager.GetContentModelInfo(publishmentSystemInfo,
-                    nodeInfo.ContentModelId);
-                var tableStyle = EAuxiliaryTableTypeUtils.GetTableStyle(modelInfo.TableType);
+                var tableStyle = NodeManager.GetTableStyle(publishmentSystemInfo, nodeInfo);
+                var tableName = NodeManager.GetTableName(publishmentSystemInfo, nodeInfo);
                 // ArrayList tableStyleInfoArrayList = TableStyleManager.GetTableStyleInfoArrayList(ETableStyle.BackgroundContent, publishmentSystemInfo.AuxiliaryTableForContent, relatedidentityes);
 
-                var tableStyleInfoList = TableStyleManager.GetTableStyleInfoList(tableStyle,
-                    modelInfo.TableName, relatedidentityes);
+                var tableStyleInfoList = TableStyleManager.GetTableStyleInfoList(tableStyle, tableName, relatedidentityes);
                 tableStyleInfoList = ContentUtility.GetAllTableStyleInfoList(publishmentSystemInfo,
                     tableStyle, tableStyleInfoList);
                 var nameValueCollection = new NameValueCollection();

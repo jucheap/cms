@@ -6,7 +6,6 @@ using System.Web.UI.WebControls;
 using BaiRong.Core;
 using BaiRong.Core.AuxiliaryTable;
 using BaiRong.Core.Model;
-using BaiRong.Core.Model.Attributes;
 using BaiRong.Core.Model.Enumerations;
 using SiteServer.BackgroundPages.Controls;
 using SiteServer.BackgroundPages.Core;
@@ -15,6 +14,8 @@ using SiteServer.CMS.Core.Permissions;
 using SiteServer.CMS.Core.Security;
 using SiteServer.CMS.Core.User;
 using SiteServer.CMS.Model;
+using SiteServer.CMS.Plugin;
+using SiteServer.Plugin.Features;
 
 namespace SiteServer.BackgroundPages.Cms
 {
@@ -37,6 +38,7 @@ namespace SiteServer.BackgroundPages.Cms
         private StringCollection _attributesOfDisplay;
         private List<int> _relatedIdentities;
         private List<TableStyleInfo> _tableStyleInfoList;
+        private Dictionary<string, IChannel> _pluginChannels;
         private readonly Hashtable _displayNameHashtable = new Hashtable();
 
         public void Page_Load(object sender, EventArgs e)
@@ -52,6 +54,7 @@ namespace SiteServer.BackgroundPages.Cms
             _tableName = NodeManager.GetTableName(PublishmentSystemInfo, _nodeInfo);
             _relatedIdentities = RelatedIdentities.GetChannelRelatedIdentities(PublishmentSystemId, nodeId);
             _tableStyleInfoList = TableStyleManager.GetTableStyleInfoList(_tableStyle, _tableName, _relatedIdentities);
+            _pluginChannels = PluginCache.GetChannelFeatures(_nodeInfo);
             _attributesOfDisplay = TranslateUtils.StringCollectionToStringCollection(NodeManager.GetContentAttributesOfDisplay(PublishmentSystemId, nodeId));
 
             if (_nodeInfo.Additional.IsPreviewContents)
@@ -105,13 +108,13 @@ namespace SiteServer.BackgroundPages.Cms
             SpContents.IsQueryTotalCount = false;
             SpContents.TotalCount = _nodeInfo.ContentNum;
 
-            RptChannels.DataSource = DataProvider.NodeDao.GetNodeIdListByScopeType(_nodeInfo, EScopeType.Children, string.Empty, string.Empty);
+            RptChannels.DataSource = DataProvider.NodeDao.GetNodeIdListByScopeType(_nodeInfo.NodeId, _nodeInfo.ChildrenCount, EScopeType.Children, string.Empty, string.Empty, string.Empty);
             RptChannels.ItemDataBound += rptChannels_ItemDataBound;
 
             if (!IsPostBack)
             {
                 var nodeName = NodeManager.GetNodeNameNavigation(PublishmentSystemId, nodeId).Replace(">", "/");
-                BreadCrumbWithItemTitle(AppManager.Cms.LeftMenu.IdContent, "栏目及内容", nodeName, string.Empty);
+                BreadCrumbWithTitle(AppManager.Cms.LeftMenu.IdContent, "栏目及内容", nodeName, string.Empty);
                 var url = PageUtils.GetCmsUrl(nameof(PageContentChannel), null);
                 LtlContentButtons.Text = WebUtils.GetContentCommands(Body.AdministratorName, PublishmentSystemInfo, _nodeInfo, PageUrl, url, false);
                 LtlChannelButtons.Text = WebUtils.GetChannelCommands(Body.AdministratorName, PublishmentSystemInfo, _nodeInfo, PageUrl, url);
@@ -149,8 +152,8 @@ $(document).ready(function() {
 ";
                 }
 
-                LtlColumnHeadRows.Text = ContentUtility.GetColumnHeadRowsHtml(_tableStyleInfoList, _attributesOfDisplay, _tableStyle, PublishmentSystemInfo);
-                LtlCommandHeadRows.Text = ContentUtility.GetCommandHeadRowsHtml(Body.AdministratorName, _tableStyle, PublishmentSystemInfo, _nodeInfo);
+                LtlColumnHeadRows.Text = TextUtility.GetColumnHeadRowsHtml(_tableStyleInfoList, _attributesOfDisplay, _tableStyle, PublishmentSystemInfo);
+                LtlCommandHeadRows.Text = TextUtility.GetCommandHeadRowsHtml(Body.AdministratorName, PublishmentSystemInfo, _nodeInfo, _pluginChannels);
             }
         }
 
@@ -173,7 +176,7 @@ $(document).ready(function() {
                     $@"<a href=""javascript:;"" title=""设置内容状态"" onclick=""{showPopWinString}"">{LevelManager.GetCheckState(
                         PublishmentSystemInfo, contentInfo.IsChecked, contentInfo.CheckedLevel)}</a>";
 
-                if (HasChannelPermissions(contentInfo.NodeId, AppManager.Cms.Permission.Channel.ContentEdit) || Body.AdministratorName == contentInfo.AddUserName)
+                if (HasChannelPermissions(contentInfo.NodeId, AppManager.Permissions.Channel.ContentEdit) || Body.AdministratorName == contentInfo.AddUserName)
                 {
                     ltlItemEditUrl.Text =
                         $"<a href=\"{WebUtils.GetContentAddEditUrl(PublishmentSystemId, _nodeInfo, contentInfo.Id, PageUrl)}\">编辑</a>";
@@ -181,7 +184,7 @@ $(document).ready(function() {
 
                 ltlColumnItemRows.Text = TextUtility.GetColumnItemRowsHtml(_tableStyleInfoList, _attributesOfDisplay, _displayNameHashtable, _tableStyle, PublishmentSystemInfo, contentInfo);
 
-                ltlCommandItemRows.Text = TextUtility.GetCommandItemRowsHtml(_tableStyle, PublishmentSystemInfo, _nodeInfo, contentInfo, PageUrl, Body.AdministratorName);
+                ltlCommandItemRows.Text = TextUtility.GetCommandItemRowsHtml(PublishmentSystemInfo, _pluginChannels, contentInfo, PageUrl, Body.AdministratorName);
             }
         }
 
@@ -202,7 +205,7 @@ $(document).ready(function() {
             var ltlDownLink = (Literal)e.Item.FindControl("ltlDownLink");
             var ltlCheckBoxHtml = (Literal)e.Item.FindControl("ltlCheckBoxHtml");
 
-            if (enabled && HasChannelPermissions(nodeId, AppManager.Cms.Permission.Channel.ChannelEdit))
+            if (enabled && HasChannelPermissions(nodeId, AppManager.Permissions.Channel.ChannelEdit))
             {
                 ltlEditLink.Text = $"<a href=\"{PageChannelEdit.GetRedirectUrl(PublishmentSystemId, nodeId, PageUrl)}\">编辑</a>";
 
@@ -219,9 +222,8 @@ $(document).ready(function() {
             });
 
             ltlNodeTitle.Text =
-                $@"<a href=""{PageActions.GetRedirectUrl(PublishmentSystemId, nodeId)}"" title=""浏览页面"" target=""_blank""><img src=""{SiteServerAssets.GetIconUrl("tree/folder.gif")}"" border=""0"" align=""absMiddle"" /></a>&nbsp;<A title=""进入栏目"" href=""{url}"">{nodeInfo
-                    .NodeName}</A>&nbsp;{NodeManager.GetNodeTreeLastImageHtml(PublishmentSystemInfo, nodeInfo)}&nbsp;<SPAN class=""gray"" style=""FONT-SIZE: 8pt; FONT-FAMILY: arial"">({nodeInfo
-                    .ContentNum})</SPAN>";
+                $@"<a href=""{PageRedirect.GetRedirectUrlToChannel(PublishmentSystemId, nodeId)}"" title=""浏览页面"" target=""_blank""><img src=""{SiteServerAssets.GetIconUrl("tree/folder.gif")}"" border=""0"" align=""absMiddle"" /></a>&nbsp;<a title=""进入栏目"" href=""{url}"">{nodeInfo
+                    .NodeName}</a>&nbsp;{NodeManager.GetNodeTreeLastImageHtml(PublishmentSystemInfo, nodeInfo)}&nbsp;<span class=""gray"" style=""FONT-SIZE: 8pt; FONT-FAMILY: arial"">({nodeInfo.ContentNum})</span>";
 
             ltlNodeIndexName.Text = nodeInfo.NodeIndexName;
 

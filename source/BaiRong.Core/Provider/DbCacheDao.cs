@@ -1,7 +1,8 @@
 using System;
 using System.Data;
 using BaiRong.Core.Data;
-using BaiRong.Core.Model.Enumerations;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace BaiRong.Core.Provider
 {
@@ -36,16 +37,16 @@ namespace BaiRong.Core.Provider
                     {
                         var removeParams = new IDataParameter[]
                         {
-                            GetParameter(ParmCacheKey, EDataType.VarChar, 200, cacheKey)
+                            GetParameter(ParmCacheKey, DataType.VarChar, 200, cacheKey)
                         };
 
                         ExecuteNonQuery(trans, SqlDelete, removeParams);
 
                         var insertParms = new IDataParameter[]
                         {
-                            GetParameter(ParmCacheKey, EDataType.VarChar, 200, cacheKey),
-                            GetParameter(ParmCacheValue, EDataType.NVarChar, 500, cacheValue),
-                            GetParameter(ParmAddDate, EDataType.DateTime, DateTime.Now)
+                            GetParameter(ParmCacheKey, DataType.VarChar, 200, cacheKey),
+                            GetParameter(ParmCacheValue, DataType.NVarChar, 500, cacheValue),
+                            GetParameter(ParmAddDate, DataType.DateTime, DateTime.Now)
                         };
 
                         ExecuteNonQuery(trans, SqlInsert, insertParms);
@@ -72,7 +73,7 @@ namespace BaiRong.Core.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmCacheKey, EDataType.VarChar, 200, cacheKey)
+				GetParameter(ParmCacheKey, DataType.VarChar, 200, cacheKey)
 			};
 
             using (var rdr = ExecuteReader(SqlSelectValue, parms))
@@ -92,7 +93,7 @@ namespace BaiRong.Core.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmCacheKey, EDataType.VarChar, 200, cacheKey)
+				GetParameter(ParmCacheKey, DataType.VarChar, 200, cacheKey)
 			};
 
             using (var rdr = ExecuteReader(SqlSelectValue, parms))
@@ -119,7 +120,7 @@ namespace BaiRong.Core.Provider
                     {
                         var parms = new IDataParameter[]
                         {
-                            GetParameter(ParmCacheKey, EDataType.VarChar, 200, cacheKey)
+                            GetParameter(ParmCacheKey, DataType.VarChar, 200, cacheKey)
                         };
 
                         using (var rdr = ExecuteReader(trans, SqlSelectValue, parms))
@@ -133,7 +134,7 @@ namespace BaiRong.Core.Provider
 
                         var removeParams = new IDataParameter[]
                         {
-                            GetParameter(ParmCacheKey, EDataType.VarChar, 200, cacheKey)
+                            GetParameter(ParmCacheKey, DataType.VarChar, 200, cacheKey)
                         };
 
                         ExecuteNonQuery(trans, SqlDelete, removeParams);

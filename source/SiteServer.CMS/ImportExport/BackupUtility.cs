@@ -12,6 +12,8 @@ namespace SiteServer.CMS.ImportExport
         public const string CacheTotalCount = "_TotalCount";
         public const string CacheCurrentCount = "_CurrentCount";
         public const string CacheMessage = "_Message";
+        public const string UploadFolderName = "upload"; // 用于栏目及内容备份时记录图片、视频、文件上传所在文件夹目录
+        public const string UploadFileName = "upload.xml"; // 用于栏目及内容备份时记录图片、视频、文件上传所在文件名
 
         public static void BackupTemplates(int publishmentSystemId, string filePath)
         {
@@ -24,7 +26,7 @@ namespace SiteServer.CMS.ImportExport
             var exportObject = new ExportObject(publishmentSystemId);
 
             var nodeIdList = DataProvider.NodeDao.GetNodeIdListByParentId(publishmentSystemId, publishmentSystemId);
-            exportObject.ExportChannels(nodeIdList, filePath);
+            exportObject.ExportChannels(nodeIdList, filePath);  
         }
 
         public static void BackupFiles(int publishmentSystemId, string filePath)
@@ -67,8 +69,6 @@ namespace SiteServer.CMS.ImportExport
             exportObject.ExportInput(inputDirectoryPath);
             var configurationFilePath = PathUtils.Combine(metadataPath, DirectoryUtils.SiteTemplates.FileConfiguration);
             exportObject.ExportConfiguration(configurationFilePath);
-            var contentModelFilePath = PathUtils.Combine(metadataPath, DirectoryUtils.SiteTemplates.FileContentModel);
-            exportObject.ExportContentModel(contentModelFilePath);
             exportObject.ExportMetadata(publishmentSystemInfo.PublishmentSystemName, publishmentSystemInfo.PublishmentSystemUrl, string.Empty, string.Empty, metadataPath);
 
             ZipUtils.PackFiles(filePath, siteTemplatePath);
@@ -153,10 +153,6 @@ namespace SiteServer.CMS.ImportExport
             var configurationFilePath = PathUtils.Combine(siteTemplateMetadataPath, DirectoryUtils.SiteTemplates.FileConfiguration);
             importObject.ImportConfiguration(configurationFilePath);
 
-            //导入内容模型
-            var contentModelFilePath = PathUtils.Combine(siteTemplateMetadataPath, DirectoryUtils.SiteTemplates.FileContentModel);
-            importObject.ImportContentModel(contentModelFilePath, true);
-
             //导入栏目及内容
             var siteContentDirectoryPath = PathUtils.Combine(siteTemplateMetadataPath, DirectoryUtils.SiteTemplates.SiteContent);
             importObject.ImportChannelsAndContents(0, siteContentDirectoryPath, isOverride);
@@ -170,7 +166,7 @@ namespace SiteServer.CMS.ImportExport
             }
             importObject.RemoveDbCache();
 
-            CacheUtils.Clear();
+            CacheUtils.ClearAll();
         }
     }
 }

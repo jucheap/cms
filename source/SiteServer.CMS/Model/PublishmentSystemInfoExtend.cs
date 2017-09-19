@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using BaiRong.Core;
-using BaiRong.Core.Model;
 using BaiRong.Core.Model.Enumerations;
-using SiteServer.CMS.Model.Enumerations;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.Model
 {
@@ -212,25 +211,37 @@ namespace SiteServer.CMS.Model
 
         public string OuterSiteUrl
         {
-            get { return GetString("OuterSiteUrl", string.Empty); }
+            get
+            {
+                return IsMultiDeployment ? GetString("OuterSiteUrl", string.Empty) : SiteUrl;
+            }
             set { SetExtendedAttribute("OuterSiteUrl", value); }
         }
 
         public string InnerSiteUrl
         {
-            get { return GetString("InnerSiteUrl", string.Empty); }
+            get
+            {
+                return IsMultiDeployment ? GetString("InnerSiteUrl", string.Empty) : SiteUrl;
+            }
             set { SetExtendedAttribute("InnerSiteUrl", value); }
         }
 
         public string OuterApiUrl
         {
-            get { return GetString("OuterApiUrl", string.Empty); }
+            get
+            {
+                return IsMultiDeployment ? GetString("OuterApiUrl", DefaultApiUrl) : ApiUrl;
+            }
             set { SetExtendedAttribute("OuterApiUrl", value); }
         }
 
         public string InnerApiUrl
         {
-            get { return GetString("InnerApiUrl", DefaultApiUrl); }
+            get
+            {
+                return IsMultiDeployment ? GetString("InnerApiUrl", DefaultApiUrl) : ApiUrl;
+            }
             set { SetExtendedAttribute("InnerApiUrl", value); }
         }
 
@@ -318,12 +329,6 @@ namespace SiteServer.CMS.Model
             set { SetExtendedAttribute("IsCreateWithJQuery", value.ToString()); }
         }
 
-        public bool IsCreateIncludeToSsi
-        {
-            get { return GetBool("IsCreateIncludeToSsi", false); }
-            set { SetExtendedAttribute("IsCreateIncludeToSsi", value.ToString()); }
-        }
-
         public bool IsCreateDoubleClick
         {
             get { return GetBool("IsCreateDoubleClick", false); }
@@ -352,50 +357,6 @@ namespace SiteServer.CMS.Model
         {
             get { return GetBool("IsCreateMultiThread", false); }
             set { SetExtendedAttribute("IsCreateMultiThread", value.ToString()); }
-        }
-
-        /****************站点地图设置********************/
-
-        public string SiteMapGooglePath
-        {
-            get { return GetString("SiteMapGooglePath", "@/sitemap.xml"); }
-            set { SetExtendedAttribute("SiteMapGooglePath", value); }
-        }
-
-        public string SiteMapGoogleChangeFrequency
-        {
-            get { return GetString("SiteMapGoogleChangeFrequency", "daily"); }
-            set { SetExtendedAttribute("SiteMapGoogleChangeFrequency", value); }
-        }
-
-        public bool SiteMapGoogleIsShowLastModified
-        {
-            get { return GetBool("SiteMapGoogleIsShowLastModified", false); }
-            set { SetExtendedAttribute("SiteMapGoogleIsShowLastModified", value.ToString()); }
-        }
-
-        public int SiteMapGooglePageCount
-        {
-            get { return GetInt("SiteMapGooglePageCount", 10000); }
-            set { SetExtendedAttribute("SiteMapGooglePageCount", value.ToString()); }
-        }
-
-        public string SiteMapBaiduPath
-        {
-            get { return GetString("SiteMapBaiduPath", "@/baidunews.xml"); }
-            set { SetExtendedAttribute("SiteMapBaiduPath", value); }
-        }
-
-        public string SiteMapBaiduWebMaster
-        {
-            get { return GetString("SiteMapBaiduWebMaster", string.Empty); }
-            set { SetExtendedAttribute("SiteMapBaiduWebMaster", value); }
-        }
-
-        public string SiteMapBaiduUpdatePeri
-        {
-            get { return GetString("SiteMapBaiduUpdatePeri", "15"); }
-            set { SetExtendedAttribute("SiteMapBaiduUpdatePeri", value); }
         }
 
         /****************流量统计设置********************/
@@ -721,106 +682,6 @@ namespace SiteServer.CMS.Model
 
         #endregion
 
-        #region WCM
-
-        /****************信息公开设置********************/
-
-        public int GovPublicNodeId
-        {
-            get { return GetInt("GovPublicNodeId", 0); }
-            set { SetExtendedAttribute("GovPublicNodeId", value.ToString()); }
-        }
-
-        public bool GovPublicIsPublisherRelatedDepartmentId
-        {
-            get { return GetBool("GovPublicIsPublisherRelatedDepartmentId", true); }
-            set { SetExtendedAttribute("GovPublicIsPublisherRelatedDepartmentId", value.ToString()); }
-        }
-
-        public string GovPublicDepartmentIdCollection
-        {
-            get { return GetString("GovPublicDepartmentIdCollection", string.Empty); }
-            set { SetExtendedAttribute("GovPublicDepartmentIdCollection", value); }
-        }
-
-        /****************依申请公开设置********************/
-
-        public int GovPublicApplyDateLimit              //办理时限
-        {
-            get { return GetInt("GovPublicApplyDateLimit", 15); }
-            set { SetExtendedAttribute("GovPublicApplyDateLimit", value.ToString()); }
-        }
-
-        public int GovPublicApplyAlertDate              //预警
-        {
-            get { return GetInt("GovPublicApplyAlertDate", -3); }
-            set { SetExtendedAttribute("GovPublicApplyAlertDate", value.ToString()); }
-        }
-
-        public int GovPublicApplyYellowAlertDate      //黄牌
-        {
-            get { return GetInt("GovPublicApplyYellowAlertDate", 3); }
-            set { SetExtendedAttribute("GovPublicApplyYellowAlertDate", value.ToString()); }
-        }
-
-        public int GovPublicApplyRedAlertDate       //红牌
-        {
-            get { return GetInt("GovPublicApplyRedAlertDate", 10); }
-            set { SetExtendedAttribute("GovPublicApplyRedAlertDate", value.ToString()); }
-        }
-
-        public bool GovPublicApplyIsDeleteAllowed   //是否允许删除
-        {
-            get { return GetBool("GovPublicApplyIsDeleteAllowed", true); }
-            set { SetExtendedAttribute("GovPublicApplyIsDeleteAllowed", value.ToString()); }
-        }
-
-        /****************互动交流设置********************/
-
-        public int GovInteractNodeId
-        {
-            get { return GetInt("GovInteractNodeId", 0); }
-            set { SetExtendedAttribute("GovInteractNodeId", value.ToString()); }
-        }
-
-        public int GovInteractApplyDateLimit              //办理时限
-        {
-            get { return GetInt("GovInteractApplyDateLimit", 15); }
-            set { SetExtendedAttribute("GovInteractApplyDateLimit", value.ToString()); }
-        }
-
-        public int GovInteractApplyAlertDate              //预警
-        {
-            get { return GetInt("GovInteractApplyAlertDate", -3); }
-            set { SetExtendedAttribute("GovInteractApplyAlertDate", value.ToString()); }
-        }
-
-        public int GovInteractApplyYellowAlertDate      //黄牌
-        {
-            get { return GetInt("GovInteractApplyYellowAlertDate", 3); }
-            set { SetExtendedAttribute("GovInteractApplyYellowAlertDate", value.ToString()); }
-        }
-
-        public int GovInteractApplyRedAlertDate       //红牌
-        {
-            get { return GetInt("GovInteractApplyRedAlertDate", 10); }
-            set { SetExtendedAttribute("GovInteractApplyRedAlertDate", value.ToString()); }
-        }
-
-        public bool GovInteractApplyIsDeleteAllowed   //是否允许删除
-        {
-            get { return GetBool("GovInteractApplyIsDeleteAllowed", true); }
-            set { SetExtendedAttribute("GovInteractApplyIsDeleteAllowed", value.ToString()); }
-        }
-
-        public bool GovInteractApplyIsOpenWindow   //是否新窗口打开
-        {
-            get { return GetBool("GovInteractApplyIsOpenWindow", false); }
-            set { SetExtendedAttribute("GovInteractApplyIsOpenWindow", value.ToString()); }
-        }
-
-        #endregion
-
         #region weixin
 
         public bool WxIsWebMenu
@@ -911,7 +772,7 @@ namespace SiteServer.CMS.Model
 
         public override string ToString()
         {
-            return TranslateUtils.NameValueCollectionToString(Attributes);
+            return TranslateUtils.NameValueCollectionToString(NameValues);
         }
     }
 }

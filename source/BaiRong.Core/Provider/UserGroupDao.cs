@@ -2,7 +2,8 @@
 using System.Data;
 using BaiRong.Core.Data;
 using BaiRong.Core.Model;
-using BaiRong.Core.Model.Enumerations;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace BaiRong.Core.Provider
 {
@@ -30,10 +31,10 @@ namespace BaiRong.Core.Provider
 
             var insertParms = new IDataParameter[]
 			{
-                GetParameter(ParmGroupName, EDataType.NVarChar, 50, groupInfo.GroupName),
-                GetParameter(ParmIsDefault, EDataType.VarChar, 18, groupInfo.IsDefault.ToString()),
-                GetParameter(ParmDescription, EDataType.NVarChar, 255, groupInfo.Description),
-                GetParameter(ParmExtendValues, EDataType.NText, groupInfo.Additional.ToString())
+                GetParameter(ParmGroupName, DataType.NVarChar, 50, groupInfo.GroupName),
+                GetParameter(ParmIsDefault, DataType.VarChar, 18, groupInfo.IsDefault.ToString()),
+                GetParameter(ParmDescription, DataType.NVarChar, 255, groupInfo.Description),
+                GetParameter(ParmExtendValues, DataType.NText, groupInfo.Additional.ToString())
 			};
 
             using (var conn = GetConnection())
@@ -63,11 +64,11 @@ namespace BaiRong.Core.Provider
         {
             var updateParms = new IDataParameter[]
 			{
-				GetParameter(ParmGroupName, EDataType.NVarChar, 50, groupInfo.GroupName),
-                GetParameter(ParmIsDefault, EDataType.VarChar, 18, groupInfo.IsDefault.ToString()),
-                GetParameter(ParmDescription, EDataType.NVarChar, 255, groupInfo.Description),
-                GetParameter(ParmExtendValues, EDataType.NText, groupInfo.Additional.ToString()),
-				GetParameter(ParmGroupId, EDataType.Integer, groupInfo.GroupId)
+				GetParameter(ParmGroupName, DataType.NVarChar, 50, groupInfo.GroupName),
+                GetParameter(ParmIsDefault, DataType.VarChar, 18, groupInfo.IsDefault.ToString()),
+                GetParameter(ParmDescription, DataType.NVarChar, 255, groupInfo.Description),
+                GetParameter(ParmExtendValues, DataType.NText, groupInfo.Additional.ToString()),
+				GetParameter(ParmGroupId, DataType.Integer, groupInfo.GroupId)
 			};
 
             ExecuteNonQuery(SqlUpdate, updateParms);
@@ -79,7 +80,7 @@ namespace BaiRong.Core.Provider
         {
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmGroupId, EDataType.Integer, groupId)
+				GetParameter(ParmGroupId, DataType.Integer, groupId)
 			};
 
             ExecuteNonQuery(SqlDelete, parms);
@@ -95,7 +96,7 @@ namespace BaiRong.Core.Provider
             {
                 var parms = new IDataParameter[]
                 {
-                    GetParameter(ParmGroupId, EDataType.Integer, groupId)
+                    GetParameter(ParmGroupId, DataType.Integer, groupId)
                 };
 
                 using (var rdr = ExecuteReader(SqlSelectById, parms))
@@ -120,7 +121,7 @@ namespace BaiRong.Core.Provider
 
             var parms = new IDataParameter[]
 			{
-                GetParameter(ParmGroupName, EDataType.NVarChar, 50, groupName)
+                GetParameter(ParmGroupName, DataType.NVarChar, 50, groupName)
 			};
 
             using (var rdr = ExecuteReader(sqlString, parms))
@@ -141,7 +142,7 @@ namespace BaiRong.Core.Provider
 
             var parms = new IDataParameter[]
 			{
-                GetParameter(ParmGroupName, EDataType.NVarChar, 50, groupName)
+                GetParameter(ParmGroupName, DataType.NVarChar, 50, groupName)
 			};
 
             UserGroupInfo groupInfo = null;
@@ -213,7 +214,7 @@ namespace BaiRong.Core.Provider
 
             var updateParms = new IDataParameter[]
             {
-                GetParameter(ParmIsDefault, EDataType.VarChar, 18, false.ToString())
+                GetParameter(ParmIsDefault, DataType.VarChar, 18, false.ToString())
             };
 
             ExecuteNonQuery(sqlString, updateParms);
@@ -227,8 +228,8 @@ namespace BaiRong.Core.Provider
 
             var updateParms = new IDataParameter[]
             {
-                GetParameter(ParmIsDefault, EDataType.VarChar, 18, true.ToString()),
-                GetParameter(ParmGroupId, EDataType.Integer, groupId)
+                GetParameter(ParmIsDefault, DataType.VarChar, 18, true.ToString()),
+                GetParameter(ParmGroupId, DataType.Integer, groupId)
             };
 
             ExecuteNonQuery(sqlString, updateParms);

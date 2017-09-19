@@ -1,7 +1,8 @@
 using System.Data;
 using BaiRong.Core.Data;
 using BaiRong.Core.Model;
-using BaiRong.Core.Model.Enumerations;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace BaiRong.Core.Provider
 {
@@ -28,11 +29,11 @@ namespace BaiRong.Core.Provider
 
 			var insertParms = new IDataParameter[]
 			{
-				GetParameter(ParmConnectionString, EDataType.VarChar, 200, tableMatchInfo.ConnectionString),
-				GetParameter(ParmTableName, EDataType.VarChar, 200, tableMatchInfo.TableName),
-				GetParameter(ParmConnectionStringToMatch, EDataType.VarChar, 200, tableMatchInfo.ConnectionStringToMatch),
-				GetParameter(ParmTableNameToMatch, EDataType.VarChar, 200, tableMatchInfo.TableNameToMatch),
-				GetParameter(ParmColumnsMap, EDataType.NText, TranslateUtils.NameValueCollectionToString(tableMatchInfo.ColumnsMap))
+				GetParameter(ParmConnectionString, DataType.VarChar, 200, tableMatchInfo.ConnectionString),
+				GetParameter(ParmTableName, DataType.VarChar, 200, tableMatchInfo.TableName),
+				GetParameter(ParmConnectionStringToMatch, DataType.VarChar, 200, tableMatchInfo.ConnectionStringToMatch),
+				GetParameter(ParmTableNameToMatch, DataType.VarChar, 200, tableMatchInfo.TableNameToMatch),
+				GetParameter(ParmColumnsMap, DataType.NText, TranslateUtils.NameValueCollectionToString(tableMatchInfo.ColumnsMap))
 			};
 
 			using (var conn = GetConnection()) 
@@ -61,12 +62,12 @@ namespace BaiRong.Core.Provider
 		{
 			var updateParms = new IDataParameter[]
 			{
-				GetParameter(ParmConnectionString, EDataType.VarChar, 200, tableMatchInfo.ConnectionString),
-				GetParameter(ParmTableName, EDataType.VarChar, 200, tableMatchInfo.TableName),
-				GetParameter(ParmConnectionStringToMatch, EDataType.VarChar, 200, tableMatchInfo.ConnectionStringToMatch),
-				GetParameter(ParmTableNameToMatch, EDataType.VarChar, 200, tableMatchInfo.TableNameToMatch),
-				GetParameter(ParmColumnsMap, EDataType.NText, TranslateUtils.NameValueCollectionToString(tableMatchInfo.ColumnsMap)),
-				GetParameter(ParmTableMatchId, EDataType.Integer, tableMatchInfo.TableMatchId)
+				GetParameter(ParmConnectionString, DataType.VarChar, 200, tableMatchInfo.ConnectionString),
+				GetParameter(ParmTableName, DataType.VarChar, 200, tableMatchInfo.TableName),
+				GetParameter(ParmConnectionStringToMatch, DataType.VarChar, 200, tableMatchInfo.ConnectionStringToMatch),
+				GetParameter(ParmTableNameToMatch, DataType.VarChar, 200, tableMatchInfo.TableNameToMatch),
+				GetParameter(ParmColumnsMap, DataType.NText, TranslateUtils.NameValueCollectionToString(tableMatchInfo.ColumnsMap)),
+				GetParameter(ParmTableMatchId, DataType.Integer, tableMatchInfo.TableMatchId)
 			};
 
 			using (var conn = GetConnection()) 
@@ -80,7 +81,7 @@ namespace BaiRong.Core.Provider
 		{
 			var parms = new IDataParameter[]
 			{
-				GetParameter(ParmTableMatchId, EDataType.Integer, tableMatchId)
+				GetParameter(ParmTableMatchId, DataType.Integer, tableMatchId)
 			};
 							
 			using (var conn = GetConnection()) 
@@ -96,7 +97,7 @@ namespace BaiRong.Core.Provider
 
 			var parms = new IDataParameter[]
 			{
-				GetParameter(ParmTableMatchId, EDataType.Integer, tableMatchId)
+				GetParameter(ParmTableMatchId, DataType.Integer, tableMatchId)
 			};
 
 			using (var rdr = ExecuteReader(SqlSelectTableMatch, parms))

@@ -4,6 +4,7 @@ using BaiRong.Core;
 using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.Core;
 using SiteServer.CMS.Model;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.ImportExport
 {
@@ -113,7 +114,6 @@ namespace SiteServer.CMS.ImportExport
                 var inputDirectoryPath = PathUtility.GetSiteTemplateMetadataPath(siteTemplatePath, DirectoryUtils.SiteTemplates.Input);
                 var configurationFilePath = PathUtility.GetSiteTemplateMetadataPath(siteTemplatePath, DirectoryUtils.SiteTemplates.FileConfiguration);
                 var siteContentDirectoryPath = PathUtility.GetSiteTemplateMetadataPath(siteTemplatePath, DirectoryUtils.SiteTemplates.SiteContent);
-                var contentModelPath = PathUtility.GetSiteTemplateMetadataPath(siteTemplatePath,DirectoryUtils.SiteTemplates.FileContentModel);
 
                 var importObject = new ImportObject(publishmentSystemId);
 
@@ -138,8 +138,6 @@ namespace SiteServer.CMS.ImportExport
                 importObject.ImportInput(inputDirectoryPath, true);
 
                 importObject.ImportConfiguration(configurationFilePath);
-
-                importObject.ImportContentModel(contentModelPath, true);
 
                 var filePathArrayList = ImportObject.GetSiteContentFilePathArrayList(siteContentDirectoryPath);
 
@@ -198,9 +196,6 @@ namespace SiteServer.CMS.ImportExport
             //导出关联字段
             var relatedFieldDirectoryPath = PathUtility.GetSiteTemplateMetadataPath(siteTemplatePath, DirectoryUtils.SiteTemplates.RelatedField);
             exportObject.ExportRelatedField(relatedFieldDirectoryPath);
-            //导出内容模型（自定义添加的）
-            var contentModelDirectoryPath = PathUtility.GetSiteTemplateMetadataPath(siteTemplatePath, DirectoryUtils.SiteTemplates.FileContentModel);
-            exportObject.ExportContentModel(contentModelDirectoryPath);
         }
     }
 }

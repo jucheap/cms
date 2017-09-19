@@ -2,7 +2,7 @@
 using System.Collections.Specialized;
 using System.Web.UI.WebControls;
 using BaiRong.Core;
-using BaiRong.Core.Model.Attributes;
+using BaiRong.Core.Model;
 using SiteServer.BackgroundPages.Ajax;
 using SiteServer.BackgroundPages.Core;
 using SiteServer.CMS.Core;
@@ -91,7 +91,7 @@ namespace SiteServer.BackgroundPages.Cms
                             {
                                 var contentInfo = ContentUtility.GetContentInfo(tableStyle);
 
-                                BackgroundInputTypeParser.AddValuesToAttributes(tableStyle, tableName, PublishmentSystemInfo, relatedIdentities, formCollection, contentInfo.Attributes, ContentAttribute.HiddenAttributes);
+                                BackgroundInputTypeParser.AddValuesToAttributes(tableStyle, tableName, PublishmentSystemInfo, relatedIdentities, formCollection, contentInfo.NameValues, ContentAttribute.HiddenAttributes);
 
                                 contentInfo.NodeId = _nodeInfo.NodeId;
                                 contentInfo.PublishmentSystemId = PublishmentSystemId;

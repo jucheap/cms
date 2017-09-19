@@ -3,8 +3,9 @@ using System.Data;
 using System.Text;
 using BaiRong.Core;
 using BaiRong.Core.Data;
-using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.Model;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.Provider
 {
@@ -37,13 +38,13 @@ namespace SiteServer.CMS.Provider
         {
             var adParms = new IDataParameter[]
 			{ 
-				GetParameter(ParmPublishmentsystemid, EDataType.Integer, adAreaInfo.PublishmentSystemID),
-			    GetParameter(ParmAdareaName, EDataType.NVarChar,255, adAreaInfo.AdAreaName),
-                GetParameter(ParmWidth, EDataType.Integer, adAreaInfo.Width),
-                GetParameter(ParmHight, EDataType.Integer, adAreaInfo.Height),
-                GetParameter(ParmSummary, EDataType.NVarChar, 255, adAreaInfo.Summary),
-                GetParameter(ParmIsEnabled, EDataType.VarChar,18, adAreaInfo.IsEnabled.ToString()),
-                GetParameter(ParmAddDate, EDataType.DateTime, adAreaInfo.AddDate)
+				GetParameter(ParmPublishmentsystemid, DataType.Integer, adAreaInfo.PublishmentSystemID),
+			    GetParameter(ParmAdareaName, DataType.NVarChar,255, adAreaInfo.AdAreaName),
+                GetParameter(ParmWidth, DataType.Integer, adAreaInfo.Width),
+                GetParameter(ParmHight, DataType.Integer, adAreaInfo.Height),
+                GetParameter(ParmSummary, DataType.NVarChar, 255, adAreaInfo.Summary),
+                GetParameter(ParmIsEnabled, DataType.VarChar,18, adAreaInfo.IsEnabled.ToString()),
+                GetParameter(ParmAddDate, DataType.DateTime, adAreaInfo.AddDate)
               
 			};
 
@@ -54,14 +55,14 @@ namespace SiteServer.CMS.Provider
         {
             var adParms = new IDataParameter[]
 			{
-			    GetParameter(ParmAdareaName, EDataType.NVarChar,255, adAreaInfo.AdAreaName),
-                GetParameter(ParmWidth, EDataType.Integer, adAreaInfo.Width),
-                GetParameter(ParmHight, EDataType.Integer, adAreaInfo.Height),
-                GetParameter(ParmSummary, EDataType.Text, 255, adAreaInfo.Summary),
-                GetParameter(ParmIsEnabled, EDataType.VarChar,18, adAreaInfo.IsEnabled.ToString()),
-                GetParameter(ParmAddDate, EDataType.DateTime, adAreaInfo.AddDate),
-                GetParameter(ParmAdareaId, EDataType.Integer, adAreaInfo.AdAreaID),
-				GetParameter(ParmPublishmentsystemid, EDataType.Integer, adAreaInfo.PublishmentSystemID)
+			    GetParameter(ParmAdareaName, DataType.NVarChar,255, adAreaInfo.AdAreaName),
+                GetParameter(ParmWidth, DataType.Integer, adAreaInfo.Width),
+                GetParameter(ParmHight, DataType.Integer, adAreaInfo.Height),
+                GetParameter(ParmSummary, DataType.Text, 255, adAreaInfo.Summary),
+                GetParameter(ParmIsEnabled, DataType.VarChar,18, adAreaInfo.IsEnabled.ToString()),
+                GetParameter(ParmAddDate, DataType.DateTime, adAreaInfo.AddDate),
+                GetParameter(ParmAdareaId, DataType.Integer, adAreaInfo.AdAreaID),
+				GetParameter(ParmPublishmentsystemid, DataType.Integer, adAreaInfo.PublishmentSystemID)
 			};
 
             ExecuteNonQuery(SqlUpdateAdarea, adParms);
@@ -71,8 +72,8 @@ namespace SiteServer.CMS.Provider
         {
             var parms = new IDataParameter[]
 			{
-			    GetParameter(ParmAdareaName, EDataType.NVarChar,255, adAreaName),
-				GetParameter(ParmPublishmentsystemid, EDataType.Integer, publishmentSystemId)
+			    GetParameter(ParmAdareaName, DataType.NVarChar,255, adAreaName),
+				GetParameter(ParmPublishmentsystemid, DataType.Integer, publishmentSystemId)
 			};
             ExecuteNonQuery(SqlDeleteAdarea, parms);
 
@@ -84,8 +85,8 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmAdareaName, EDataType.NVarChar,255, adAreaName),
-				GetParameter(ParmPublishmentsystemid, EDataType.Integer, publishmentSystemId)
+				GetParameter(ParmAdareaName, DataType.NVarChar,255, adAreaName),
+				GetParameter(ParmPublishmentsystemid, DataType.Integer, publishmentSystemId)
 			};
 
             using (var rdr = ExecuteReader(SqlSelectAdareaByname, parms))
@@ -107,8 +108,8 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmAdareaId, EDataType.Integer, adAreaId),
-				GetParameter(ParmPublishmentsystemid, EDataType.Integer, publishmentSystemId)
+				GetParameter(ParmAdareaId, DataType.Integer, adAreaId),
+				GetParameter(ParmPublishmentsystemid, DataType.Integer, publishmentSystemId)
 			};
 
             using (var rdr = ExecuteReader(SqlSelectAdareaByid, parms))
@@ -130,8 +131,8 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmAdareaName, EDataType.NVarChar,255, adAreaName),
-				GetParameter(ParmPublishmentsystemid, EDataType.Integer, publishmentSystemId)
+				GetParameter(ParmAdareaName, DataType.NVarChar,255, adAreaName),
+				GetParameter(ParmPublishmentsystemid, DataType.Integer, publishmentSystemId)
 			};
 
             using (var rdr = ExecuteReader(SqlSelectAdareaName, parms))
@@ -150,7 +151,7 @@ namespace SiteServer.CMS.Provider
         {
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmPublishmentsystemid, EDataType.Integer, publishmentSystemId)
+				GetParameter(ParmPublishmentsystemid, DataType.Integer, publishmentSystemId)
 			};
 
             var enumerable = (IEnumerable)ExecuteReader(SqlSelectAllAdarea, parms);
@@ -196,7 +197,7 @@ namespace SiteServer.CMS.Provider
             var arraylist = new ArrayList();
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmPublishmentsystemid, EDataType.Integer, publishmentSystemId)
+				GetParameter(ParmPublishmentsystemid, DataType.Integer, publishmentSystemId)
 			};
 
             using (var rdr = ExecuteReader(SqlSelectAllAdarea, parms))

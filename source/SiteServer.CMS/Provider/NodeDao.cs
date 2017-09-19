@@ -10,6 +10,7 @@ using SiteServer.CMS.Core;
 using SiteServer.CMS.Core.Security;
 using SiteServer.CMS.Model;
 using SiteServer.CMS.Model.Enumerations;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.Provider
 {
@@ -112,32 +113,32 @@ namespace SiteServer.CMS.Provider
 
             var insertParms = new IDataParameter[]
             {
-                GetParameter(ParmNodeName, EDataType.NVarChar, 255, nodeInfo.NodeName),
-                GetParameter(ParmNodeType, EDataType.VarChar, 50, ENodeTypeUtils.GetValue(nodeInfo.NodeType)),
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, nodeInfo.PublishmentSystemId),
-                GetParameter(ParmContentModelId, EDataType.VarChar, 50, nodeInfo.ContentModelId),
-                GetParameter(ParmParentId, EDataType.Integer, nodeInfo.ParentId),
-                GetParameter(ParmParentsPath, EDataType.NVarChar, 255, nodeInfo.ParentsPath),
-                GetParameter(ParmParentsCount, EDataType.Integer, nodeInfo.ParentsCount),
-                GetParameter(ParmChildrenCount, EDataType.Integer, 0),
-                GetParameter(ParmIsLastNode, EDataType.VarChar, 18, true.ToString()),
-                GetParameter(ParmNodeIndexName, EDataType.NVarChar, 255, nodeInfo.NodeIndexName),
-                GetParameter(ParmNodeGroupNameCollection, EDataType.NVarChar, 255, nodeInfo.NodeGroupNameCollection),
-                GetParameter(ParmTaxis, EDataType.Integer, nodeInfo.Taxis),
-                GetParameter(ParmAddDate, EDataType.DateTime, nodeInfo.AddDate),
-                GetParameter(ParmImageUrl, EDataType.VarChar, 200, nodeInfo.ImageUrl),
-                GetParameter(ParmContent, EDataType.NText, nodeInfo.Content),
-                GetParameter(ParmContentNum, EDataType.Integer, nodeInfo.ContentNum),
-                GetParameter(ParmFilePath, EDataType.VarChar, 200, nodeInfo.FilePath),
-                GetParameter(ParmChannelFilePathRule, EDataType.VarChar, 200, nodeInfo.ChannelFilePathRule),
-                GetParameter(ParmContentFilePathRule, EDataType.VarChar, 200, nodeInfo.ContentFilePathRule),
-                GetParameter(ParmLinkUrl, EDataType.VarChar, 200, nodeInfo.LinkUrl),
-                GetParameter(ParmLinkType, EDataType.VarChar, 200, ELinkTypeUtils.GetValue(nodeInfo.LinkType)),
-                GetParameter(ParmChannelTemplateId, EDataType.Integer, nodeInfo.ChannelTemplateId),
-                GetParameter(ParmContentTemplateId, EDataType.Integer, nodeInfo.ContentTemplateId),
-                GetParameter(ParmKeywords, EDataType.NVarChar, 255, nodeInfo.Keywords),
-                GetParameter(ParmDescription, EDataType.NVarChar, 255, nodeInfo.Description),
-                GetParameter(ParmExtendValues, EDataType.NText, nodeInfo.Additional.ToString())
+                GetParameter(ParmNodeName, DataType.NVarChar, 255, nodeInfo.NodeName),
+                GetParameter(ParmNodeType, DataType.VarChar, 50, ENodeTypeUtils.GetValue(nodeInfo.NodeType)),
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, nodeInfo.PublishmentSystemId),
+                GetParameter(ParmContentModelId, DataType.VarChar, 50, nodeInfo.ContentModelId),
+                GetParameter(ParmParentId, DataType.Integer, nodeInfo.ParentId),
+                GetParameter(ParmParentsPath, DataType.NVarChar, 255, nodeInfo.ParentsPath),
+                GetParameter(ParmParentsCount, DataType.Integer, nodeInfo.ParentsCount),
+                GetParameter(ParmChildrenCount, DataType.Integer, 0),
+                GetParameter(ParmIsLastNode, DataType.VarChar, 18, true.ToString()),
+                GetParameter(ParmNodeIndexName, DataType.NVarChar, 255, nodeInfo.NodeIndexName),
+                GetParameter(ParmNodeGroupNameCollection, DataType.NVarChar, 255, nodeInfo.NodeGroupNameCollection),
+                GetParameter(ParmTaxis, DataType.Integer, nodeInfo.Taxis),
+                GetParameter(ParmAddDate, DataType.DateTime, nodeInfo.AddDate),
+                GetParameter(ParmImageUrl, DataType.VarChar, 200, nodeInfo.ImageUrl),
+                GetParameter(ParmContent, DataType.NText, nodeInfo.Content),
+                GetParameter(ParmContentNum, DataType.Integer, nodeInfo.ContentNum),
+                GetParameter(ParmFilePath, DataType.VarChar, 200, nodeInfo.FilePath),
+                GetParameter(ParmChannelFilePathRule, DataType.VarChar, 200, nodeInfo.ChannelFilePathRule),
+                GetParameter(ParmContentFilePathRule, DataType.VarChar, 200, nodeInfo.ContentFilePathRule),
+                GetParameter(ParmLinkUrl, DataType.VarChar, 200, nodeInfo.LinkUrl),
+                GetParameter(ParmLinkType, DataType.VarChar, 200, ELinkTypeUtils.GetValue(nodeInfo.LinkType)),
+                GetParameter(ParmChannelTemplateId, DataType.Integer, nodeInfo.ChannelTemplateId),
+                GetParameter(ParmContentTemplateId, DataType.Integer, nodeInfo.ContentTemplateId),
+                GetParameter(ParmKeywords, DataType.NVarChar, 255, nodeInfo.Keywords),
+                GetParameter(ParmDescription, DataType.NVarChar, 255, nodeInfo.Description),
+                GetParameter(ParmExtendValues, DataType.NText, nodeInfo.Additional.ToString())
             };
 
             if (nodeInfo.PublishmentSystemId != 0)
@@ -159,8 +160,8 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
             {
-                GetParameter(ParmIsLastNode, EDataType.VarChar, 18, false.ToString()),
-                GetParameter(ParmParentId, EDataType.Integer, nodeInfo.ParentId)
+                GetParameter(ParmIsLastNode, DataType.VarChar, 18, false.ToString()),
+                GetParameter(ParmParentId, DataType.Integer, nodeInfo.ParentId)
             };
 
             ExecuteNonQuery(trans, sqlUpdateIsLastNode, parms);
@@ -272,10 +273,10 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
             {
-                GetParameter(ParmParentId, EDataType.Integer, nodeInfo.ParentId),
-                GetParameter(ParmNodeId, EDataType.Integer, nodeInfo.NodeId),
-                GetParameter(ParmTaxis, EDataType.Integer, nodeInfo.Taxis),
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, nodeInfo.PublishmentSystemId)
+                GetParameter(ParmParentId, DataType.Integer, nodeInfo.ParentId),
+                GetParameter(ParmNodeId, DataType.Integer, nodeInfo.NodeId),
+                GetParameter(ParmTaxis, DataType.Integer, nodeInfo.Taxis),
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, nodeInfo.PublishmentSystemId)
             };
 
             using (var rdr = ExecuteReader(sqlString, parms))
@@ -323,10 +324,10 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
             {
-                GetParameter(ParmParentId, EDataType.Integer, nodeInfo.ParentId),
-                GetParameter(ParmNodeId, EDataType.Integer, nodeInfo.NodeId),
-                GetParameter(ParmTaxis, EDataType.Integer, nodeInfo.Taxis),
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, nodeInfo.PublishmentSystemId)
+                GetParameter(ParmParentId, DataType.Integer, nodeInfo.ParentId),
+                GetParameter(ParmNodeId, DataType.Integer, nodeInfo.NodeId),
+                GetParameter(ParmTaxis, DataType.Integer, nodeInfo.Taxis),
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, nodeInfo.PublishmentSystemId)
             };
 
             using (var rdr = ExecuteReader(sqlString, parms))
@@ -379,8 +380,8 @@ namespace SiteServer.CMS.Provider
 
             var parms = new IDataParameter[]
             {
-                GetParameter(ParmIsLastNode, EDataType.VarChar, 18, false.ToString()),
-                GetParameter(ParmParentId, EDataType.Integer, parentId)
+                GetParameter(ParmIsLastNode, DataType.VarChar, 18, false.ToString()),
+                GetParameter(ParmParentId, DataType.Integer, parentId)
             };
 
             ExecuteNonQuery(sqlString, parms);
@@ -416,7 +417,7 @@ namespace SiteServer.CMS.Provider
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmNodeId, EDataType.Integer, nodeId)
+                GetParameter(ParmNodeId, DataType.Integer, nodeId)
             };
 
             using (var rdr = ExecuteReader(SqlSelectNodeGroupNameCollection, nodeParms))
@@ -436,7 +437,7 @@ namespace SiteServer.CMS.Provider
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmNodeId, EDataType.Integer, nodeId)
+                GetParameter(ParmNodeId, DataType.Integer, nodeId)
             };
 
             using (var rdr = ExecuteReader(SqlSelectParentId, nodeParms))
@@ -514,7 +515,7 @@ namespace SiteServer.CMS.Provider
             return nodeInfo.NodeId;
         }
 
-        public int InsertNodeInfo(int publishmentSystemId, int parentId, string nodeName, string nodeIndex, string contentModelId, int channelTemplateId, int contentTemplateId)
+        public int InsertNodeInfo(int publishmentSystemId, int parentId, string nodeName, string nodeIndex, string contentModelId, int channelTemplateId, int contentTemplateId, string pluginIds)
         {
             if (publishmentSystemId > 0 && parentId == 0) return 0;
 
@@ -532,6 +533,7 @@ namespace SiteServer.CMS.Provider
                 ChannelTemplateId = channelTemplateId > 0 ? channelTemplateId : defaultChannelTemplateInfo.TemplateId,
                 ContentTemplateId = contentTemplateId > 0 ? contentTemplateId : defaultContentTemplateInfo.TemplateId
             };
+            nodeInfo.Additional.PluginIds = pluginIds;
 
             var parentNodeInfo = NodeManager.GetNodeInfo(publishmentSystemId, parentId);
 
@@ -634,29 +636,29 @@ namespace SiteServer.CMS.Provider
         {
             var updateParms = new IDataParameter[]
             {
-                GetParameter(ParmNodeName, EDataType.NVarChar, 255, nodeInfo.NodeName),
-                GetParameter(ParmNodeType, EDataType.VarChar, 50, ENodeTypeUtils.GetValue(nodeInfo.NodeType)),
-                GetParameter(ParmContentModelId, EDataType.VarChar, 50, nodeInfo.ContentModelId),
-                GetParameter(ParmParentsPath, EDataType.NVarChar, 255, nodeInfo.ParentsPath),
-                GetParameter(ParmParentsCount, EDataType.Integer, nodeInfo.ParentsCount),
-                GetParameter(ParmChildrenCount, EDataType.Integer, nodeInfo.ChildrenCount),
-                GetParameter(ParmIsLastNode, EDataType.VarChar, 18, nodeInfo.IsLastNode.ToString()),
-                GetParameter(ParmNodeIndexName, EDataType.NVarChar, 255, nodeInfo.NodeIndexName),
-                GetParameter(ParmNodeGroupNameCollection, EDataType.NVarChar, 255, nodeInfo.NodeGroupNameCollection),
-                GetParameter(ParmImageUrl, EDataType.VarChar, 200, nodeInfo.ImageUrl),
-                GetParameter(ParmContent, EDataType.NText, nodeInfo.Content),
-                GetParameter(ParmContentNum, EDataType.Integer, nodeInfo.ContentNum),
-                GetParameter(ParmFilePath, EDataType.VarChar, 200, nodeInfo.FilePath),
-                GetParameter(ParmChannelFilePathRule, EDataType.VarChar, 200, nodeInfo.ChannelFilePathRule),
-                GetParameter(ParmContentFilePathRule, EDataType.VarChar, 200, nodeInfo.ContentFilePathRule),
-                GetParameter(ParmLinkUrl, EDataType.VarChar, 200, nodeInfo.LinkUrl),
-                GetParameter(ParmLinkType, EDataType.VarChar, 200, ELinkTypeUtils.GetValue(nodeInfo.LinkType)),
-                GetParameter(ParmChannelTemplateId, EDataType.Integer, nodeInfo.ChannelTemplateId),
-                GetParameter(ParmContentTemplateId, EDataType.Integer, nodeInfo.ContentTemplateId),
-                GetParameter(ParmKeywords, EDataType.NVarChar, 255, nodeInfo.Keywords),
-                GetParameter(ParmDescription, EDataType.NVarChar, 255, nodeInfo.Description),
-                GetParameter(ParmExtendValues, EDataType.NText, nodeInfo.Additional.ToString()),
-                GetParameter(ParmNodeId, EDataType.Integer, nodeInfo.NodeId)
+                GetParameter(ParmNodeName, DataType.NVarChar, 255, nodeInfo.NodeName),
+                GetParameter(ParmNodeType, DataType.VarChar, 50, ENodeTypeUtils.GetValue(nodeInfo.NodeType)),
+                GetParameter(ParmContentModelId, DataType.VarChar, 50, nodeInfo.ContentModelId),
+                GetParameter(ParmParentsPath, DataType.NVarChar, 255, nodeInfo.ParentsPath),
+                GetParameter(ParmParentsCount, DataType.Integer, nodeInfo.ParentsCount),
+                GetParameter(ParmChildrenCount, DataType.Integer, nodeInfo.ChildrenCount),
+                GetParameter(ParmIsLastNode, DataType.VarChar, 18, nodeInfo.IsLastNode.ToString()),
+                GetParameter(ParmNodeIndexName, DataType.NVarChar, 255, nodeInfo.NodeIndexName),
+                GetParameter(ParmNodeGroupNameCollection, DataType.NVarChar, 255, nodeInfo.NodeGroupNameCollection),
+                GetParameter(ParmImageUrl, DataType.VarChar, 200, nodeInfo.ImageUrl),
+                GetParameter(ParmContent, DataType.NText, nodeInfo.Content),
+                GetParameter(ParmContentNum, DataType.Integer, nodeInfo.ContentNum),
+                GetParameter(ParmFilePath, DataType.VarChar, 200, nodeInfo.FilePath),
+                GetParameter(ParmChannelFilePathRule, DataType.VarChar, 200, nodeInfo.ChannelFilePathRule),
+                GetParameter(ParmContentFilePathRule, DataType.VarChar, 200, nodeInfo.ContentFilePathRule),
+                GetParameter(ParmLinkUrl, DataType.VarChar, 200, nodeInfo.LinkUrl),
+                GetParameter(ParmLinkType, DataType.VarChar, 200, ELinkTypeUtils.GetValue(nodeInfo.LinkType)),
+                GetParameter(ParmChannelTemplateId, DataType.Integer, nodeInfo.ChannelTemplateId),
+                GetParameter(ParmContentTemplateId, DataType.Integer, nodeInfo.ContentTemplateId),
+                GetParameter(ParmKeywords, DataType.NVarChar, 255, nodeInfo.Keywords),
+                GetParameter(ParmDescription, DataType.NVarChar, 255, nodeInfo.Description),
+                GetParameter(ParmExtendValues, DataType.NText, nodeInfo.Additional.ToString()),
+                GetParameter(ParmNodeId, DataType.Integer, nodeInfo.NodeId)
             };
 
             ExecuteNonQuery(SqlUpdateNode, updateParms);
@@ -670,8 +672,8 @@ namespace SiteServer.CMS.Provider
         {
             var updateParms = new IDataParameter[]
             {
-                GetParameter(ParmExtendValues, EDataType.NText, nodeInfo.Additional.ToString()),
-                GetParameter(ParmNodeId, EDataType.Integer, nodeInfo.NodeId)
+                GetParameter(ParmExtendValues, DataType.NText, nodeInfo.Additional.ToString()),
+                GetParameter(ParmNodeId, DataType.Integer, nodeInfo.NodeId)
             };
 
             ExecuteNonQuery(SqlUpdateExtendValues, updateParms);
@@ -701,8 +703,8 @@ namespace SiteServer.CMS.Provider
         {
             var parms = new IDataParameter[]
             {
-                GetParameter(ParmNodeGroupNameCollection, EDataType.NVarChar, 255, nodeGroupNameCollection),
-                GetParameter(ParmNodeId, EDataType.Integer, nodeId)
+                GetParameter(ParmNodeGroupNameCollection, DataType.NVarChar, 255, nodeGroupNameCollection),
+                GetParameter(ParmNodeId, DataType.Integer, nodeId)
             };
 
             ExecuteNonQuery(SqlUpdateNodeGroupNameCollection, parms);
@@ -762,26 +764,6 @@ namespace SiteServer.CMS.Provider
             {
                 var psInfo = PublishmentSystemManager.GetPublishmentSystemInfo(publishmentSystemId);
                 if (tableType == EAuxiliaryTableType.BackgroundContent && psInfo.AuxiliaryTableForContent == tableName)
-                {
-                    publishmentSystemIdList.Add(publishmentSystemId);
-                    NodeManager.RemoveCache(publishmentSystemId);
-                }
-                else if (tableType == EAuxiliaryTableType.GovPublicContent && psInfo.AuxiliaryTableForGovPublic == tableName)
-                {
-                    publishmentSystemIdList.Add(publishmentSystemId);
-                    NodeManager.RemoveCache(publishmentSystemId);
-                }
-                else if (tableType == EAuxiliaryTableType.GovInteractContent && psInfo.AuxiliaryTableForGovInteract == tableName)
-                {
-                    publishmentSystemIdList.Add(publishmentSystemId);
-                    NodeManager.RemoveCache(publishmentSystemId);
-                }
-                else if (tableType == EAuxiliaryTableType.VoteContent && psInfo.AuxiliaryTableForVote == tableName)
-                {
-                    publishmentSystemIdList.Add(publishmentSystemId);
-                    NodeManager.RemoveCache(publishmentSystemId);
-                }
-                else if (tableType == EAuxiliaryTableType.JobContent && psInfo.AuxiliaryTableForJob == tableName)
                 {
                     publishmentSystemIdList.Add(publishmentSystemId);
                     NodeManager.RemoveCache(publishmentSystemId);
@@ -868,7 +850,7 @@ namespace SiteServer.CMS.Provider
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmNodeId, EDataType.Integer, nodeId)
+                GetParameter(ParmNodeId, DataType.Integer, nodeId)
             };
 
             using (var rdr = ExecuteReader(SqlSelectNode, nodeParms))
@@ -892,7 +874,7 @@ namespace SiteServer.CMS.Provider
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmParentId, EDataType.Integer, nodeId)
+                GetParameter(ParmParentId, DataType.Integer, nodeId)
             };
 
             using (var rdr = ExecuteReader(SqlSelectNodeByLastAddDate, nodeParms))
@@ -916,7 +898,7 @@ namespace SiteServer.CMS.Provider
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmParentId, EDataType.Integer, nodeId)
+                GetParameter(ParmParentId, DataType.Integer, nodeId)
             };
 
             using (var rdr = ExecuteReader(SqlSelectNodeByTaxis, nodeParms))
@@ -931,13 +913,14 @@ namespace SiteServer.CMS.Provider
             return node;
         }
 
-        public NodeInfo GetNodeInfoByParentId(int publishmentSystemId, int parentId, EContentModelType contentModelType)
+        public NodeInfo GetNodeInfoByParentId(int publishmentSystemId, int parentId, string contentModelId)
         {
             NodeInfo nodeInfo = null;
-            var nodeParms = new IDataParameter[] {
-                GetParameter(ParmPublishmentSystemId,EDataType.Integer,publishmentSystemId),
-                GetParameter(ParmParentId,EDataType.Integer,parentId),
-                GetParameter(ParmContentModelId,EDataType.VarChar,50,EContentModelTypeUtils.GetValue(contentModelType))
+            var nodeParms = new IDataParameter[]
+            {
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, publishmentSystemId),
+                GetParameter(ParmParentId, DataType.Integer, parentId),
+                GetParameter(ParmContentModelId, DataType.VarChar, 50, contentModelId)
             };
             using (var rdr = ExecuteReader(SqlSelectNodeByParentIdAndContentModelId, nodeParms))
             {
@@ -961,7 +944,7 @@ namespace SiteServer.CMS.Provider
                 if (publishmentSystemId == parentId)
                 {
                     sqlString =
-                        $"SELECT NodeID FROM siteserver_Node WHERE (PublishmentSystemID = {publishmentSystemId} AND NodeName = '{nodeName}') ORDER BY Taxis";
+                        $"SELECT NodeID FROM siteserver_Node WHERE (PublishmentSystemID = {publishmentSystemId} AND NodeName = '{PageUtils.FilterSql(nodeName)}') ORDER BY Taxis";
                 }
                 else
                 {
@@ -978,7 +961,7 @@ ORDER BY Taxis";
             else
             {
                 sqlString =
-                    $"SELECT NodeID FROM siteserver_Node WHERE (ParentID = {parentId} AND NodeName = '{nodeName}') ORDER BY Taxis";
+                    $"SELECT NodeID FROM siteserver_Node WHERE (ParentID = {parentId} AND NodeName = '{PageUtils.FilterSql(nodeName)}') ORDER BY Taxis";
             }
 
             using (var rdr = ExecuteReader(sqlString))
@@ -1036,7 +1019,7 @@ ORDER BY Taxis";
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmNodeId, EDataType.Integer, nodeId)
+                GetParameter(ParmNodeId, DataType.Integer, nodeId)
             };
 
             using (var rdr = ExecuteReader(SqlSelectPublishmentSystemIdById, nodeParms))
@@ -1115,7 +1098,7 @@ ORDER BY Taxis";
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, publishmentSystemId)
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, publishmentSystemId)
             };
 
             using (var rdr = ExecuteReader(SqlSelectNodeIndexNameCollection, nodeParms))
@@ -1227,7 +1210,7 @@ ORDER BY Taxis";
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmParentId, EDataType.Integer, nodeId)
+                GetParameter(ParmParentId, DataType.Integer, nodeId)
             };
 
             using (var rdr = ExecuteReader(SqlSelectNodeCount, nodeParms))
@@ -1257,8 +1240,8 @@ ORDER BY Taxis";
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, publishmentSystemId),
-                GetParameter(ParmNodeIndexName, EDataType.NVarChar, 255, nodeIndexName)
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, publishmentSystemId),
+                GetParameter(ParmNodeIndexName, DataType.NVarChar, 255, nodeIndexName)
             };
 
             using (var rdr = ExecuteReader(SqlSelectNodeIdByIndex, nodeParms))
@@ -1273,14 +1256,14 @@ ORDER BY Taxis";
             return nodeId;
         }
 
-        public int GetNodeIdByContentModelType(int publishmentSystemId, EContentModelType contentModelType)
+        public int GetNodeIdByContentModelType(int publishmentSystemId, string contentModelId)
         {
             var nodeId = 0;
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmPublishmentSystemId, EDataType.Integer, publishmentSystemId),
-                GetParameter(ParmContentModelId, EDataType.VarChar, 50, EContentModelTypeUtils.GetValue(contentModelType))
+                GetParameter(ParmPublishmentSystemId, DataType.Integer, publishmentSystemId),
+                GetParameter(ParmContentModelId, DataType.VarChar, 50, contentModelId)
             };
 
             using (var rdr = ExecuteReader(SqlSelectNodeIdByContentModelId, nodeParms))
@@ -1301,7 +1284,7 @@ ORDER BY Taxis";
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmNodeId, EDataType.Integer, nodeId)
+                GetParameter(ParmNodeId, DataType.Integer, nodeId)
             };
 
             using (var rdr = ExecuteReader(SqlSelectNodeId, nodeParms))
@@ -1353,9 +1336,8 @@ ORDER BY Taxis";
             return list;
         }
 
-        public List<int> GetNodeIdList(int nodeId, int totalNum, string orderByString, string whereString, EScopeType scopeType, string group, string groupNot)
+        public List<int> GetNodeIdListByTotalNum(List<int> nodeIdList, int totalNum, string orderByString, string whereString)
         {
-            var nodeIdList = GetNodeIdListByScopeType(nodeId, scopeType, group, groupNot);
             if (nodeIdList == null || nodeIdList.Count == 0)
             {
                 return nodeIdList;
@@ -1478,27 +1460,17 @@ ORDER BY Taxis";
             return list;
         }
 
-        private List<int> GetNodeIdListByScopeType(NodeInfo nodeInfo, EScopeType scopeType)
+        public List<int> GetNodeIdListByScopeType(int nodeId, int childrenCount, EScopeType scopeType, string group, string groupNot, string contentModelId)
         {
-            return GetNodeIdListByScopeType(nodeInfo, scopeType, string.Empty, string.Empty, string.Empty);
-        }
-
-        public List<int> GetNodeIdListByScopeType(NodeInfo nodeInfo, EScopeType scopeType, string group, string groupNot)
-        {
-            return GetNodeIdListByScopeType(nodeInfo, scopeType, group, groupNot, string.Empty);
-        }
-
-        public List<int> GetNodeIdListByScopeType(NodeInfo nodeInfo, EScopeType scopeType, string group, string groupNot, string contentModelId)
-        {
-            if (nodeInfo == null) return new List<int>();
+            if (nodeId <= 0) return new List<int>();
 
             var list = new List<int>();
 
-            if (nodeInfo.ChildrenCount == 0)
+            if (childrenCount == 0)
             {
                 if (scopeType != EScopeType.Children && scopeType != EScopeType.Descendant)
                 {
-                    list.Add(nodeInfo.NodeId);
+                    list.Add(nodeId);
                 }
 
                 return list;
@@ -1514,43 +1486,43 @@ ORDER BY Taxis";
             {
                 sqlString = $@"SELECT NodeID
 FROM siteserver_Node 
-WHERE ((NodeID = {nodeInfo.NodeId}) OR
-      (ParentID = {nodeInfo.NodeId}) OR
-      (ParentsPath = '{nodeInfo.NodeId}') OR
-      (ParentsPath LIKE '{nodeInfo.NodeId},%') OR
-      (ParentsPath LIKE '%,{nodeInfo.NodeId},%') OR
-      (ParentsPath LIKE '%,{nodeInfo.NodeId}')) {whereString}
+WHERE ((NodeID = {nodeId}) OR
+      (ParentID = {nodeId}) OR
+      (ParentsPath = '{nodeId}') OR
+      (ParentsPath LIKE '{nodeId},%') OR
+      (ParentsPath LIKE '%,{nodeId},%') OR
+      (ParentsPath LIKE '%,{nodeId}')) {whereString}
 ORDER BY Taxis";
             }
             else if (scopeType == EScopeType.Self)
             {
-                list.Add(nodeInfo.NodeId);
+                list.Add(nodeId);
                 return list;
             }
             else if (scopeType == EScopeType.Children)
             {
                 sqlString = $@"SELECT NodeID
 FROM siteserver_Node 
-WHERE (ParentID = {nodeInfo.NodeId}) {whereString}
+WHERE (ParentID = {nodeId}) {whereString}
 ORDER BY Taxis";
             }
             else if (scopeType == EScopeType.Descendant)
             {
                 sqlString = $@"SELECT NodeID
 FROM siteserver_Node 
-WHERE ((ParentID = {nodeInfo.NodeId}) OR
-      (ParentsPath = '{nodeInfo.NodeId}') OR
-      (ParentsPath LIKE '{nodeInfo.NodeId},%') OR
-      (ParentsPath LIKE '%,{nodeInfo.NodeId},%') OR
-      (ParentsPath LIKE '%,{nodeInfo.NodeId}')) {whereString}
+WHERE ((ParentID = {nodeId}) OR
+      (ParentsPath = '{nodeId}') OR
+      (ParentsPath LIKE '{nodeId},%') OR
+      (ParentsPath LIKE '%,{nodeId},%') OR
+      (ParentsPath LIKE '%,{nodeId}')) {whereString}
 ORDER BY Taxis";
             }
             else if (scopeType == EScopeType.SelfAndChildren)
             {
                 sqlString = $@"SELECT NodeID
 FROM siteserver_Node 
-WHERE ((NodeID = {nodeInfo.NodeId}) OR
-      (ParentID = {nodeInfo.NodeId})) {whereString}
+WHERE ((NodeID = {nodeId}) OR
+      (ParentID = {nodeId})) {whereString}
 ORDER BY Taxis";
             }
 
@@ -1662,9 +1634,9 @@ ORDER BY Taxis";
             return list;
         }
 
-        public Hashtable GetNodeInfoHashtableByPublishmentSystemId(int publishmentSystemId)
+        public Dictionary<int, NodeInfo> GetNodeInfoDictionaryByPublishmentSystemId(int publishmentSystemId)
         {
-            var ht = new Hashtable();
+            var dic = new Dictionary<int, NodeInfo>();
             string sqlString =
                 $@"SELECT NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues
 FROM siteserver_Node 
@@ -1677,84 +1649,84 @@ ORDER BY Taxis";
                 {
                     var i = 0;
                     var nodeInfo = new NodeInfo(GetInt(rdr, i++), GetString(rdr, i++), ENodeTypeUtils.GetEnumType(GetString(rdr, i++)), GetInt(rdr, i++), GetString(rdr, i++), GetInt(rdr, i++), GetString(rdr, i++), GetInt(rdr, i++), GetInt(rdr, i++), GetBool(rdr, i++), GetString(rdr, i++), GetString(rdr, i++), GetInt(rdr, i++), GetDateTime(rdr, i++), GetString(rdr, i++), GetString(rdr, i++), GetInt(rdr, i++), GetString(rdr, i++), GetString(rdr, i++), GetString(rdr, i++), GetString(rdr, i++), ELinkTypeUtils.GetEnumType(GetString(rdr, i++)), GetInt(rdr, i++), GetInt(rdr, i++), GetString(rdr, i++), GetString(rdr, i++), GetString(rdr, i));
-                    ht.Add(nodeInfo.NodeId, nodeInfo);
+                    dic.Add(nodeInfo.NodeId, nodeInfo);
                 }
                 rdr.Close();
             }
 
-            return ht;
+            return dic;
         }
 
-        public IEnumerable GetDataSource(List<int> nodeIdList, int totalNum, string whereString, string orderByString)
-        {
-            if (nodeIdList.Count == 0)
-            {
-                return null;
-            }
-            string sqlString;
+//        public IEnumerable GetDataSource(List<int> nodeIdList, int totalNum, string whereString, string orderByString)
+//        {
+//            if (nodeIdList.Count == 0)
+//            {
+//                return null;
+//            }
+//            string sqlString;
 
-            if (totalNum > 0)
-            {
+//            if (totalNum > 0)
+//            {
+////                sqlString =
+////                    $@"SELECT TOP {totalNum} NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues
+////FROM siteserver_Node
+////WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString}) {orderByString}
+////";
+//                sqlString = SqlUtils.GetTopSqlString(TableName,
+//                    "NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues",
+//                    $"WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString}) {orderByString}",
+//                    totalNum);
+//            }
+//            else
+//            {
 //                sqlString =
-//                    $@"SELECT TOP {totalNum} NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues
+//                    $@"SELECT NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues
 //FROM siteserver_Node
 //WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString}) {orderByString}
 //";
-                sqlString = SqlUtils.GetTopSqlString(TableName,
-                    "NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues",
-                    $"WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString}) {orderByString}",
-                    totalNum);
-            }
-            else
-            {
-                sqlString =
-                    $@"SELECT NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues
-FROM siteserver_Node
-WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString}) {orderByString}
-";
-            }
+//            }
 
-            var enumerable = (IEnumerable)ExecuteReader(sqlString);
-            return enumerable;
-        }
+//            var enumerable = (IEnumerable)ExecuteReader(sqlString);
+//            return enumerable;
+//        }
 
-        public DataSet GetDataSet(List<int> nodeIdList, int totalNum, string whereString, string orderByString)
-        {
-            if (nodeIdList.Count == 0)
-            {
-                return null;
-            }
-            string sqlString;
+//        public DataSet GetDataSet(List<int> nodeIdList, int totalNum, string whereString, string orderByString)
+//        {
+//            if (nodeIdList.Count == 0)
+//            {
+//                return null;
+//            }
+//            string sqlString;
 
-            if (totalNum > 0)
-            {
+//            if (totalNum > 0)
+//            {
+////                sqlString =
+////                    $@"SELECT TOP {totalNum} NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues
+////FROM siteserver_Node
+////WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString}) {orderByString}
+////";
+//                sqlString = SqlUtils.GetTopSqlString(TableName,
+//                    "NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues",
+//                    $"WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString}) {orderByString}",
+//                    totalNum);
+//            }
+//            else
+//            {
 //                sqlString =
-//                    $@"SELECT TOP {totalNum} NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues
+//                    $@"SELECT NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues
 //FROM siteserver_Node
 //WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString}) {orderByString}
 //";
-                sqlString = SqlUtils.GetTopSqlString(TableName,
-                    "NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues",
-                    $"WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString}) {orderByString}",
-                    totalNum);
-            }
-            else
-            {
-                sqlString =
-                    $@"SELECT NodeID, NodeName, NodeType, PublishmentSystemID, ContentModelID, ParentID, ParentsPath, ParentsCount, ChildrenCount, IsLastNode, NodeIndexName, NodeGroupNameCollection, Taxis, AddDate, ImageUrl, Content, ContentNum, FilePath, ChannelFilePathRule, ContentFilePathRule, LinkUrl, LinkType, ChannelTemplateID, ContentTemplateID, Keywords, Description, ExtendValues
-FROM siteserver_Node
-WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString}) {orderByString}
-";
-            }
+//            }
 
-            var dataSet = ExecuteDataset(sqlString);
-            return dataSet;
-        }
+//            var dataSet = ExecuteDataset(sqlString);
+//            return dataSet;
+//        }
 
-        public IEnumerable GetStlDataSource(NodeInfo nodeInfo, int startNum, int totalNum, string whereString, EScopeType scopeType, string orderByString)
+        public string SqlColumns => $"{NodeAttribute.NodeId}, {NodeAttribute.AddDate}, {NodeAttribute.Taxis}";
+
+        public IEnumerable GetStlDataSource(List<int> nodeIdList, int startNum, int totalNum, string whereString, string orderByString)
         {
-            var nodeIdList = StlCacheManager.NodeIdList.GetNodeIdListByScopeType(nodeInfo, scopeType);
-
             if (nodeIdList == null || nodeIdList.Count == 0)
             {
                 return null;
@@ -1763,23 +1735,22 @@ WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {where
             string sqlWhereString =
                 $"WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString})";
 
-            var sqlSelect = BaiRongDataProvider.TableStructureDao.GetSelectSqlString(TableName, startNum, totalNum, "NodeID, AddDate, Taxis", sqlWhereString, orderByString);
+            var sqlSelect = BaiRongDataProvider.TableStructureDao.GetSelectSqlString(TableName, startNum, totalNum, SqlColumns, sqlWhereString, orderByString);
 
             return (IEnumerable)ExecuteReader(sqlSelect);
         }
 
-        public IEnumerable GetStlDataSourceByPublishmentSystemId(int publishmentSystemId, int startNum, int totalNum, string whereString, string orderByString)
+        public DataSet GetStlDataSourceByPublishmentSystemId(int publishmentSystemId, int startNum, int totalNum, string whereString, string orderByString)
         {
             string sqlWhereString = $"WHERE (PublishmentSystemID = {publishmentSystemId} {whereString})";
 
-            var sqlSelect = BaiRongDataProvider.TableStructureDao.GetSelectSqlString(TableName, startNum, totalNum, "NodeID, AddDate, Taxis", sqlWhereString, orderByString);
+            var sqlSelect = BaiRongDataProvider.TableStructureDao.GetSelectSqlString(TableName, startNum, totalNum, SqlColumns, sqlWhereString, orderByString);
 
-            return (IEnumerable)ExecuteReader(sqlSelect);
+            return ExecuteDataset(sqlSelect);
         }
 
-        public DataSet GetStlDataSet(NodeInfo nodeInfo, int startNum, int totalNum, string whereString, EScopeType scopeType, string orderByString)
+        public DataSet GetStlDataSet(List<int> nodeIdList, int startNum, int totalNum, string whereString, string orderByString)
         {
-            var nodeIdList = StlCacheManager.NodeIdList.GetNodeIdListByScopeType(nodeInfo, scopeType);
             if (nodeIdList == null || nodeIdList.Count == 0)
             {
                 return null;
@@ -1788,7 +1759,7 @@ WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {where
             string sqlWhereString =
                 $"WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {whereString})";
 
-            var sqlSelect = BaiRongDataProvider.TableStructureDao.GetSelectSqlString(TableName, startNum, totalNum, "NodeID, AddDate, Taxis", sqlWhereString, orderByString);
+            var sqlSelect = BaiRongDataProvider.TableStructureDao.GetSelectSqlString(TableName, startNum, totalNum, SqlColumns, sqlWhereString, orderByString);
 
             return ExecuteDataset(sqlSelect);
         }
@@ -1797,7 +1768,7 @@ WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {where
         {
             string sqlWhereString = $"WHERE (PublishmentSystemID = {publishmentSystemId} {whereString})";
 
-            var sqlSelect = BaiRongDataProvider.TableStructureDao.GetSelectSqlString(TableName, startNum, totalNum, "NodeID, AddDate, Taxis", sqlWhereString, orderByString);
+            var sqlSelect = BaiRongDataProvider.TableStructureDao.GetSelectSqlString(TableName, startNum, totalNum, SqlColumns, sqlWhereString, orderByString);
 
             return ExecuteDataset(sqlSelect);
         }
@@ -1825,9 +1796,9 @@ ORDER BY Taxis";
             return list;
         }
 
-        public List<NodeInfo> GetNodeInfoList(NodeInfo nodeInfo, int totalNum, string whereString, EScopeType scopeType, string orderByString)
+        public List<NodeInfo> GetNodeInfoList(int nodeId, int childrenCount, int totalNum, string whereString, EScopeType scopeType, string orderByString)
         {
-            var nodeIdList = GetNodeIdListByScopeType(nodeInfo, scopeType);
+            var nodeIdList = GetNodeIdListByScopeType(nodeId, childrenCount, scopeType, string.Empty, string.Empty, string.Empty);
             if (nodeIdList == null || nodeIdList.Count == 0)
             {
                 return null;
@@ -1859,7 +1830,7 @@ WHERE (NodeID IN ({TranslateUtils.ToSqlInStringWithoutQuote(nodeIdList)}) {where
 
             var nodeParms = new IDataParameter[]
             {
-                GetParameter(ParmNodeId, EDataType.Integer, nodeInfo.NodeId)
+                GetParameter(ParmNodeId, DataType.Integer, nodeId)
             };
 
             using (var rdr = ExecuteReader(sqlString, nodeParms))
@@ -1940,6 +1911,34 @@ ORDER BY Taxis";
                 rdr.Close();
             }
             return nodeIdList;
+        }
+
+        public int GetNodeIdByChannelIdOrChannelIndexOrChannelName(int publishmentSystemId, int channelId, string channelIndex, string channelName)
+        {
+            var retval = channelId;
+
+            if (!string.IsNullOrEmpty(channelIndex))
+            {
+                var theNodeId = GetNodeIdByNodeIndexName(publishmentSystemId, channelIndex);
+                if (theNodeId != 0)
+                {
+                    retval = theNodeId;
+                }
+            }
+            if (!string.IsNullOrEmpty(channelName))
+            {
+                var theNodeId = GetNodeIdByParentIdAndNodeName(publishmentSystemId, retval, channelName, true);
+                if (theNodeId == 0)
+                {
+                    theNodeId = GetNodeIdByParentIdAndNodeName(publishmentSystemId, publishmentSystemId, channelName, true);
+                }
+                if (theNodeId != 0)
+                {
+                    retval = theNodeId;
+                }
+            }
+
+            return retval;
         }
     }
 }

@@ -15,6 +15,7 @@ using SiteServer.CMS.Core;
 using SiteServer.CMS.Core.Permissions;
 using SiteServer.CMS.Core.Security;
 using SiteServer.CMS.Model;
+using SiteServer.CMS.Model.Enumerations;
 
 namespace SiteServer.BackgroundPages.Cms
 {
@@ -84,7 +85,7 @@ namespace SiteServer.BackgroundPages.Cms
 
             if (!IsPostBack)
             {
-                NodeManager.AddListItems(NodeIDDropDownList.Items, PublishmentSystemInfo, false, true, true, EContentModelType.Content, Body.AdministratorName);
+                NodeManager.AddListItems(NodeIDDropDownList.Items, PublishmentSystemInfo, false, true, Body.AdministratorName);
 
                 if (_tableStyleInfoList != null)
                 {

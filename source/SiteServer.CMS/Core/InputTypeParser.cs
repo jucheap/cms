@@ -11,6 +11,8 @@ using BaiRong.Core.Model.Attributes;
 using BaiRong.Core.Model.Enumerations;
 using SiteServer.CMS.Model;
 using SiteServer.CMS.Model.Enumerations;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.Core
 {
@@ -26,55 +28,55 @@ namespace SiteServer.CMS.Core
         {
             var retval = string.Empty;
 
-            if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.Text))
+            if (InputTypeUtils.Equals(styleInfo.InputType, InputType.Text))
             {
                 retval = ParseText(attributeName, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.TextArea))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.TextArea))
             {
                 retval = ParseTextArea(attributeName, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.TextEditor))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.TextEditor))
             {
                 retval = ParseTextEditor(publishmentSystemInfo, attributeName, pageScripts, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.SelectOne))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.SelectOne))
             {
                 retval = ParseSelectOne(attributeName, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.SelectMultiple))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.SelectMultiple))
             {
                 retval = ParseSelectMultiple(attributeName, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.CheckBox))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.CheckBox))
             {
                 retval = ParseCheckBox(attributeName, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.Radio))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.Radio))
             {
                 retval = ParseRadio(attributeName, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.Date))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.Date))
             {
                 retval = ParseDate(publishmentSystemInfo, attributeName, pageScripts, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.DateTime))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.DateTime))
             {
                 retval = ParseDateTime(publishmentSystemInfo, attributeName, pageScripts, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.Image))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.Image))
             {
                 retval = ParseImageUpload(attributeName, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.Video))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.Video))
             {
                 retval = ParseVideoUpload(attributeName, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.File))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.File))
             {
                 retval = ParseFileUpload(attributeName, styleInfo);
             }
-            else if (EInputTypeUtils.Equals(styleInfo.InputType, EInputType.RelatedField))
+            else if (InputTypeUtils.Equals(styleInfo.InputType, InputType.RelatedField))
             {
                 retval = ParseRelatedField(publishmentSystemInfo, attributeName, styleInfo);
             }
@@ -479,7 +481,7 @@ $(document).ready(function(){{
                 if (styleInfo.IsVisible == false) continue;
                 var theValue = GetValueByControl(styleInfo, publishmentSystemInfo, containerControl);
 
-                if (!EInputTypeUtils.EqualsAny(styleInfo.InputType, EInputType.TextEditor, EInputType.Image, EInputType.File, EInputType.Video) && styleInfo.AttributeName != BackgroundContentAttribute.LinkUrl)
+                if (!InputTypeUtils.EqualsAny(styleInfo.InputType, InputType.TextEditor, InputType.Image, InputType.File, InputType.Video) && styleInfo.AttributeName != BackgroundContentAttribute.LinkUrl)
                 {
                     theValue = PageUtils.FilterSqlAndXss(theValue);
                 }
@@ -508,7 +510,7 @@ $(document).ready(function(){{
                 if (styleInfo.IsVisible == false || dontAddAttributes.Contains(styleInfo.AttributeName.ToLower())) continue;
                 var theValue = GetValueByForm(styleInfo, publishmentSystemInfo, formCollection, isSaveImage);
 
-                if (!EInputTypeUtils.EqualsAny(styleInfo.InputType, EInputType.TextEditor, EInputType.Image, EInputType.File, EInputType.Video) && styleInfo.AttributeName != BackgroundContentAttribute.LinkUrl)
+                if (!InputTypeUtils.EqualsAny(styleInfo.InputType, InputType.TextEditor, InputType.Image, InputType.File, InputType.Video) && styleInfo.AttributeName != BackgroundContentAttribute.LinkUrl)
                 {
                     theValue = PageUtils.FilterSqlAndXss(theValue);
                 }
@@ -526,7 +528,7 @@ $(document).ready(function(){{
                     ExtendedAttributes.SetExtendedAttribute(attributes, ContentAttribute.GetFormatStringAttributeName(styleInfo.AttributeName), theFormatString);
                 }
 
-                if (EInputTypeUtils.EqualsAny(styleInfo.InputType, EInputType.Image, EInputType.Video, EInputType.File))
+                if (InputTypeUtils.EqualsAny(styleInfo.InputType, InputType.Image, InputType.Video, InputType.File))
                 {
                     var attributeName = ContentAttribute.GetExtendAttributeName(styleInfo.AttributeName);
                     ExtendedAttributes.SetExtendedAttribute(attributes, attributeName, formCollection[attributeName]);
@@ -546,7 +548,7 @@ $(document).ready(function(){{
             {
                 if (styleInfo.IsVisible == false || dontAddAttributes.Contains(styleInfo.AttributeName.ToLower())) continue;
                 var theValue = GetValueByForm(styleInfo, publishmentSystemInfo, formCollection);
-                if (!EInputTypeUtils.EqualsAny(styleInfo.InputType, EInputType.TextEditor, EInputType.Image, EInputType.File, EInputType.Video) && styleInfo.AttributeName != BackgroundContentAttribute.LinkUrl)
+                if (!InputTypeUtils.EqualsAny(styleInfo.InputType, InputType.TextEditor, InputType.Image, InputType.File, InputType.Video) && styleInfo.AttributeName != BackgroundContentAttribute.LinkUrl)
                 {
                     theValue = PageUtils.FilterSqlAndXss(theValue);
                 }
@@ -564,7 +566,7 @@ $(document).ready(function(){{
                     ExtendedAttributes.SetExtendedAttribute(attributes, ContentAttribute.GetFormatStringAttributeName(styleInfo.AttributeName), theFormatString);
                 }
 
-                if (EInputTypeUtils.EqualsAny(styleInfo.InputType, EInputType.Image, EInputType.Video, EInputType.File))
+                if (InputTypeUtils.EqualsAny(styleInfo.InputType, InputType.Image, InputType.Video, InputType.File))
                 {
                     var attributeName = ContentAttribute.GetExtendAttributeName(styleInfo.AttributeName);
                     ExtendedAttributes.SetExtendedAttribute(attributes, attributeName, formCollection[attributeName]);
@@ -580,7 +582,7 @@ $(document).ready(function(){{
                 if (styleInfo.IsVisible == false) continue;
                 var theValue = GetValueByForm(styleInfo, publishmentSystemInfo, formCollection);
 
-                if (!EInputTypeUtils.EqualsAny(styleInfo.InputType, EInputType.TextEditor, EInputType.Image, EInputType.File, EInputType.Video) && styleInfo.AttributeName != BackgroundContentAttribute.LinkUrl)
+                if (!InputTypeUtils.EqualsAny(styleInfo.InputType, InputType.TextEditor, InputType.Image, InputType.File, InputType.Video) && styleInfo.AttributeName != BackgroundContentAttribute.LinkUrl)
                 {
                     theValue = PageUtils.FilterSqlAndXss(theValue);
                 }
@@ -606,9 +608,9 @@ $(document).ready(function(){{
         {
             var theValue = ControlUtils.GetInputValue(containerControl, styleInfo.AttributeName) ?? string.Empty;
 
-            var inputType = EInputTypeUtils.GetEnumType(styleInfo.InputType);
+            var inputType = InputTypeUtils.GetEnumType(styleInfo.InputType);
 
-            if (inputType == EInputType.TextEditor)
+            if (inputType == InputType.TextEditor)
             {
                 theValue = StringUtility.TextEditorContentEncode(theValue, publishmentSystemInfo);
             }
@@ -620,9 +622,9 @@ $(document).ready(function(){{
         {
             var theValue = formCollection[styleInfo.AttributeName] ?? string.Empty;
 
-            var inputType = EInputTypeUtils.GetEnumType(styleInfo.InputType);
+            var inputType = InputTypeUtils.GetEnumType(styleInfo.InputType);
 
-            if (inputType == EInputType.TextEditor)
+            if (inputType == InputType.TextEditor)
             {
                 theValue = StringUtility.TextEditorContentEncode(theValue, publishmentSystemInfo);
                 theValue = ETextEditorTypeUtils.TranslateToStlElement(theValue);
@@ -635,9 +637,9 @@ $(document).ready(function(){{
         {
             var theValue = formCollection[styleInfo.AttributeName] ?? string.Empty;
 
-            var inputType = EInputTypeUtils.GetEnumType(styleInfo.InputType);
+            var inputType = InputTypeUtils.GetEnumType(styleInfo.InputType);
 
-            if (inputType == EInputType.TextEditor)
+            if (inputType == InputType.TextEditor)
             {
                 theValue = StringUtility.TextEditorContentEncode(theValue, publishmentSystemInfo, isSaveImage && publishmentSystemInfo.Additional.IsSaveImageInTextEditor);
                 theValue = ETextEditorTypeUtils.TranslateToStlElement(theValue);

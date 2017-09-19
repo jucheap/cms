@@ -4,6 +4,7 @@ using BaiRong.Core;
 using BaiRong.Core.Model;
 using SiteServer.CMS.Core;
 using SiteServer.CMS.Model;
+using SiteServer.CMS.StlParser.Cache;
 
 namespace SiteServer.CMS.StlParser.Model
 {
@@ -13,7 +14,7 @@ namespace SiteServer.CMS.StlParser.Model
         private readonly SortedDictionary<string, string> _pageAfterBodyScripts;
         private readonly SortedDictionary<string, string> _pageBeforeBodyScripts;
         private readonly SortedDictionary<string, string> _pageEndScripts;
-        
+
         public PublishmentSystemInfo PublishmentSystemInfo { get; private set; }
 
         public string ApiUrl => PublishmentSystemInfo.Additional.ApiUrl;
@@ -29,9 +30,9 @@ namespace SiteServer.CMS.StlParser.Model
             _uniqueId = uniqueId;
         }
 
-        public Stack ChannelItems { get; }
+        public Stack<ChannelItemInfo> ChannelItems { get; }
 
-        public Stack ContentItems { get; }
+        public Stack<ContentItemInfo> ContentItems { get; }
 
         public Stack CommentItems { get; }
 
@@ -101,8 +102,8 @@ namespace SiteServer.CMS.StlParser.Model
             UserInfo = userInfo;
             _uniqueId = 1;
 
-            ChannelItems = new Stack(5);
-            ContentItems = new Stack(5);
+            ChannelItems = new Stack<ChannelItemInfo>(5);
+            ContentItems = new Stack<ContentItemInfo>(5);
             CommentItems = new Stack(5);
             InputItems = new Stack(5);
             SqlItems = new Stack(5);
@@ -290,15 +291,7 @@ wnd_frame.src=url;}}
 
         public bool IsPageScriptsExists(string pageJsName, bool isAfterBody)
         {
-            if (isAfterBody)
-            {
-                return _pageAfterBodyScripts.ContainsKey(pageJsName);
-            }
-            else
-            {
-                return _pageBeforeBodyScripts.ContainsKey(pageJsName);
-            }
-
+            return isAfterBody ? _pageAfterBodyScripts.ContainsKey(pageJsName) : _pageBeforeBodyScripts.ContainsKey(pageJsName);
         }
 
         public void AddPageScriptsIfNotExists(string pageJsName)
@@ -361,14 +354,7 @@ wnd_frame.src=url;}}
 
         public string GetPageScripts(string pageJsName, bool isAfterBody)
         {
-            if (isAfterBody)
-            {
-                return _pageAfterBodyScripts[pageJsName];
-            }
-            else
-            {
-                return _pageBeforeBodyScripts[pageJsName];
-            }
+            return isAfterBody ? _pageAfterBodyScripts[pageJsName] : _pageBeforeBodyScripts[pageJsName];
         }
 
         public ICollection PageEndScriptKeys => _pageEndScripts.Keys;
@@ -502,33 +488,30 @@ wnd_frame.src=url;}}
         {
             get
             {
-                var list = CacheUtils.Get("PageInfo_InnerLinkInfoList_" + PublishmentSystemId) as List<InnerLinkInfo>;
-                if (list != null) return list;
+                var list = InnerLink.GetInnerLinkInfoList(PublishmentSystemId);
 
-                list = DataProvider.InnerLinkDao.GetInnerLinkInfoList(PublishmentSystemId);
-                var innerLinkNameArrayList = new ArrayList();
-                foreach (InnerLinkInfo innerLinkInfo in innerLinkNameArrayList)
+                var innerLinkNameList = new List<string>();
+                foreach (var innerLinkInfo in list)
                 {
-                    innerLinkNameArrayList.Add(innerLinkInfo.InnerLinkName);
+                    innerLinkNameList.Add(innerLinkInfo.InnerLinkName);
                 }
                 if (PublishmentSystemInfo.Additional.IsInnerLinkByChannelName)
                 {
-                    var dic = NodeManager.GetNodeInfoHashtableByPublishmentSystemId(PublishmentSystemId);
-                    foreach (NodeInfo nodeInfo in dic.Values)
+                    var dic = NodeManager.GetNodeInfoDictionaryByPublishmentSystemId(PublishmentSystemId);
+                    foreach (var nodeInfo in dic.Values)
                     {
-                        if (!innerLinkNameArrayList.Contains(nodeInfo.NodeName))
-                        {
-                            var innerLinkInfo = new InnerLinkInfo(nodeInfo.NodeName, PublishmentSystemId, PageUtility.GetChannelUrl(PublishmentSystemInfo, nodeInfo));
-                            list.Add(innerLinkInfo);
-                            innerLinkNameArrayList.Add(nodeInfo.NodeName);
-                        }
+                        if (innerLinkNameList.Contains(nodeInfo.NodeName)) continue;
+
+                        var innerLinkInfo = new InnerLinkInfo(nodeInfo.NodeName, PublishmentSystemId, PageUtility.GetChannelUrl(PublishmentSystemInfo, nodeInfo));
+                        list.Add(innerLinkInfo);
+                        innerLinkNameList.Add(nodeInfo.NodeName);
                     }
                 }
-                foreach (InnerLinkInfo innerLinkInfo in list)
+                foreach (var innerLinkInfo in list)
                 {
                     innerLinkInfo.InnerString = string.Format(PublishmentSystemInfo.Additional.InnerLinkFormatString, PageUtils.AddProtocolToUrl(PageUtility.ParseNavigationUrl(PublishmentSystemInfo, innerLinkInfo.LinkUrl)), innerLinkInfo.InnerLinkName);
                 }
-                CacheUtils.Insert("PageInfo_InnerLinkInfoList_" + PublishmentSystemId, list, 10);
+
                 return list;
             }
         }

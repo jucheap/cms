@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using BaiRong.Core;
-using BaiRong.Core.Model.Enumerations;
+using BaiRong.Core; 
+using BaiRong.Core.AuxiliaryTable;
+using BaiRong.Core.Model.Enumerations; 
 using SiteServer.CMS.Core;
+using SiteServer.CMS.StlParser.Cache;
 using SiteServer.CMS.StlParser.Model;
 using SiteServer.CMS.StlParser.Utility;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.StlParser.StlEntity
 {
@@ -93,7 +96,7 @@ namespace SiteServer.CMS.StlParser.StlEntity
                 }
                 else if (StringUtils.EqualsIgnoreCase(CurrentUrl, attributeName))//当前页地址
                 {
-                    parsedContent = StlUtility.GetStlCurrentUrl(pageInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo);
+                    parsedContent = StlUtility.GetStlCurrentUrl(pageInfo.PublishmentSystemInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo, pageInfo.TemplateInfo.TemplateType, pageInfo.TemplateInfo.TemplateId);
                 }
                 else if (StringUtils.EqualsIgnoreCase(ChannelUrl, attributeName))//栏目页地址
                 {
@@ -105,17 +108,17 @@ namespace SiteServer.CMS.StlParser.StlEntity
                 }
                 else if (StringUtils.EqualsIgnoreCase(attributeName, LoginUrl))
                 {
-                    var returnUrl = StlUtility.GetStlCurrentUrl(pageInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo);
+                    var returnUrl = StlUtility.GetStlCurrentUrl(pageInfo.PublishmentSystemInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo, pageInfo.TemplateInfo.TemplateType, pageInfo.TemplateInfo.TemplateId);
                     parsedContent = HomeUtils.GetLoginUrl(pageInfo.HomeUrl, returnUrl);
                 }
                 else if (StringUtils.EqualsIgnoreCase(attributeName, LogoutUrl))
                 {
-                    var returnUrl = StlUtility.GetStlCurrentUrl(pageInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo);
+                    var returnUrl = StlUtility.GetStlCurrentUrl(pageInfo.PublishmentSystemInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo, pageInfo.TemplateInfo.TemplateType, pageInfo.TemplateInfo.TemplateId);
                     parsedContent = HomeUtils.GetLogoutUrl(pageInfo.HomeUrl, returnUrl);
                 }
                 else if (StringUtils.EqualsIgnoreCase(attributeName, RegisterUrl))
                 {
-                    var returnUrl = StlUtility.GetStlCurrentUrl(pageInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo);
+                    var returnUrl = StlUtility.GetStlCurrentUrl(pageInfo.PublishmentSystemInfo, contextInfo.ChannelId, contextInfo.ContentId, contextInfo.ContentInfo, pageInfo.TemplateInfo.TemplateType, pageInfo.TemplateInfo.TemplateId);
                     parsedContent = HomeUtils.GetRegisterUrl(pageInfo.HomeUrl, returnUrl);
                 }
                 else if (StringUtils.StartsWithIgnoreCase(attributeName, "TableFor"))//
@@ -123,22 +126,6 @@ namespace SiteServer.CMS.StlParser.StlEntity
                     if (StringUtils.EqualsIgnoreCase(attributeName, "TableForContent"))
                     {
                         parsedContent = pageInfo.PublishmentSystemInfo.AuxiliaryTableForContent;
-                    }
-                    else if (StringUtils.EqualsIgnoreCase(attributeName, "TableForGovInteract"))
-                    {
-                        parsedContent = pageInfo.PublishmentSystemInfo.AuxiliaryTableForGovInteract;
-                    }
-                    else if (StringUtils.EqualsIgnoreCase(attributeName, "TableForGovPublic"))
-                    {
-                        parsedContent = pageInfo.PublishmentSystemInfo.AuxiliaryTableForGovPublic;
-                    }
-                    else if (StringUtils.EqualsIgnoreCase(attributeName, "TableForJob"))
-                    {
-                        parsedContent = pageInfo.PublishmentSystemInfo.AuxiliaryTableForJob;
-                    }
-                    else if (StringUtils.EqualsIgnoreCase(attributeName, "TableForVote"))
-                    {
-                        parsedContent = pageInfo.PublishmentSystemInfo.AuxiliaryTableForVote;
                     }
                 }
                 else if (StringUtils.StartsWithIgnoreCase(attributeName, "Site"))//
@@ -150,15 +137,35 @@ namespace SiteServer.CMS.StlParser.StlEntity
                     if (pageInfo.PublishmentSystemInfo.Additional.ContainsKey(attributeName))
                     {
                         parsedContent = pageInfo.PublishmentSystemInfo.Additional.GetExtendedAttribute(attributeName);
-                        if (parsedContent.StartsWith("@"))
+                         
+                        if (!string.IsNullOrEmpty(parsedContent))
                         {
-                            parsedContent = PageUtility.ParseNavigationUrl(pageInfo.PublishmentSystemId, parsedContent);
+                            var styleInfo = TableStyleManager.GetTableStyleInfo(ETableStyle.Site, DataProvider.PublishmentSystemDao.TableName, attributeName, RelatedIdentities.GetRelatedIdentities(ETableStyle.Site, pageInfo.PublishmentSystemId, pageInfo.PublishmentSystemId));
+                            
+                            // 如果 styleInfo.TableStyleId <= 0，表示此字段已经被删除了，不需要再显示值了 ekun008
+                            if (styleInfo.TableStyleId > 0 && styleInfo.IsVisible)
+                            {
+                                if (InputTypeUtils.EqualsAny(styleInfo.InputType, InputType.Image, InputType.File))
+                                {
+                                    parsedContent = PageUtility.ParseNavigationUrl(pageInfo.PublishmentSystemInfo, parsedContent);
+                                }
+                                else
+                                {
+                                    parsedContent = InputParserUtility.GetContentByTableStyle(parsedContent, string.Empty, pageInfo.PublishmentSystemInfo, ETableStyle.Site, styleInfo, string.Empty, null, string.Empty, true);
+                                }
+                            }
+                            else
+                            { // 如果字段已经被删除或不再显示了，则此字段的值为空。有时虚拟字段值不会清空
+                                parsedContent = string.Empty;
+                            }
                         }
                     }
                     else
                     {
-                        var stlTagInfo = DataProvider.StlTagDao.GetStlTagInfo(pageInfo.PublishmentSystemId, attributeName) ??
-                                         DataProvider.StlTagDao.GetStlTagInfo(0, attributeName);
+                        //var stlTagInfo = DataProvider.StlTagDao.GetStlTagInfo(pageInfo.PublishmentSystemId, attributeName) ??
+                        //                 DataProvider.StlTagDao.GetStlTagInfo(0, attributeName);
+                        var stlTagInfo = StlTag.GetStlTagInfo(pageInfo.PublishmentSystemId, attributeName) ??
+                                         StlTag.GetStlTagInfo(0, attributeName);
                         if (!string.IsNullOrEmpty(stlTagInfo?.TagContent))
                         {
                             var innerBuilder = new StringBuilder(stlTagInfo.TagContent);

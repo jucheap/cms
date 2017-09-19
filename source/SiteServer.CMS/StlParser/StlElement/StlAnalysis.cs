@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Xml;
 using BaiRong.Core;
 using SiteServer.CMS.Core;
 using SiteServer.CMS.Model.Enumerations;
+using SiteServer.CMS.StlParser.Cache;
 using SiteServer.CMS.StlParser.Model;
-using SiteServer.CMS.StlParser.Parser;
+using SiteServer.CMS.StlParser.Parsers;
 using SiteServer.CMS.StlParser.Utility;
 
 namespace SiteServer.CMS.StlParser.StlElement
@@ -25,7 +25,6 @@ namespace SiteServer.CMS.StlParser.StlElement
         public const string AttributeStyle = "style";
         public const string AttributeAddNum = "addNum";
         public const string AttributeSince = "since";
-        public const string AttributeIsDynamic = "isDynamic";
 
         public static SortedList<string, string> AttributeList => new SortedList<string, string>
         {
@@ -36,8 +35,7 @@ namespace SiteServer.CMS.StlParser.StlElement
             {AttributeIsAverage, "是否显示日均量"},
             {AttributeStyle, "显示样式"},
             {AttributeAddNum, "添加数目"},
-            {AttributeSince, "时间段"},
-            {AttributeIsDynamic, "是否动态显示"}
+            {AttributeSince, "时间段"}
         };
 
         public static readonly string TypePageView = "PageView";
@@ -60,90 +58,71 @@ namespace SiteServer.CMS.StlParser.StlElement
             {ScopePage, "统计页面"}
         };
 
-        public static string Parse(string stlElement, XmlNode node, PageInfo pageInfo, ContextInfo contextInfo)
+        public static string Parse(PageInfo pageInfo, ContextInfo contextInfo)
         {
-            string parsedContent;
-            try
+            var isGetUrlFromAttribute = false;
+            var channelIndex = string.Empty;
+            var channelName = string.Empty;
+
+            var type = TypePageView;
+            var scope = ScopePage;
+            var isAverage = false;
+            var style = string.Empty;
+            var addNum = 0;
+            var since = string.Empty;
+
+            foreach (var name in contextInfo.Attributes.Keys)
             {
-                var ie = node.Attributes?.GetEnumerator();
+                var value = contextInfo.Attributes[name];
 
-                var isGetUrlFromAttribute = false;
-                var channelIndex = string.Empty;
-                var channelName = string.Empty;
-
-                var type = TypePageView;
-                var scope = ScopePage;
-                var isAverage = false;
-                var style = string.Empty;
-                var addNum = 0;
-                var since = string.Empty;
-                var isDynamic = false;
-
-                if (ie != null)
+                if (StringUtils.EqualsIgnoreCase(name, AttributeChannelIndex))
                 {
-                    while (ie.MoveNext())
+                    channelIndex = StlEntityParser.ReplaceStlEntitiesForAttributeValue(value, pageInfo, contextInfo);
+                    if (!string.IsNullOrEmpty(channelIndex))
                     {
-                        var attr = (XmlAttribute)ie.Current;
-                        if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeChannelIndex))
-                        {
-                            channelIndex = StlEntityParser.ReplaceStlEntitiesForAttributeValue(attr.Value, pageInfo, contextInfo);
-                            if (!string.IsNullOrEmpty(channelIndex))
-                            {
-                                isGetUrlFromAttribute = true;
-                            }
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeChannelName))
-                        {
-                            channelName = StlEntityParser.ReplaceStlEntitiesForAttributeValue(attr.Value, pageInfo, contextInfo);
-                            if (!string.IsNullOrEmpty(channelName))
-                            {
-                                isGetUrlFromAttribute = true;
-                            }
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeType))
-                        {
-                            type = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeScope))
-                        {
-                            scope = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeIsAverage))
-                        {
-                            isAverage = TranslateUtils.ToBool(attr.Value, false);
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeStyle))
-                        {
-                            style = ETrackerStyleUtils.GetValue(ETrackerStyleUtils.GetEnumType(attr.Value));
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeAddNum))
-                        {
-                            addNum = TranslateUtils.ToInt(attr.Value);
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeSince))
-                        {
-                            since = attr.Value;
-                        }
-                        else if (StringUtils.EqualsIgnoreCase(attr.Name, AttributeIsDynamic))
-                        {
-                            isDynamic = TranslateUtils.ToBool(attr.Value);
-                        }
+                        isGetUrlFromAttribute = true;
                     }
                 }
-
-                parsedContent = isDynamic ? StlDynamic.ParseDynamicElement(stlElement, pageInfo, contextInfo) : ParseImpl(pageInfo, contextInfo, isGetUrlFromAttribute, channelIndex, channelName, type, scope, isAverage, style, addNum, since);
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeChannelName))
+                {
+                    channelName = StlEntityParser.ReplaceStlEntitiesForAttributeValue(value, pageInfo, contextInfo);
+                    if (!string.IsNullOrEmpty(channelName))
+                    {
+                        isGetUrlFromAttribute = true;
+                    }
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeType))
+                {
+                    type = value;
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeScope))
+                {
+                    scope = value;
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeIsAverage))
+                {
+                    isAverage = TranslateUtils.ToBool(value, false);
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeStyle))
+                {
+                    style = ETrackerStyleUtils.GetValue(ETrackerStyleUtils.GetEnumType(value));
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeAddNum))
+                {
+                    addNum = TranslateUtils.ToInt(value);
+                }
+                else if (StringUtils.EqualsIgnoreCase(name, AttributeSince))
+                {
+                    since = value;
+                }
             }
-            catch (Exception ex)
-            {
-                parsedContent = StlParserUtility.GetStlErrorMessage(ElementName, ex);
-            }
 
-            return parsedContent;
+            return ParseImpl(pageInfo, contextInfo, isGetUrlFromAttribute, channelIndex, channelName, type, scope, isAverage, style, addNum, since);
         }
 
         private static string ParseImpl(PageInfo pageInfo, ContextInfo contextInfo, bool isGetUrlFromAttribute, string channelIndex, string channelName , string type, string scope, bool isAverage, string style, int addNum, string since)
         {
-            var channelId = StlCacheManager.NodeId.GetNodeIdByChannelIdOrChannelIndexOrChannelName(pageInfo.PublishmentSystemId, contextInfo.ChannelId, channelIndex, channelName);
+            var channelId = StlDataUtility.GetNodeIdByChannelIdOrChannelIndexOrChannelName(pageInfo.PublishmentSystemId, contextInfo.ChannelId, channelIndex, channelName);
 
             var contentId = 0;
             //判断是否链接地址由标签属性获得
@@ -162,10 +141,10 @@ namespace SiteServer.CMS.StlParser.StlElement
                 }
             }
 
-            return GetAnalysisValue(pageInfo, channelId, contentId, ETemplateTypeUtils.GetValue(templateType), type, scope, isAverage, style, addNum, since, string.Empty);
+            return GetAnalysisValue(pageInfo, contextInfo, channelId, contentId, ETemplateTypeUtils.GetValue(templateType), type, scope, isAverage, style, addNum, since, string.Empty);
         }
 
-        private static string GetAnalysisValue(PageInfo pageInfo, int channelId, int contentId, string templateType, string type, string scope, bool isAverage, string style, int addNum, string since, string referrer)
+        private static string GetAnalysisValue(PageInfo pageInfo, ContextInfo contextInfo, int channelId, int contentId, string templateType, string type, string scope, bool isAverage, string style, int addNum, string since, string referrer)
         {
             var publishmentSystemInfo = pageInfo.PublishmentSystemInfo;
             if (publishmentSystemInfo == null) return string.Empty;
@@ -194,11 +173,13 @@ namespace SiteServer.CMS.StlParser.StlElement
             {
                 if (StringUtils.EqualsIgnoreCase(scope, ScopePage))
                 {
-                    accessNum = eTemplateType != ETemplateType.FileTemplate ? DataProvider.TrackingDao.GetTotalAccessNumByPageInfo(pageInfo.PublishmentSystemId, channelId, contentId, sinceDate) : DataProvider.TrackingDao.GetTotalAccessNumByPageUrl(pageInfo.PublishmentSystemId, referrer, sinceDate);
+                    //accessNum = eTemplateType != ETemplateType.FileTemplate ? DataProvider.TrackingDao.GetTotalAccessNumByPageInfo(pageInfo.PublishmentSystemId, channelId, contentId, sinceDate) : DataProvider.TrackingDao.GetTotalAccessNumByPageUrl(pageInfo.PublishmentSystemId, referrer, sinceDate);
+                    accessNum = eTemplateType != ETemplateType.FileTemplate ? Tracking.GetTotalAccessNumByPageInfo(pageInfo.PublishmentSystemId, channelId, contentId, sinceDate) : Tracking.GetTotalAccessNumByPageUrl(pageInfo.PublishmentSystemId, referrer, sinceDate);
                 }
                 else
                 {
-                    accessNum = DataProvider.TrackingDao.GetTotalAccessNum(pageInfo.PublishmentSystemId, sinceDate);
+                    //accessNum = DataProvider.TrackingDao.GetTotalAccessNum(pageInfo.PublishmentSystemId, sinceDate);
+                    accessNum = Tracking.GetTotalAccessNum(pageInfo.PublishmentSystemId, sinceDate);
                     accessNum = accessNum + publishmentSystemInfo.Additional.TrackerPageView;
                 }
                 if (isAverage)
@@ -209,7 +190,7 @@ namespace SiteServer.CMS.StlParser.StlElement
                     {
                         timeSpan = new TimeSpan(DateTime.Now.Ticks - sinceDate.Ticks);
                     }
-                    var trackerDays = (timeSpan.Days == 0) ? 1 : timeSpan.Days;//总统计天数
+                    var trackerDays = timeSpan.Days == 0 ? 1 : timeSpan.Days;//总统计天数
                     trackerDays = trackerDays + publishmentSystemInfo.Additional.TrackerDays;
                     accessNum = Convert.ToInt32(Math.Round(Convert.ToDouble(accessNum / trackerDays)));
                 }
@@ -218,48 +199,59 @@ namespace SiteServer.CMS.StlParser.StlElement
             {
                 if (StringUtils.EqualsIgnoreCase(scope, ScopePage))
                 {
-                    accessNum = eTemplateType != ETemplateType.FileTemplate ? DataProvider.TrackingDao.GetTotalUniqueAccessNumByPageInfo(pageInfo.PublishmentSystemId, channelId, contentId, sinceDate) : DataProvider.TrackingDao.GetTotalUniqueAccessNumByPageUrl(pageInfo.PublishmentSystemId, referrer, sinceDate);
+                    //accessNum = eTemplateType != ETemplateType.FileTemplate ? DataProvider.TrackingDao.GetTotalUniqueAccessNumByPageInfo(pageInfo.PublishmentSystemId, channelId, contentId, sinceDate) : DataProvider.TrackingDao.GetTotalUniqueAccessNumByPageUrl(pageInfo.PublishmentSystemId, referrer, sinceDate);
+                    accessNum = eTemplateType != ETemplateType.FileTemplate ? Tracking.GetTotalUniqueAccessNumByPageInfo(pageInfo.PublishmentSystemId, channelId, contentId, sinceDate) : Tracking.GetTotalUniqueAccessNumByPageUrl(pageInfo.PublishmentSystemId, referrer, sinceDate);
                 }
                 else
                 {
-                    accessNum = DataProvider.TrackingDao.GetTotalUniqueAccessNum(pageInfo.PublishmentSystemId, sinceDate);
+                    //accessNum = DataProvider.TrackingDao.GetTotalUniqueAccessNum(pageInfo.PublishmentSystemId, sinceDate);
+                    accessNum = Tracking.GetTotalUniqueAccessNum(pageInfo.PublishmentSystemId, sinceDate);
                     accessNum = accessNum + publishmentSystemInfo.Additional.TrackerUniqueVisitor;
                 }
                 if (isAverage)
                 {
                     var nodeInfo = NodeManager.GetNodeInfo(pageInfo.PublishmentSystemId, pageInfo.PublishmentSystemId);
                     var timeSpan = new TimeSpan(DateTime.Now.Ticks - nodeInfo.AddDate.Ticks);
-                    var trackerDays = (timeSpan.Days == 0) ? 1 : timeSpan.Days;//总统计天数
+                    var trackerDays = timeSpan.Days == 0 ? 1 : timeSpan.Days;//总统计天数
                     trackerDays = trackerDays + publishmentSystemInfo.Additional.TrackerDays;
                     accessNum = Convert.ToInt32(Math.Round(Convert.ToDouble(accessNum / trackerDays)));
                 }
             }
             else if (StringUtils.EqualsIgnoreCase(type, TypeCurrentVisitor))
             {
-                accessNum = DataProvider.TrackingDao.GetCurrentVisitorNum(pageInfo.PublishmentSystemId, publishmentSystemInfo.Additional.TrackerCurrentMinute);
+                //accessNum = DataProvider.TrackingDao.GetCurrentVisitorNum(pageInfo.PublishmentSystemId, publishmentSystemInfo.Additional.TrackerCurrentMinute);
+                accessNum = Tracking.GetCurrentVisitorNum(pageInfo.PublishmentSystemId, publishmentSystemInfo.Additional.TrackerCurrentMinute);
             }
 
             accessNum = accessNum + addNum;
             if (accessNum == 0) accessNum = 1;
 
-            if (eStyle == ETrackerStyle.Number)
+            // 如果是实体标签，则只返回数字
+            if (contextInfo.IsCurlyBrace)
             {
-                html = accessNum.ToString();
+                return accessNum.ToString();
             }
             else
             {
-                var numString = accessNum.ToString();
-                var htmlBuilder = new StringBuilder();
-                string imgFolder = $"{SiteFilesAssets.GetUrl(pageInfo.ApiUrl, SiteFilesAssets.Tracker.DirectoryName)}/{ETrackerStyleUtils.GetValue(eStyle)}";
-                foreach (var t in numString)
+                if (eStyle == ETrackerStyle.Number)
                 {
-                    string imgHtml = $"<img src='{imgFolder}/{t}.gif' align=absmiddle border=0>";
-                    htmlBuilder.Append(imgHtml);
+                    html = accessNum.ToString();
                 }
-                html = htmlBuilder.ToString();
-            }
+                else
+                {
+                    var numString = accessNum.ToString();
+                    var htmlBuilder = new StringBuilder();
+                    string imgFolder = $"{SiteFilesAssets.GetUrl(pageInfo.ApiUrl, SiteFilesAssets.Tracker.DirectoryName)}/{ETrackerStyleUtils.GetValue(eStyle)}";
+                    foreach (var t in numString)
+                    {
+                        string imgHtml = $"<img src='{imgFolder}/{t}.gif' align=absmiddle border=0>";
+                        htmlBuilder.Append(imgHtml);
+                    }
+                    html = htmlBuilder.ToString();
+                }
 
-            return html;
+                return html;
+            }
         }
 	}
 }

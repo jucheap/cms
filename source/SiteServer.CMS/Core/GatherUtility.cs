@@ -10,6 +10,9 @@ using BaiRong.Core.Net;
 using SiteServer.CMS.Core.Create;
 using SiteServer.CMS.Model;
 using System.Collections.Generic;
+using BaiRong.Core.Model;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace SiteServer.CMS.Core
 {
@@ -20,7 +23,7 @@ namespace SiteServer.CMS.Core
             var retval = normalString;
             if (!string.IsNullOrEmpty(normalString))
             {
-                var replaceChar = new char[] { '\\', '^', '$', '.', '{', '[', '(', ')', ']', '}', '+', '?', '!', '#' };
+                var replaceChar = new[] { '\\', '^', '$', '.', '{', '[', '(', ')', ']', '}', '+', '?', '!', '#' };
                 foreach (var theChar in replaceChar)
                 {
                     retval = retval.Replace(theChar.ToString(), "\\" + theChar);
@@ -132,7 +135,7 @@ namespace SiteServer.CMS.Core
             {
                 if (isCache)
                 {
-                    CacheUtils.Max(cacheMessageKey, "获取链接" + gatherUrl);//存储消息
+                    CacheUtils.Insert(cacheMessageKey, "获取链接" + gatherUrl);//存储消息
                 }
                 contentUrls.AddRange(GetContentUrls(gatherUrl, gatherRuleInfo.Charset, gatherRuleInfo.CookieString, regexListArea, regexUrlInclude, errorBuilder));
             }
@@ -184,7 +187,7 @@ namespace SiteServer.CMS.Core
             return contentUrls;
         }
 
-        public static NameValueCollection GetContentNameValueCollection(ECharset charset, string url, string cookieString, string regexContentExclude, string contentHtmlClearCollection, string contentHtmlClearTagCollection, string regexTitle, string regexContent, string regexContent2, string regexContent3, string regexNextPage, string regexChannel, List<string> contentAttributes, NameValueCollection contentAttributesXML)
+        public static NameValueCollection GetContentNameValueCollection(ECharset charset, string url, string cookieString, string regexContentExclude, string contentHtmlClearCollection, string contentHtmlClearTagCollection, string regexTitle, string regexContent, string regexContent2, string regexContent3, string regexNextPage, string regexChannel, List<string> contentAttributes, NameValueCollection contentAttributesXml)
         {
             var attributes = new NameValueCollection();
 
@@ -239,8 +242,8 @@ namespace SiteServer.CMS.Core
 
             foreach (string attributeName in contentAttributes)
             {
-                var normalStart = StringUtils.ValueFromUrl(contentAttributesXML[attributeName + "_ContentStart"]);
-                var normalEnd = StringUtils.ValueFromUrl(contentAttributesXML[attributeName + "_ContentEnd"]);
+                var normalStart = StringUtils.ValueFromUrl(contentAttributesXml[attributeName + "_ContentStart"]);
+                var normalEnd = StringUtils.ValueFromUrl(contentAttributesXml[attributeName + "_ContentEnd"]);
                 var regex = GetRegexAttributeName(attributeName, normalStart, normalEnd);
                 var value = RegexUtils.GetContent(attributeName, regex, contentHtml);
                 attributes.Set(attributeName, value);
@@ -249,11 +252,11 @@ namespace SiteServer.CMS.Core
             return attributes;
         }
 
-        public static bool GatherOneByUrl(string administratorName, PublishmentSystemInfo publishmentSystemInfo, NodeInfo nodeInfo, bool isSaveImage, bool isSetFirstImageAsImageUrl, bool isEmptyContentAllowed, bool isSameTitleAllowed, bool isChecked, ECharset charset, string url, string cookieString, string regexTitleInclude, string regexContentExclude, string contentHtmlClearCollection, string contentHtmlClearTagCollection, string contentReplaceFrom, string contentReplaceTo, string regexTitle, string regexContent, string regexContent2, string regexContent3, string regexNextPage, string regexChannel, List<string> contentAttributes, NameValueCollection contentAttributesXML, Hashtable contentTitleHashtable, List<int[]> nodeIDAndContentIDList, bool isCache, string cacheMessageKey)
+        public static bool GatherOneByUrl(string administratorName, PublishmentSystemInfo publishmentSystemInfo, NodeInfo nodeInfo, bool isSaveImage, bool isSetFirstImageAsImageUrl, bool isEmptyContentAllowed, bool isSameTitleAllowed, bool isChecked, ECharset charset, string url, string cookieString, string regexTitleInclude, string regexContentExclude, string contentHtmlClearCollection, string contentHtmlClearTagCollection, string contentReplaceFrom, string contentReplaceTo, string regexTitle, string regexContent, string regexContent2, string regexContent3, string regexNextPage, string regexChannel, List<string> contentAttributes, NameValueCollection contentAttributesXml, Hashtable contentTitleHashtable, List<int[]> nodeIdAndContentIdList, bool isCache, string cacheMessageKey)
         {
             try
             {
-                //TODO:采集文件、链接标题为内容标题、链接提示为内容标题
+                // TODO:采集文件、链接标题为内容标题、链接提示为内容标题
                 //string extension = PathUtils.GetExtension(url);
                 //if (!EFileSystemTypeUtils.IsTextEditable(extension))
                 //{
@@ -334,8 +337,8 @@ namespace SiteServer.CMS.Core
                     {
                         foreach (var from in froms)
                         {
-                            title = RegexUtils.Replace($"({@from.Replace(" ", "\\s")})(?!</a>)(?![^><]*>)", title, contentReplaceTo);
-                            content = RegexUtils.Replace($"({@from.Replace(" ", "\\s")})(?!</a>)(?![^><]*>)", content, contentReplaceTo);
+                            title = RegexUtils.Replace($"({from.Replace(" ", "\\s")})(?!</a>)(?![^><]*>)", title, contentReplaceTo);
+                            content = RegexUtils.Replace($"({from.Replace(" ", "\\s")})(?!</a>)(?![^><]*>)", content, contentReplaceTo);
                         }
                     }
                     else
@@ -363,27 +366,17 @@ namespace SiteServer.CMS.Core
                 }
 
                 var channel = RegexUtils.GetContent("channel", regexChannel, contentHtml);
-                var channelID = nodeInfo.NodeId;
+                var channelId = nodeInfo.NodeId;
                 if (!string.IsNullOrEmpty(channel))
                 {
-                    var nodeIDByNodeName = DataProvider.NodeDao.GetNodeIdByParentIdAndNodeName(publishmentSystemInfo.PublishmentSystemId, nodeInfo.NodeId, channel, false);
-                    if (nodeIDByNodeName == 0)
-                    {
-                        channelID = DataProvider.NodeDao.InsertNodeInfo(publishmentSystemInfo.PublishmentSystemId, nodeInfo.NodeId, channel, string.Empty, nodeInfo.ContentModelId);
-                    }
-                    else
-                    {
-                        channelID = nodeIDByNodeName;
-                    }
+                    var nodeIdByNodeName = DataProvider.NodeDao.GetNodeIdByParentIdAndNodeName(publishmentSystemInfo.PublishmentSystemId, nodeInfo.NodeId, channel, false);
+                    channelId = nodeIdByNodeName == 0 ? DataProvider.NodeDao.InsertNodeInfo(publishmentSystemInfo.PublishmentSystemId, nodeInfo.NodeId, channel, string.Empty, nodeInfo.ContentModelId) : nodeIdByNodeName;
                 }
 
                 if (!isSameTitleAllowed)
                 {
-                    var contentTitles = contentTitleHashtable[channelID] as List<string>;
-                    if (contentTitles == null)
-                    {
-                        contentTitles = BaiRongDataProvider.ContentDao.GetValueList(tableName, channelID, ContentAttribute.Title);
-                    }
+                    var contentTitles = contentTitleHashtable[channelId] as List<string> ??
+                                        BaiRongDataProvider.ContentDao.GetValueList(tableName, channelId, ContentAttribute.Title);
 
                     if (contentTitles.Contains(title))
                     {
@@ -391,14 +384,16 @@ namespace SiteServer.CMS.Core
                     }
 
                     contentTitles.Add(title);
-                    contentTitleHashtable[channelID] = contentTitles;
+                    contentTitleHashtable[channelId] = contentTitles;
                 }
 
-                var contentInfo = new BackgroundContentInfo();
-                contentInfo.PublishmentSystemId = publishmentSystemInfo.PublishmentSystemId;
-                contentInfo.NodeId = channelID;
-                contentInfo.AddUserName = administratorName;
-                contentInfo.AddDate = DateTime.Now;
+                var contentInfo = new BackgroundContentInfo
+                {
+                    PublishmentSystemId = publishmentSystemInfo.PublishmentSystemId,
+                    NodeId = channelId,
+                    AddUserName = administratorName,
+                    AddDate = DateTime.Now
+                };
                 contentInfo.LastEditUserName = contentInfo.AddUserName;
                 contentInfo.LastEditDate = contentInfo.AddDate;
                 contentInfo.IsChecked = isChecked;
@@ -410,11 +405,11 @@ namespace SiteServer.CMS.Core
                 {
                     if (!StringUtils.EqualsIgnoreCase(attributeName, ContentAttribute.Title) && !StringUtils.EqualsIgnoreCase(attributeName, BackgroundContentAttribute.Content))
                     {
-                        var normalStart = StringUtils.ValueFromUrl(contentAttributesXML[attributeName + "_ContentStart"]);
-                        var normalEnd = StringUtils.ValueFromUrl(contentAttributesXML[attributeName + "_ContentEnd"]);
+                        var normalStart = StringUtils.ValueFromUrl(contentAttributesXml[attributeName + "_ContentStart"]);
+                        var normalEnd = StringUtils.ValueFromUrl(contentAttributesXml[attributeName + "_ContentEnd"]);
 
                         //采集为空时的默认值
-                        var normalDefault = StringUtils.ValueFromUrl(contentAttributesXML[attributeName + "_ContentDefault"]);
+                        var normalDefault = StringUtils.ValueFromUrl(contentAttributesXml[attributeName + "_ContentDefault"]);
 
                         var regex = GetRegexAttributeName(attributeName, normalStart, normalEnd);
                         var value = RegexUtils.GetContent(attributeName, regex, contentHtml);
@@ -431,15 +426,15 @@ namespace SiteServer.CMS.Core
                             {
                                 contentInfo.AddDate = TranslateUtils.ToDateTime(value, DateTime.Now);
                             }
-                            else if (StringUtils.EqualsIgnoreCase(BackgroundContentAttribute.IsColor, attributeName))
+                            else if (StringUtils.EqualsIgnoreCase(ContentAttribute.IsColor, attributeName))
                             {
                                 contentInfo.IsColor = TranslateUtils.ToBool(value, false);
                             }
-                            else if (StringUtils.EqualsIgnoreCase(BackgroundContentAttribute.IsHot, attributeName))
+                            else if (StringUtils.EqualsIgnoreCase(ContentAttribute.IsHot, attributeName))
                             {
                                 contentInfo.IsHot = TranslateUtils.ToBool(value, false);
                             }
-                            else if (StringUtils.EqualsIgnoreCase(BackgroundContentAttribute.IsRecommend, attributeName))
+                            else if (StringUtils.EqualsIgnoreCase(ContentAttribute.IsRecommend, attributeName))
                             {
                                 contentInfo.IsRecommend = TranslateUtils.ToBool(value, false);
                             }
@@ -462,7 +457,10 @@ namespace SiteServer.CMS.Core
                                         WebClientUtils.SaveRemoteFileToLocal(attachmentUrl, filePath);
                                         contentInfo.ImageUrl = PageUtility.GetPublishmentSystemVirtualUrlByPhysicalPath(publishmentSystemInfo, filePath);
                                     }
-                                    catch { }
+                                    catch
+                                    {
+                                        // ignored
+                                    }
                                 }
                             }
                             else if (StringUtils.EqualsIgnoreCase(BackgroundContentAttribute.VideoUrl, attributeName))
@@ -480,7 +478,10 @@ namespace SiteServer.CMS.Core
                                         WebClientUtils.SaveRemoteFileToLocal(attachmentUrl, filePath);
                                         contentInfo.VideoUrl = PageUtility.GetPublishmentSystemVirtualUrlByPhysicalPath(publishmentSystemInfo, filePath);
                                     }
-                                    catch { }
+                                    catch
+                                    {
+                                        // ignored
+                                    }
                                 }
                             }
                             else if (StringUtils.EqualsIgnoreCase(BackgroundContentAttribute.FileUrl, attributeName))
@@ -498,7 +499,10 @@ namespace SiteServer.CMS.Core
                                         WebClientUtils.SaveRemoteFileToLocal(attachmentUrl, filePath);
                                         contentInfo.FileUrl = PageUtility.GetPublishmentSystemVirtualUrlByPhysicalPath(publishmentSystemInfo, filePath);
                                     }
-                                    catch { }
+                                    catch
+                                    {
+                                        // ignored
+                                    }
                                 }
                             }
                             else if (StringUtils.EqualsIgnoreCase(ContentAttribute.Hits, attributeName))
@@ -515,7 +519,7 @@ namespace SiteServer.CMS.Core
                             var styleInfo = TableStyleManager.GetTableStyleInfo(ETableStyle.BackgroundContent, publishmentSystemInfo.AuxiliaryTableForContent, attributeName, null);
                             value = InputParserUtility.GetContentByTableStyle(value, publishmentSystemInfo, ETableStyle.BackgroundContent, styleInfo);
 
-                            if (EInputTypeUtils.EqualsAny(styleInfo.InputType, EInputType.Image, EInputType.Video, EInputType.File))
+                            if (InputTypeUtils.EqualsAny(styleInfo.InputType, InputType.Image, InputType.Video, InputType.File))
                             {
                                 if (!string.IsNullOrEmpty(value))
                                 {
@@ -530,7 +534,10 @@ namespace SiteServer.CMS.Core
                                         WebClientUtils.SaveRemoteFileToLocal(attachmentUrl, filePath);
                                         value = PageUtility.GetPublishmentSystemVirtualUrlByPhysicalPath(publishmentSystemInfo, filePath);
                                     }
-                                    catch { }
+                                    catch
+                                    {
+                                        // ignored
+                                    }
                                 }
                             }
 
@@ -550,8 +557,8 @@ namespace SiteServer.CMS.Core
                         {
                             for (var i = 0; i < originalImageSrcs.Count; i++)
                             {
-                                var originalImageSrc = (string)originalImageSrcs[i];
-                                var imageSrc = (string)imageSrcs[i];
+                                var originalImageSrc = originalImageSrcs[i];
+                                var imageSrc = imageSrcs[i];
                                 var fileName = PathUtility.GetUploadFileName(publishmentSystemInfo, imageSrc);
                                 var fileExtName = PathUtils.GetExtension(originalImageSrc);
                                 var directoryPath = PathUtility.GetUploadDirectoryPath(publishmentSystemInfo, contentInfo.AddDate, fileExtName);
@@ -567,7 +574,10 @@ namespace SiteServer.CMS.Core
                                         firstImageUrl = fileUrl;
                                     }
                                 }
-                                catch { }
+                                catch
+                                {
+                                    // ignored
+                                }
                             }
                         }
                     }
@@ -576,7 +586,7 @@ namespace SiteServer.CMS.Core
                         var imageSrcs = RegexUtils.GetImageSrcs(url, content);
                         if (imageSrcs.Count > 0)
                         {
-                            firstImageUrl = (string)imageSrcs[0];
+                            firstImageUrl = imageSrcs[0];
                         }
                     }
 
@@ -590,12 +600,12 @@ namespace SiteServer.CMS.Core
 
                 contentInfo.SourceId = SourceManager.CaiJi;
 
-                var theContentID = DataProvider.ContentDao.Insert(tableName, publishmentSystemInfo, contentInfo);
-                nodeIDAndContentIDList.Add(new[] { contentInfo.NodeId, theContentID });
+                var theContentId = DataProvider.ContentDao.Insert(tableName, publishmentSystemInfo, contentInfo);
+                nodeIdAndContentIdList.Add(new[] { contentInfo.NodeId, theContentId });
 
                 if (isCache)
                 {
-                    CacheUtils.Max(cacheMessageKey, "采集内容：" + title);//存储消息
+                    CacheUtils.Insert(cacheMessageKey, "采集内容：" + title);//存储消息
                 }
                 return true;
             }
@@ -678,31 +688,30 @@ namespace SiteServer.CMS.Core
 
         #region 外部调用
 
-        public const string CACHE_TOTAL_COUNT = "_TotalCount";
-        public const string CACHE_CURRENT_COUNT = "_CurrentCount";
-        public const string CACHE_MESSAGE = "_Message";
+        public const string CacheTotalCount = "_TotalCount";
+        public const string CacheCurrentCount = "_CurrentCount";
+        public const string CacheMessage = "_Message";
 
-        public static void GatherWeb(int publishmentSystemID, string gatherRuleName, StringBuilder resultBuilder, StringBuilder errorBuilder, bool isCache, string userKeyPrefix, string administratorName)
+        public static void GatherWeb(int publishmentSystemId, string gatherRuleName, StringBuilder resultBuilder, StringBuilder errorBuilder, bool isCache, string userKeyPrefix, string administratorName)
         {
-            var cacheTotalCountKey = userKeyPrefix + CACHE_TOTAL_COUNT;
-            var cacheCurrentCountKey = userKeyPrefix + CACHE_CURRENT_COUNT;
-            var cacheMessageKey = userKeyPrefix + CACHE_MESSAGE;
+            var cacheTotalCountKey = userKeyPrefix + CacheTotalCount;
+            var cacheCurrentCountKey = userKeyPrefix + CacheCurrentCount;
+            var cacheMessageKey = userKeyPrefix + CacheMessage;
 
             if (isCache)
             {
-                CacheUtils.Max(cacheTotalCountKey, "0");//存储需要的页面总数
-                CacheUtils.Max(cacheCurrentCountKey, "0");//存储当前的页面总数
-                CacheUtils.Max(cacheMessageKey, "开始获取链接...");//存储消息
+                CacheUtils.Insert(cacheTotalCountKey, "0");//存储需要的页面总数
+                CacheUtils.Insert(cacheCurrentCountKey, "0");//存储当前的页面总数
+                CacheUtils.Insert(cacheMessageKey, "开始获取链接...");//存储消息
             }
 
-            int totalCount;
             var currentCount = 0;
 
-            var gatherRuleInfo = DataProvider.GatherRuleDao.GetGatherRuleInfo(gatherRuleName, publishmentSystemID);
+            var gatherRuleInfo = DataProvider.GatherRuleDao.GetGatherRuleInfo(gatherRuleName, publishmentSystemId);
 
             if (!DataProvider.NodeDao.IsExists(gatherRuleInfo.NodeId))
             {
-                gatherRuleInfo.NodeId = publishmentSystemID;
+                gatherRuleInfo.NodeId = publishmentSystemId;
             }
 
             var regexUrlInclude = GetRegexString(gatherRuleInfo.UrlInclude);
@@ -724,40 +733,33 @@ namespace SiteServer.CMS.Core
             var regexNextPage = GetRegexUrl(gatherRuleInfo.ContentNextPageStart, gatherRuleInfo.ContentNextPageEnd);
             var regexTitle = GetRegexTitle(gatherRuleInfo.ContentTitleStart, gatherRuleInfo.ContentTitleEnd);
             var contentAttributes = TranslateUtils.StringCollectionToStringList(gatherRuleInfo.ContentAttributes);
-            var contentAttributesXML = TranslateUtils.ToNameValueCollection(gatherRuleInfo.ContentAttributesXml);
+            var contentAttributesXml = TranslateUtils.ToNameValueCollection(gatherRuleInfo.ContentAttributesXml);
 
             var contentUrls = GetContentUrlArrayList(gatherRuleInfo, regexListArea, regexUrlInclude, isCache, cacheMessageKey, errorBuilder);
 
-            if (gatherRuleInfo.Additional.GatherNum > 0)
-            {
-                totalCount = gatherRuleInfo.Additional.GatherNum;
-            }
-            else
-            {
-                totalCount = contentUrls.Count;
-            }
+            var totalCount = gatherRuleInfo.Additional.GatherNum > 0 ? gatherRuleInfo.Additional.GatherNum : contentUrls.Count;
 
             if (isCache)
             {
-                CacheUtils.Max(cacheTotalCountKey, totalCount.ToString());//存储需要的页面总数
-                CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
-                CacheUtils.Max(cacheMessageKey, "开始采集内容...");//存储消息
+                CacheUtils.Insert(cacheTotalCountKey, totalCount.ToString());//存储需要的页面总数
+                CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                CacheUtils.Insert(cacheMessageKey, "开始采集内容...");//存储消息
             }
 
             var contentTitleHashtable = new Hashtable();
 
-            var publishmentSystemInfo = PublishmentSystemManager.GetPublishmentSystemInfo(publishmentSystemID);
-            var nodeInfo = NodeManager.GetNodeInfo(publishmentSystemID, gatherRuleInfo.NodeId);
-            var nodeIDAndContentIDArrayList = new List<int[]>();
+            var publishmentSystemInfo = PublishmentSystemManager.GetPublishmentSystemInfo(publishmentSystemId);
+            var nodeInfo = NodeManager.GetNodeInfo(publishmentSystemId, gatherRuleInfo.NodeId);
+            var nodeIdAndContentIdList = new List<int[]>();
 
             foreach (string contentUrl in contentUrls)
             {
-                if (GatherOneByUrl(administratorName, publishmentSystemInfo, nodeInfo, gatherRuleInfo.Additional.IsSaveImage, gatherRuleInfo.Additional.IsSetFirstImageAsImageUrl, gatherRuleInfo.Additional.IsEmptyContentAllowed, gatherRuleInfo.Additional.IsSameTitleAllowed, gatherRuleInfo.Additional.IsChecked, gatherRuleInfo.Charset, contentUrl, gatherRuleInfo.CookieString, regexTitleInclude, regexContentExclude, gatherRuleInfo.ContentHtmlClearCollection, gatherRuleInfo.ContentHtmlClearTagCollection, gatherRuleInfo.Additional.ContentReplaceFrom, gatherRuleInfo.Additional.ContentReplaceTo, regexTitle, regexContent, regexContent2, regexContent3, regexNextPage, regexChannel, contentAttributes, contentAttributesXML, contentTitleHashtable, nodeIDAndContentIDArrayList, isCache, cacheMessageKey))
+                if (GatherOneByUrl(administratorName, publishmentSystemInfo, nodeInfo, gatherRuleInfo.Additional.IsSaveImage, gatherRuleInfo.Additional.IsSetFirstImageAsImageUrl, gatherRuleInfo.Additional.IsEmptyContentAllowed, gatherRuleInfo.Additional.IsSameTitleAllowed, gatherRuleInfo.Additional.IsChecked, gatherRuleInfo.Charset, contentUrl, gatherRuleInfo.CookieString, regexTitleInclude, regexContentExclude, gatherRuleInfo.ContentHtmlClearCollection, gatherRuleInfo.ContentHtmlClearTagCollection, gatherRuleInfo.Additional.ContentReplaceFrom, gatherRuleInfo.Additional.ContentReplaceTo, regexTitle, regexContent, regexContent2, regexContent3, regexNextPage, regexChannel, contentAttributes, contentAttributesXml, contentTitleHashtable, nodeIdAndContentIdList, isCache, cacheMessageKey))
                 {
                     currentCount++;
                     if (isCache)
                     {
-                        CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                        CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
                     }
                 }
                 if (currentCount == totalCount) break;
@@ -765,18 +767,20 @@ namespace SiteServer.CMS.Core
 
             if (gatherRuleInfo.Additional.IsChecked)
             {
-                for (var i = 0; i < nodeIDAndContentIDArrayList.Count; i++)
+                foreach (var nodeIdAndContentId in nodeIdAndContentIdList)
                 {
                     try
                     {
-                        var nodeIDAndContentID = (int[])nodeIDAndContentIDArrayList[i];
-                        CreateManager.CreateContentAndTrigger(publishmentSystemID, nodeIDAndContentID[0], nodeIDAndContentID[1]);
+                        CreateManager.CreateContentAndTrigger(publishmentSystemId, nodeIdAndContentId[0], nodeIdAndContentId[1]);
                     }
-                    catch { }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
             }
 
-            DataProvider.GatherRuleDao.UpdateLastGatherDate(gatherRuleName, publishmentSystemID);
+            DataProvider.GatherRuleDao.UpdateLastGatherDate(gatherRuleName, publishmentSystemId);
 
             resultBuilder.Append(
                 $"任务完成，<strong> {nodeInfo.NodeName} </strong>栏目共采集内容<strong> {currentCount} </strong>篇。请手动生成页面。<br/>");
@@ -789,32 +793,32 @@ namespace SiteServer.CMS.Core
             }
         }
 
-        public static void GatherDatabase(int publishmentSystemID, string gatherRuleName, StringBuilder resultBuilder, StringBuilder errorBuilder, bool isCache, string userKeyPrefix, string administratorName)
+        public static void GatherDatabase(int publishmentSystemId, string gatherRuleName, StringBuilder resultBuilder, StringBuilder errorBuilder, bool isCache, string userKeyPrefix, string administratorName)
         {
-            var cacheTotalCountKey = userKeyPrefix + CACHE_TOTAL_COUNT;
-            var cacheCurrentCountKey = userKeyPrefix + CACHE_CURRENT_COUNT;
-            var cacheMessageKey = userKeyPrefix + CACHE_MESSAGE;
+            var cacheTotalCountKey = userKeyPrefix + CacheTotalCount;
+            var cacheCurrentCountKey = userKeyPrefix + CacheCurrentCount;
+            var cacheMessageKey = userKeyPrefix + CacheMessage;
 
             if (isCache)
             {
-                CacheUtils.Max(cacheTotalCountKey, "0");//存储需要的页面总数
-                CacheUtils.Max(cacheCurrentCountKey, "0");//存储当前的页面总数
-                CacheUtils.Max(cacheMessageKey, "开始连接数据库...");//存储消息
+                CacheUtils.Insert(cacheTotalCountKey, "0");//存储需要的页面总数
+                CacheUtils.Insert(cacheCurrentCountKey, "0");//存储当前的页面总数
+                CacheUtils.Insert(cacheMessageKey, "开始连接数据库...");//存储消息
             }
 
-            var publishmentSystemInfo = PublishmentSystemManager.GetPublishmentSystemInfo(publishmentSystemID);
+            var publishmentSystemInfo = PublishmentSystemManager.GetPublishmentSystemInfo(publishmentSystemId);
 
             try
             {
                 int totalCount;
                 var currentCount = 0;
 
-                var gatherDatabaseRuleInfo = DataProvider.GatherDatabaseRuleDao.GetGatherDatabaseRuleInfo(gatherRuleName, publishmentSystemID);
+                var gatherDatabaseRuleInfo = DataProvider.GatherDatabaseRuleDao.GetGatherDatabaseRuleInfo(gatherRuleName, publishmentSystemId);
                 var tableMatchInfo = BaiRongDataProvider.TableMatchDao.GetTableMatchInfo(gatherDatabaseRuleInfo.TableMatchId);
 
                 if (!DataProvider.NodeDao.IsExists(gatherDatabaseRuleInfo.NodeId))
                 {
-                    gatherDatabaseRuleInfo.NodeId = publishmentSystemID;
+                    gatherDatabaseRuleInfo.NodeId = publishmentSystemId;
                 }
 
                 if (gatherDatabaseRuleInfo.GatherNum > 0)
@@ -829,12 +833,12 @@ namespace SiteServer.CMS.Core
 
                 if (isCache)
                 {
-                    CacheUtils.Max(cacheTotalCountKey, totalCount.ToString());//存储需要的页面总数
-                    CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
-                    CacheUtils.Max(cacheMessageKey, "开始采集内容...");//存储消息
+                    CacheUtils.Insert(cacheTotalCountKey, totalCount.ToString());//存储需要的页面总数
+                    CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                    CacheUtils.Insert(cacheMessageKey, "开始采集内容...");//存储消息
                 }
 
-                var nodeIDAndContentIDArrayList = new ArrayList();
+                var nodeIdAndContentIdList = new List<int[]>();
 
                 var whereString = string.Empty;
                 if (!string.IsNullOrEmpty(gatherDatabaseRuleInfo.WhereString))
@@ -863,9 +867,9 @@ namespace SiteServer.CMS.Core
                             var collection = new NameValueCollection();
                             BaiRongDataProvider.DatabaseDao.ReadResultsToNameValueCollection(rdr, collection);
                             var contentInfo = Converter.ToBackgroundContentInfo(collection, tableMatchInfo.ColumnsMap);
-                            if (contentInfo != null && !string.IsNullOrEmpty(contentInfo.Title) && !titleList.Contains(contentInfo.Title))
+                            if (!string.IsNullOrEmpty(contentInfo?.Title) && !titleList.Contains(contentInfo.Title))
                             {
-                                contentInfo.PublishmentSystemId = publishmentSystemID;
+                                contentInfo.PublishmentSystemId = publishmentSystemId;
                                 contentInfo.NodeId = gatherDatabaseRuleInfo.NodeId;
                                 if (contentInfo.AddDate == DateTime.MinValue || contentInfo.AddDate == DateUtils.SqlMinValue)
                                 {
@@ -879,17 +883,20 @@ namespace SiteServer.CMS.Core
 
                                 contentInfo.SourceId = SourceManager.CaiJi;
 
-                                var theContentID = DataProvider.ContentDao.Insert(tableName, publishmentSystemInfo, contentInfo);
-                                nodeIDAndContentIDArrayList.Add(new int[] { contentInfo.NodeId, theContentID });
+                                var theContentId = DataProvider.ContentDao.Insert(tableName, publishmentSystemInfo, contentInfo);
+                                nodeIdAndContentIdList.Add(new[] { contentInfo.NodeId, theContentId });
 
                                 currentCount++;
                                 if (isCache)
                                 {
-                                    CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                                    CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
                                 }
                             }
                         }
-                        catch { }
+                        catch
+                        {
+                            // ignored
+                        }
                         if (currentCount == totalCount) break;
                     }
                     rdr.Close();
@@ -897,15 +904,13 @@ namespace SiteServer.CMS.Core
 
                 if (gatherDatabaseRuleInfo.IsChecked)
                 {
-                    for (var i = 0; i < nodeIDAndContentIDArrayList.Count; i++)
+                    foreach (var nodeIdAndContentId in nodeIdAndContentIdList)
                     {
-                        var nodeIDAndContentID = (int[])nodeIDAndContentIDArrayList[i];
-
-                        CreateManager.CreateContentAndTrigger(publishmentSystemID, nodeIDAndContentID[0], nodeIDAndContentID[1]);
+                        CreateManager.CreateContentAndTrigger(publishmentSystemId, nodeIdAndContentId[0], nodeIdAndContentId[1]);
                     }
                 }
 
-                DataProvider.GatherRuleDao.UpdateLastGatherDate(gatherRuleName, publishmentSystemID);
+                DataProvider.GatherRuleDao.UpdateLastGatherDate(gatherRuleName, publishmentSystemId);
                 var nodeName = NodeManager.GetNodeName(gatherDatabaseRuleInfo.PublishmentSystemId, gatherDatabaseRuleInfo.NodeId);
                 resultBuilder.Append(
                     $"任务完成，<strong> {nodeName} </strong>栏目共采集内容<strong> {currentCount} </strong>篇。请手动生成页面。<br />");
@@ -925,17 +930,17 @@ namespace SiteServer.CMS.Core
         }
 
 
-        public static void GatherFile(int publishmentSystemID, string gatherRuleName, StringBuilder resultBuilder, StringBuilder errorBuilder, bool isCache, string userKeyPrefix, string administratorName)
+        public static void GatherFile(int publishmentSystemId, string gatherRuleName, StringBuilder resultBuilder, StringBuilder errorBuilder, bool isCache, string userKeyPrefix, string administratorName)
         {
-            var cacheTotalCountKey = userKeyPrefix + CACHE_TOTAL_COUNT;
-            var cacheCurrentCountKey = userKeyPrefix + CACHE_CURRENT_COUNT;
-            var cacheMessageKey = userKeyPrefix + CACHE_MESSAGE;
+            var cacheTotalCountKey = userKeyPrefix + CacheTotalCount;
+            var cacheCurrentCountKey = userKeyPrefix + CacheCurrentCount;
+            var cacheMessageKey = userKeyPrefix + CacheMessage;
 
             if (isCache)
             {
-                CacheUtils.Max(cacheTotalCountKey, "0");//存储需要的页面总数
-                CacheUtils.Max(cacheCurrentCountKey, "0");//存储当前的页面总数
-                CacheUtils.Max(cacheMessageKey, "开始获取内容...");//存储消息
+                CacheUtils.Insert(cacheTotalCountKey, "0");//存储需要的页面总数
+                CacheUtils.Insert(cacheCurrentCountKey, "0");//存储当前的页面总数
+                CacheUtils.Insert(cacheMessageKey, "开始获取内容...");//存储消息
             }
 
             try
@@ -943,8 +948,8 @@ namespace SiteServer.CMS.Core
                 int totalCount;
                 var currentCount = 0;
 
-                var gatherFileRuleInfo = DataProvider.GatherFileRuleDao.GetGatherFileRuleInfo(gatherRuleName, publishmentSystemID);
-                var publishmentSystemInfo = PublishmentSystemManager.GetPublishmentSystemInfo(publishmentSystemID);
+                var gatherFileRuleInfo = DataProvider.GatherFileRuleDao.GetGatherFileRuleInfo(gatherRuleName, publishmentSystemId);
+                var publishmentSystemInfo = PublishmentSystemManager.GetPublishmentSystemInfo(publishmentSystemId);
 
                 if (gatherFileRuleInfo.IsToFile)
                 {
@@ -975,8 +980,8 @@ namespace SiteServer.CMS.Core
                         totalCount = originalCssHrefs.Count + originalScriptSrcs.Count + originalImageSrcs.Count + originalFlashSrcs.Count + originalStyleImageUrls.Count + originalBackgroundImageSrcs.Count;
                         if (isCache)
                         {
-                            CacheUtils.Max(cacheTotalCountKey, totalCount.ToString());//存储需要的页面总数
-                            CacheUtils.Max(cacheMessageKey, "保存文件：" + gatherFileRuleInfo.FilePath);//存储消息
+                            CacheUtils.Insert(cacheTotalCountKey, totalCount.ToString());//存储需要的页面总数
+                            CacheUtils.Insert(cacheMessageKey, "保存文件：" + gatherFileRuleInfo.FilePath);//存储消息
                         }
 
                         var cssHrefs = RegexUtils.GetCssHrefs(gatherFileRuleInfo.GatherUrl, fileContent);
@@ -984,16 +989,16 @@ namespace SiteServer.CMS.Core
                         {
                             try
                             {
-                                var originalLinkHref = (string)originalCssHrefs[i];
-                                var cssHref = (string)cssHrefs[i];
+                                var originalLinkHref = originalCssHrefs[i];
+                                var cssHref = cssHrefs[i];
 
                                 var fileUrl = GatherCss(publishmentSystemInfo, publishmentSystemPath, imageDirectoryPath, styleDirectoryPath, level, gatherFileRuleInfo.Charset, cssHref);
                                 fileContent = fileContent.Replace(originalLinkHref, fileUrl);
                                 currentCount++;
                                 if (isCache)
                                 {
-                                    CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
-                                    CacheUtils.Max(cacheMessageKey, "保存Css样式文件：" + PathUtils.GetFileName(cssHref));//存储消息
+                                    CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                                    CacheUtils.Insert(cacheMessageKey, "保存Css样式文件：" + PathUtils.GetFileName(cssHref));//存储消息
                                 }
 
                                 //string originalLinkHref = (string)originalCssHrefs[i];
@@ -1027,11 +1032,14 @@ namespace SiteServer.CMS.Core
                                 //currentCount++;
                                 //if (isCache)
                                 //{
-                                //    CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
-                                //    CacheUtils.Max(cacheMessageKey, "保存Css样式文件：" + fileName);//存储消息
+                                //    CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                                //    CacheUtils.Insert(cacheMessageKey, "保存Css样式文件：" + fileName);//存储消息
                                 //}
                             }
-                            catch { }
+                            catch
+                            {
+                                // ignored
+                            }
                         }
 
                         var scriptSrcs = RegexUtils.GetScriptSrcs(gatherFileRuleInfo.GatherUrl, fileContent);
@@ -1039,8 +1047,8 @@ namespace SiteServer.CMS.Core
                         {
                             try
                             {
-                                var originalScriptSrc = (string)originalScriptSrcs[i];
-                                var scriptSrc = (string)scriptSrcs[i];
+                                var originalScriptSrc = originalScriptSrcs[i];
+                                var scriptSrc = scriptSrcs[i];
                                 var fileName = PageUtils.UrlDecode(PathUtils.GetFileName(scriptSrc));
                                 var filePath = PathUtils.Combine(scriptDirectoryPath, fileName);
 
@@ -1050,11 +1058,14 @@ namespace SiteServer.CMS.Core
                                 currentCount++;
                                 if (isCache)
                                 {
-                                    CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
-                                    CacheUtils.Max(cacheMessageKey, "保存Js脚本文件：" + fileName);//存储消息
+                                    CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                                    CacheUtils.Insert(cacheMessageKey, "保存Js脚本文件：" + fileName);//存储消息
                                 }
                             }
-                            catch { }
+                            catch
+                            {
+                                // ignored
+                            }
                         }
 
                         var imageSrcs = RegexUtils.GetImageSrcs(gatherFileRuleInfo.GatherUrl, fileContent);
@@ -1062,8 +1073,8 @@ namespace SiteServer.CMS.Core
                         {
                             try
                             {
-                                var originalImageSrc = (string)originalImageSrcs[i];
-                                var imageSrc = (string)imageSrcs[i];
+                                var originalImageSrc = originalImageSrcs[i];
+                                var imageSrc = imageSrcs[i];
                                 var fileName = PageUtils.UrlDecode(PathUtils.GetFileName(imageSrc));
                                 var filePath = PathUtils.Combine(imageDirectoryPath, fileName);
 
@@ -1073,11 +1084,14 @@ namespace SiteServer.CMS.Core
                                 currentCount++;
                                 if (isCache)
                                 {
-                                    CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
-                                    CacheUtils.Max(cacheMessageKey, "保存图片文件：" + fileName);//存储消息
+                                    CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                                    CacheUtils.Insert(cacheMessageKey, "保存图片文件：" + fileName);//存储消息
                                 }
                             }
-                            catch { }
+                            catch
+                            {
+                                // ignored
+                            }
                         }
 
                         var flashSrcs = RegexUtils.GetFlashSrcs(gatherFileRuleInfo.GatherUrl, fileContent);
@@ -1085,8 +1099,8 @@ namespace SiteServer.CMS.Core
                         {
                             try
                             {
-                                var originalFlashSrc = (string)originalFlashSrcs[i];
-                                var flashSrc = (string)flashSrcs[i];
+                                var originalFlashSrc = originalFlashSrcs[i];
+                                var flashSrc = flashSrcs[i];
                                 var fileName = PageUtils.UrlDecode(PathUtils.GetFileName(flashSrc));
                                 var filePath = PathUtils.Combine(imageDirectoryPath, fileName);
 
@@ -1096,11 +1110,14 @@ namespace SiteServer.CMS.Core
                                 currentCount++;
                                 if (isCache)
                                 {
-                                    CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
-                                    CacheUtils.Max(cacheMessageKey, "保存Flash文件：" + fileName);//存储消息
+                                    CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                                    CacheUtils.Insert(cacheMessageKey, "保存Flash文件：" + fileName);//存储消息
                                 }
                             }
-                            catch { }
+                            catch
+                            {
+                                // ignored
+                            }
                         }
 
                         var styleImageUrls = RegexUtils.GetStyleImageUrls(gatherFileRuleInfo.GatherUrl, fileContent);
@@ -1108,22 +1125,25 @@ namespace SiteServer.CMS.Core
                         {
                             try
                             {
-                                var originalStyleImageUrl = (string)originalStyleImageUrls[j];
-                                var styleImageUrl = (string)styleImageUrls[j];
-                                var fileName_j = PageUtils.UrlDecode(PathUtils.GetFileName(styleImageUrl));
-                                var filePath_j = PathUtils.Combine(imageDirectoryPath, fileName_j);
+                                var originalStyleImageUrl = originalStyleImageUrls[j];
+                                var styleImageUrl = styleImageUrls[j];
+                                var fileNameJ = PageUtils.UrlDecode(PathUtils.GetFileName(styleImageUrl));
+                                var filePathJ = PathUtils.Combine(imageDirectoryPath, fileNameJ);
 
-                                WebClientUtils.SaveRemoteFileToLocal(styleImageUrl, filePath_j);
-                                var fileUrl_j = PageUtility.GetPublishmentSystemUrlOfRelatedByPhysicalPath(publishmentSystemInfo, filePath_j, level);
-                                fileContent = fileContent.Replace(originalStyleImageUrl, fileUrl_j);
+                                WebClientUtils.SaveRemoteFileToLocal(styleImageUrl, filePathJ);
+                                var fileUrlJ = PageUtility.GetPublishmentSystemUrlOfRelatedByPhysicalPath(publishmentSystemInfo, filePathJ, level);
+                                fileContent = fileContent.Replace(originalStyleImageUrl, fileUrlJ);
                                 currentCount++;
                                 if (isCache)
                                 {
-                                    CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
-                                    CacheUtils.Max(cacheMessageKey, "保存图片文件：" + fileName_j);//存储消息
+                                    CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                                    CacheUtils.Insert(cacheMessageKey, "保存图片文件：" + fileNameJ);//存储消息
                                 }
                             }
-                            catch { }
+                            catch
+                            {
+                                // ignored
+                            }
                         }
 
                         var backgroundImageSrcs = RegexUtils.GetBackgroundImageSrcs(gatherFileRuleInfo.GatherUrl, fileContent);
@@ -1131,22 +1151,25 @@ namespace SiteServer.CMS.Core
                         {
                             try
                             {
-                                var originalBackgroundImageSrc = (string)originalBackgroundImageSrcs[j];
-                                var backgroundImageSrc = (string)backgroundImageSrcs[j];
-                                var fileName_j = PageUtils.UrlDecode(PathUtils.GetFileName(backgroundImageSrc));
-                                var filePath_j = PathUtils.Combine(imageDirectoryPath, fileName_j);
+                                var originalBackgroundImageSrc = originalBackgroundImageSrcs[j];
+                                var backgroundImageSrc = backgroundImageSrcs[j];
+                                var fileNameJ = PageUtils.UrlDecode(PathUtils.GetFileName(backgroundImageSrc));
+                                var filePathJ = PathUtils.Combine(imageDirectoryPath, fileNameJ);
 
-                                WebClientUtils.SaveRemoteFileToLocal(backgroundImageSrc, filePath_j);
-                                var fileUrl_j = PageUtility.GetPublishmentSystemUrlOfRelatedByPhysicalPath(publishmentSystemInfo, filePath_j, level);
-                                fileContent = fileContent.Replace(originalBackgroundImageSrc, fileUrl_j);
+                                WebClientUtils.SaveRemoteFileToLocal(backgroundImageSrc, filePathJ);
+                                var fileUrlJ = PageUtility.GetPublishmentSystemUrlOfRelatedByPhysicalPath(publishmentSystemInfo, filePathJ, level);
+                                fileContent = fileContent.Replace(originalBackgroundImageSrc, fileUrlJ);
                                 currentCount++;
                                 if (isCache)
                                 {
-                                    CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
-                                    CacheUtils.Max(cacheMessageKey, "保存图片文件：" + fileName_j);//存储消息
+                                    CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                                    CacheUtils.Insert(cacheMessageKey, "保存图片文件：" + fileNameJ);//存储消息
                                 }
                             }
-                            catch { }
+                            catch
+                            {
+                                // ignored
+                            }
                         }
                     }
                     else
@@ -1154,7 +1177,7 @@ namespace SiteServer.CMS.Core
                         totalCount = 1;
                         if (isCache)
                         {
-                            CacheUtils.Max(cacheTotalCountKey, totalCount.ToString());//存储需要的页面总数
+                            CacheUtils.Insert(cacheTotalCountKey, totalCount.ToString());//存储需要的页面总数
                         }
                     }
 
@@ -1167,51 +1190,49 @@ namespace SiteServer.CMS.Core
 
                     if (!DataProvider.NodeDao.IsExists(gatherFileRuleInfo.NodeId))
                     {
-                        gatherFileRuleInfo.NodeId = publishmentSystemID;
+                        gatherFileRuleInfo.NodeId = publishmentSystemId;
                     }
 
                     var regexContentExclude = GetRegexString(gatherFileRuleInfo.ContentExclude);
                     var regexContent = GetRegexContent(gatherFileRuleInfo.ContentContentStart, gatherFileRuleInfo.ContentContentEnd);
                     var regexTitle = GetRegexTitle(gatherFileRuleInfo.ContentTitleStart, gatherFileRuleInfo.ContentTitleEnd);
                     var contentAttributes = TranslateUtils.StringCollectionToStringList(gatherFileRuleInfo.ContentAttributes);
-                    var contentAttributesXML = TranslateUtils.ToNameValueCollection(gatherFileRuleInfo.ContentAttributesXml);
+                    var contentAttributesXml = TranslateUtils.ToNameValueCollection(gatherFileRuleInfo.ContentAttributesXml);
 
                     totalCount = 1;
 
                     if (isCache)
                     {
-                        CacheUtils.Max(cacheTotalCountKey, totalCount.ToString());//存储需要的页面总数
-                        CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
-                        CacheUtils.Max(cacheMessageKey, "开始采集内容...");//存储消息
+                        CacheUtils.Insert(cacheTotalCountKey, totalCount.ToString());//存储需要的页面总数
+                        CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                        CacheUtils.Insert(cacheMessageKey, "开始采集内容...");//存储消息
                     }
 
                     var contentTitleHashtable = new Hashtable();
-                    var nodeInfo = NodeManager.GetNodeInfo(publishmentSystemID, gatherFileRuleInfo.NodeId);
-                    var nodeIDAndContentIDArrayList = new List<int[]>();
+                    var nodeInfo = NodeManager.GetNodeInfo(publishmentSystemId, gatherFileRuleInfo.NodeId);
+                    var nodeIdAndContentIdList = new List<int[]>();
 
-                    if (GatherOneByUrl(administratorName, publishmentSystemInfo, nodeInfo, gatherFileRuleInfo.IsSaveImage, false, true, true, gatherFileRuleInfo.IsChecked, gatherFileRuleInfo.Charset, gatherFileRuleInfo.GatherUrl, string.Empty, string.Empty, regexContentExclude, gatherFileRuleInfo.ContentHtmlClearCollection, gatherFileRuleInfo.ContentHtmlClearTagCollection, string.Empty, string.Empty, regexTitle, regexContent, string.Empty, string.Empty, string.Empty, string.Empty, contentAttributes, contentAttributesXML, contentTitleHashtable, nodeIDAndContentIDArrayList, isCache, cacheMessageKey))
+                    if (GatherOneByUrl(administratorName, publishmentSystemInfo, nodeInfo, gatherFileRuleInfo.IsSaveImage, false, true, true, gatherFileRuleInfo.IsChecked, gatherFileRuleInfo.Charset, gatherFileRuleInfo.GatherUrl, string.Empty, string.Empty, regexContentExclude, gatherFileRuleInfo.ContentHtmlClearCollection, gatherFileRuleInfo.ContentHtmlClearTagCollection, string.Empty, string.Empty, regexTitle, regexContent, string.Empty, string.Empty, string.Empty, string.Empty, contentAttributes, contentAttributesXml, contentTitleHashtable, nodeIdAndContentIdList, isCache, cacheMessageKey))
                     {
                         currentCount++;
                         if (isCache)
                         {
-                            CacheUtils.Max(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
+                            CacheUtils.Insert(cacheCurrentCountKey, currentCount.ToString());//存储当前的页面总数
                         }
                     }
 
                     if (gatherFileRuleInfo.IsChecked)
                     {
-                        for (var i = 0; i < nodeIDAndContentIDArrayList.Count; i++)
+                        foreach (var nodeIdAndContentId in nodeIdAndContentIdList)
                         {
-                            var nodeIdAndContentId = (int[])nodeIDAndContentIDArrayList[i];
-
-                            CreateManager.CreateContentAndTrigger(publishmentSystemID, nodeIdAndContentId[0], nodeIdAndContentId[1]);
+                            CreateManager.CreateContentAndTrigger(publishmentSystemId, nodeIdAndContentId[0], nodeIdAndContentId[1]);
                         }
                     }
 
                     resultBuilder.Append(
                         $"任务完成，<strong> {nodeInfo.NodeName} </strong>栏目共采集内容<strong> {currentCount} </strong>篇。请手动生成页面。<br />");
                 }
-                DataProvider.GatherFileRuleDao.UpdateLastGatherDate(gatherRuleName, publishmentSystemID);
+                DataProvider.GatherFileRuleDao.UpdateLastGatherDate(gatherRuleName, publishmentSystemId);
             }
             catch (Exception ex)
             {
@@ -1246,13 +1267,16 @@ namespace SiteServer.CMS.Core
                 {
                     try
                     {
-                        var originalLinkHref = (string)originalCssHrefs[i];
-                        var cssHref = (string)cssHrefs[i];
+                        var originalLinkHref = originalCssHrefs[i];
+                        var cssHref = cssHrefs[i];
 
-                        var fileUrl_i = GatherCss(publishmentSystemInfo, publishmentSystemPath, imageDirectoryPath, styleDirectoryPath, level, charset, cssHref);
-                        styleContent = styleContent.Replace(originalLinkHref, fileUrl_i);
+                        var fileUrlI = GatherCss(publishmentSystemInfo, publishmentSystemPath, imageDirectoryPath, styleDirectoryPath, level, charset, cssHref);
+                        styleContent = styleContent.Replace(originalLinkHref, fileUrlI);
                     }
-                    catch { }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
 
                 //开始采集CSS内部图片
@@ -1260,24 +1284,30 @@ namespace SiteServer.CMS.Core
                 var styleImageUrls = RegexUtils.GetStyleImageUrls(cssUrl, styleContent);
                 for (var j = 0; j < originalStyleImageUrls.Count; j++)
                 {
-                    var originalStyleImageUrl = (string)originalStyleImageUrls[j];
-                    var styleImageUrl = (string)styleImageUrls[j];
-                    var fileName_j = PageUtils.UrlDecode(PathUtils.GetFileName(styleImageUrl));
-                    var filePath_j = PathUtils.Combine(imageDirectoryPath, fileName_j);
+                    var originalStyleImageUrl = originalStyleImageUrls[j];
+                    var styleImageUrl = styleImageUrls[j];
+                    var fileNameJ = PageUtils.UrlDecode(PathUtils.GetFileName(styleImageUrl));
+                    var filePathJ = PathUtils.Combine(imageDirectoryPath, fileNameJ);
                     try
                     {
-                        WebClientUtils.SaveRemoteFileToLocal(styleImageUrl, filePath_j);
-                        var fileUrl_j = PageUtility.GetPublishmentSystemUrlOfRelatedByPhysicalPath(publishmentSystemInfo, filePath_j, level);
-                        styleContent = styleContent.Replace(originalStyleImageUrl, fileUrl_j);
+                        WebClientUtils.SaveRemoteFileToLocal(styleImageUrl, filePathJ);
+                        var fileUrlJ = PageUtility.GetPublishmentSystemUrlOfRelatedByPhysicalPath(publishmentSystemInfo, filePathJ, level);
+                        styleContent = styleContent.Replace(originalStyleImageUrl, fileUrlJ);
                     }
-                    catch { }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
 
                 FileUtils.WriteText(filePath, charset, styleContent);
 
                 fileUrl = PageUtility.GetPublishmentSystemUrlOfRelatedByPhysicalPath(publishmentSystemInfo, filePath, topLevel);
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
             return fileUrl;
         }
 

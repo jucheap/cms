@@ -8,6 +8,7 @@ using BaiRong.Core.Data;
 using BaiRong.Core.Model;
 using BaiRong.Core.Model.Enumerations;
 using MySql.Data.MySqlClient;
+using SiteServer.Plugin.Models;
 
 namespace BaiRong.Core.Provider
 {
@@ -99,32 +100,6 @@ namespace BaiRong.Core.Provider
                 rdr.Close();
             }
             return sortedlist;
-        }
-
-        public bool IsTableExists(string tableName)
-        {
-            var exists = false;
-            string sqlString;
-            if (WebConfigUtils.DatabaseType == EDatabaseType.MySql)
-            {
-                sqlString = $@"show tables like ""{tableName}""";
-            }
-            else
-            {
-                sqlString =
-                $"select * from dbo.sysobjects where id = object_id(N'{tableName}') and OBJECTPROPERTY(id, N'IsUserTable') = 1";
-            }
-
-            using (var rdr = ExecuteReader(sqlString))
-            {
-                if (rdr.Read())
-                {
-                    exists = true;
-                }
-                rdr.Close();
-            }
-
-            return exists;
         }
 
         public string GetTableId(string connectionString, string databaseName, string tableName)
@@ -219,11 +194,6 @@ namespace BaiRong.Core.Provider
             return defaultConstraintName;
         }
 
-        public List<string> GetColumnNameList(string tableName)
-        {
-            return GetColumnNameList(tableName, false);
-        }
-
         public List<string> GetColumnNameList(string tableName, bool isLower)
         {
             var databaseName = SqlUtils.GetDatabaseNameFormConnectionString(WebConfigUtils.ConnectionString);
@@ -235,27 +205,6 @@ namespace BaiRong.Core.Provider
             foreach (var tableColumnInfo in allTableColumnInfoList)
             {
                 columnNameList.Add(isLower ? tableColumnInfo.ColumnName.ToLower() : tableColumnInfo.ColumnName);
-            }
-
-            return columnNameList;
-        }
-
-        public List<string> GetColumnNameList(string connectionString, string tableName)
-        {
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                connectionString = ConnectionString;
-            }
-
-            var databaseName = SqlUtils.GetDatabaseNameFormConnectionString(connectionString);
-            var tableId = GetTableId(connectionString, databaseName, tableName);
-            var allTableColumnInfoList = GetTableColumnInfoList(connectionString, databaseName, tableName, tableId);
-
-            var columnNameList = new List<string>();
-
-            foreach (var tableColumnInfo in allTableColumnInfoList)
-            {
-                columnNameList.Add(tableColumnInfo.ColumnName);
             }
 
             return columnNameList;
@@ -291,8 +240,8 @@ namespace BaiRong.Core.Provider
                     {
                         var columnName = Convert.ToString(rdr.GetValue(0));
                         var isNullable = Convert.ToString(rdr.GetValue(1)) == "YES";
-                        var dataType = EDataTypeUtils.FromMySql(Convert.ToString(rdr.GetValue(2)));
-                        var length = rdr.IsDBNull(3) || dataType == EDataType.NText || dataType == EDataType.Text ? 0 : Convert.ToInt32(rdr.GetValue(3));
+                        var dataType = DataTypeUtils.FromMySql(Convert.ToString(rdr.GetValue(2)));
+                        var length = rdr.IsDBNull(3) || dataType == DataType.NText || dataType == DataType.Text ? 0 : Convert.ToInt32(rdr.GetValue(3));
                         var precision = rdr.IsDBNull(4) ? 0 : Convert.ToInt32(rdr.GetValue(4));
                         var scale = rdr.IsDBNull(5) ? 0 : Convert.ToInt32(rdr.GetValue(5));
                         var isPrimaryKey = Convert.ToString(rdr.GetValue(6)) == "PRI";
@@ -319,7 +268,7 @@ namespace BaiRong.Core.Provider
                         {
                             continue;
                         }
-                        var dataType = EDataTypeUtils.FromSqlServer(Convert.ToString(rdr.GetValue(1)));
+                        var dataType = DataTypeUtils.FromSqlServer(Convert.ToString(rdr.GetValue(1)));
                         var length = GetDataLength(dataType, Convert.ToInt32(rdr.GetValue(2)));
                         var precision = Convert.ToInt32(rdr.GetValue(3));
                         var scale = Convert.ToInt32(rdr.GetValue(4));
@@ -371,9 +320,9 @@ namespace BaiRong.Core.Provider
         }
 
         //lengthFromDb:数据库元数据查询获取的长度
-        protected int GetDataLength(EDataType dataType, int lengthFromDb)
+        protected int GetDataLength(DataType dataType, int lengthFromDb)
         {
-            if (dataType == EDataType.NChar || dataType == EDataType.NVarChar)
+            if (dataType == DataType.NChar || dataType == DataType.NVarChar)
             {
                 return Convert.ToInt32(lengthFromDb / 2);
             }
@@ -421,11 +370,11 @@ namespace BaiRong.Core.Provider
                             columnNameList.Add(tableColumnInfo.ColumnName);
                             var valueStr = string.Empty;
 
-                            if (tableColumnInfo.DataType == EDataType.DateTime)
+                            if (tableColumnInfo.DataType == DataType.DateTime)
                             {
                                 parameterList.Add(GetParameter("@" + tableColumnInfo.ColumnName, tableColumnInfo.DataType, TranslateUtils.ToDateTime(valueStr)));
                             }
-                            else if (tableColumnInfo.DataType == EDataType.Integer)
+                            else if (tableColumnInfo.DataType == DataType.Integer)
                             {
                                 parameterList.Add(GetParameter("@" + tableColumnInfo.ColumnName, tableColumnInfo.DataType, TranslateUtils.ToIntWithNagetive(valueStr)));
                             }
@@ -440,11 +389,11 @@ namespace BaiRong.Core.Provider
                         columnNameList.Add(tableColumnInfo.ColumnName);
                         var valueStr = attributes[tableColumnInfo.ColumnName];
 
-                        if (tableColumnInfo.DataType == EDataType.DateTime)
+                        if (tableColumnInfo.DataType == DataType.DateTime)
                         {
                             parameterList.Add(GetParameter("@" + tableColumnInfo.ColumnName, tableColumnInfo.DataType, TranslateUtils.ToDateTime(valueStr)));
                         }
-                        else if (tableColumnInfo.DataType == EDataType.Integer)
+                        else if (tableColumnInfo.DataType == DataType.Integer)
                         {
                             parameterList.Add(GetParameter("@" + tableColumnInfo.ColumnName, tableColumnInfo.DataType, TranslateUtils.ToIntWithNagetive(valueStr)));
                         }
@@ -459,7 +408,7 @@ namespace BaiRong.Core.Provider
             parms = parameterList.ToArray();
 
             string returnSqlString =
-                $"INSERT INTO {tableName} ({TranslateUtils.ObjectCollectionToString(columnNameList, " ,", "[", "]")}) VALUES ({TranslateUtils.ObjectCollectionToString(columnNameList, " ,", "@")})";
+                $"INSERT INTO {SqlUtils.GetTableName(tableName)} ({TranslateUtils.ObjectCollectionToString(columnNameList, " ,", "[", "]")}) VALUES ({TranslateUtils.ObjectCollectionToString(columnNameList, " ,", "@")})";
 
             return returnSqlString;
         }
@@ -498,11 +447,11 @@ namespace BaiRong.Core.Provider
                         {
                             setList.Add($"{tableColumnInfo.ColumnName} = {"@" + tableColumnInfo.ColumnName}");
 
-                            if (tableColumnInfo.DataType == EDataType.DateTime)
+                            if (tableColumnInfo.DataType == DataType.DateTime)
                             {
                                 parmsList.Add(GetParameter("@" + tableColumnInfo.ColumnName, tableColumnInfo.DataType, TranslateUtils.ToDateTime(valueStr)));
                             }
-                            else if (tableColumnInfo.DataType == EDataType.Integer)
+                            else if (tableColumnInfo.DataType == DataType.Integer)
                             {
                                 parmsList.Add(GetParameter("@" + tableColumnInfo.ColumnName, tableColumnInfo.DataType, TranslateUtils.ToInt(valueStr)));
                             }
@@ -539,7 +488,7 @@ namespace BaiRong.Core.Provider
             parms = parmsList.ToArray();
 
             string returnSqlString =
-                $"UPDATE {tableName} SET {TranslateUtils.ObjectCollectionToString(setList, " ,")} WHERE {TranslateUtils.ObjectCollectionToString(whereList, " AND ")}";
+                $"UPDATE {SqlUtils.GetTableName(tableName)} SET {TranslateUtils.ObjectCollectionToString(setList, " ,")} WHERE {TranslateUtils.ObjectCollectionToString(whereList, " AND ")}";
 
             return returnSqlString;
         }
@@ -580,14 +529,6 @@ namespace BaiRong.Core.Provider
                 whereString = joinString + " " + whereString;
             }
 
-            //if (totalNum > 0)
-            //{
-            //    sqlString = $"SELECT TOP {totalNum} {columns} FROM [{tableName}] {whereString} {orderByString}";
-            //}
-            //else
-            //{
-            //    sqlString = $"SELECT {columns} FROM {tableName} {whereString} {orderByString}";
-            //}
             return SqlUtils.GetTopSqlString(tableName, columns, whereString + " " + orderByString, totalNum);
         }
 
@@ -608,7 +549,7 @@ namespace BaiRong.Core.Provider
                 return GetSelectSqlString(connectionString, tableName, totalNum, columns, whereString, orderByString);
             }
 
-            string countSqlString = $"SELECT Count(*) FROM {tableName} {whereString}";
+            string countSqlString = $"SELECT Count(*) FROM {SqlUtils.GetTableName(tableName)} {whereString}";
             var count = BaiRongDataProvider.DatabaseDao.GetIntResult(connectionString, countSqlString);
             if (totalNum == 0)
             {
@@ -635,22 +576,19 @@ namespace BaiRong.Core.Provider
                 return $@"
 SELECT {columns} FROM (
     SELECT {columns} FROM (
-        SELECT {columns} FROM {tableName} {whereString} {orderByString} LIMIT {topNum}
+        SELECT {columns} FROM {SqlUtils.GetTableName(tableName)} {whereString} {orderByString} LIMIT {topNum}
     ) AS tmp {orderByStringOpposite} LIMIT {totalNum}
 ) AS tmp {orderByString}
 ";
             }
-            else
-            {
-                return $@"
+            return $@"
 SELECT {columns}
 FROM (SELECT TOP {totalNum} {columns}
         FROM (SELECT TOP {topNum} {columns}
-                FROM {tableName} {whereString} {orderByString}) tmp
+                FROM {SqlUtils.GetTableName(tableName)} {whereString} {orderByString}) tmp
         {orderByStringOpposite}) tmp
 {orderByString}
 ";
-            }
         }
 
         public string GetSelectSqlStringByQueryString(string connectionString, string queryString, int totalNum, string orderByString)
@@ -663,25 +601,11 @@ FROM (SELECT TOP {totalNum} {columns}
             if (totalNum > 0)
             {
                 //TODO: 当queryString包含top 2语句时排序有问题
-                if (WebConfigUtils.DatabaseType == EDatabaseType.MySql)
-                {
-                    sqlString = $"SELECT * FROM ({queryString}) AS tmp {orderByString} LIMIT {totalNum}";
-                }
-                else
-                {
-                    sqlString = $"SELECT TOP {totalNum} * FROM ({queryString}) tmp {orderByString}";
-                }
+                sqlString = WebConfigUtils.DatabaseType == EDatabaseType.MySql ? $"SELECT * FROM ({queryString}) AS tmp {orderByString} LIMIT {totalNum}" : $"SELECT TOP {totalNum} * FROM ({queryString}) tmp {orderByString}";
             }
             else
             {
-                if (string.IsNullOrEmpty(orderByString))
-                {
-                    sqlString = queryString;
-                }
-                else
-                {
-                    sqlString = $"SELECT * FROM ({queryString}) tmp {orderByString}";
-                }
+                sqlString = string.IsNullOrEmpty(orderByString) ? queryString : $"SELECT * FROM ({queryString}) tmp {orderByString}";
             }
             return sqlString;
         }

@@ -47,7 +47,7 @@ namespace SiteServer.BackgroundPages.Cms
 
 			if(!IsPostBack)
 			{
-                BreadCrumb(AppManager.Cms.LeftMenu.IdConfigration, AppManager.Cms.LeftMenu.Configuration.IdConfigurationContentModel, "栏目字段管理", AppManager.Cms.Permission.WebSite.Configration);
+                BreadCrumb(AppManager.Cms.LeftMenu.IdConfigration, "栏目字段管理", AppManager.Permissions.WebSite.Configration);
                 
                 //删除样式
                 if (Body.IsQueryExists("DeleteStyle"))
@@ -59,7 +59,7 @@ namespace SiteServer.BackgroundPages.Cms
                     SetTaxis();
                 }
 
-                NodeManager.AddListItems(DdlNodeIdDropDownList.Items, PublishmentSystemInfo, false, true, true, Body.AdministratorName);
+                NodeManager.AddListItems(DdlNodeIdDropDownList.Items, PublishmentSystemInfo, false, true, Body.AdministratorName);
                 ControlUtils.SelectListItems(DdlNodeIdDropDownList, nodeId.ToString());
 
                 var styleInfoList = TableStyleManager.GetTableStyleInfoList(ETableStyle.Channel, _tableName, _relatedIdentities);
@@ -139,11 +139,11 @@ namespace SiteServer.BackgroundPages.Cms
             ltlAttributeName.Text = styleInfo.AttributeName;
 
             ltlDisplayName.Text = styleInfo.DisplayName;
-            ltlInputType.Text = EInputTypeUtils.GetText(EInputTypeUtils.GetEnumType(styleInfo.InputType));
+            ltlInputType.Text = InputTypeUtils.GetText(InputTypeUtils.GetEnumType(styleInfo.InputType));
             ltlFieldType.Text = "虚拟字段";
 
             ltlIsVisible.Text = StringUtils.GetTrueOrFalseImageHtml(styleInfo.IsVisible.ToString());
-            ltlValidate.Text = EInputValidateTypeUtils.GetValidateInfo(styleInfo);
+            ltlValidate.Text = EValidateTypeUtils.GetValidateInfo(styleInfo);
 
             string showPopWinString = ModalTableStyleAdd.GetOpenWindowString(PublishmentSystemId, styleInfo.TableStyleId, _relatedIdentities, _tableName, styleInfo.AttributeName, ETableStyle.Channel, _redirectUrl);
             var editText = "添加";

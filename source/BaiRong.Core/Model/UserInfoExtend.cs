@@ -1,4 +1,6 @@
-﻿namespace BaiRong.Core.Model
+﻿using SiteServer.Plugin.Models;
+
+namespace BaiRong.Core.Model
 {
     public class UserInfoExtend : ExtendedAttributes
     {

@@ -61,11 +61,6 @@ namespace SiteServer.CMS.Core.Permissions
             return $"User_ChannelPermissionDict_{userName}";
         }
 
-        public static string GetGovInteractPermissionDictKey(string userName)
-        {
-            return $"User_GovInteractPermissionDict_{userName}";
-        }
-
         public static string GetChannelPermissionListIgnoreNodeIdKey(string userName)
         {
             return $"User_ChannelPermissionListIgnoreNodeID_{userName}";
@@ -89,7 +84,6 @@ namespace SiteServer.CMS.Core.Permissions
                 GetPermissionListKey(userName),
                 GetWebsitePermissionDictKey(userName),
                 GetChannelPermissionDictKey(userName),
-                GetGovInteractPermissionDictKey(userName),
                 GetChannelPermissionListIgnoreNodeIdKey(userName),
                 GetPublishmentSystemIdKey(userName),
                 GetOwningNodeIdListKey(userName)
@@ -114,7 +108,7 @@ namespace SiteServer.CMS.Core.Permissions
             PageUtils.Redirect(PageUtils.GetAdminDirectoryUrl(string.Empty));
         }
 
-        private static bool HasAdministratorPermissions(string administratorName, params string[] permissionArray)
+        public static bool HasAdministratorPermissions(string administratorName, params string[] permissionArray)
         {
             var permissions = GetPermissions(administratorName);
             if (permissions.IsSystemAdministrator)

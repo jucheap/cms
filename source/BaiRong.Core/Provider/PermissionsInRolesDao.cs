@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using BaiRong.Core.Data;
 using BaiRong.Core.Model;
-using BaiRong.Core.Model.Enumerations;
+using SiteServer.Plugin;
+using SiteServer.Plugin.Models;
 
 namespace BaiRong.Core.Provider
 {
@@ -48,8 +49,8 @@ namespace BaiRong.Core.Provider
 		{
 			var insertParms = new IDataParameter[]
 			{
-				GetParameter(ParmRoleRoleName, EDataType.NVarChar, 255, info.RoleName),
-				GetParameter(ParmGeneralPermissions, EDataType.Text, info.GeneralPermissions)
+				GetParameter(ParmRoleRoleName, DataType.NVarChar, 255, info.RoleName),
+				GetParameter(ParmGeneralPermissions, DataType.Text, info.GeneralPermissions)
 			};
 							
 			ExecuteNonQuery(trans, SqlInsert, insertParms);
@@ -60,7 +61,7 @@ namespace BaiRong.Core.Provider
 		{
 			var parms = new IDataParameter[]
 			{
-				GetParameter(ParmRoleRoleName, EDataType.NVarChar, 255, roleName)
+				GetParameter(ParmRoleRoleName, DataType.NVarChar, 255, roleName)
 			};
 
 			ExecuteNonQuery(trans, SqlDelete, parms);
@@ -70,7 +71,7 @@ namespace BaiRong.Core.Provider
         {
             var parms = new IDataParameter[]
 			{
-				GetParameter(ParmRoleRoleName, EDataType.NVarChar, 255, roleName)
+				GetParameter(ParmRoleRoleName, DataType.NVarChar, 255, roleName)
 			};
 
             ExecuteNonQuery(SqlDelete, parms);
@@ -110,7 +111,7 @@ namespace BaiRong.Core.Provider
 			
 			var parms = new IDataParameter[]
 			{
-				GetParameter(ParmRoleRoleName, EDataType.NVarChar, 255, roleName)
+				GetParameter(ParmRoleRoleName, DataType.NVarChar, 255, roleName)
 			};
 			
 			using (var rdr = ExecuteReader(SqlSelect, parms)) 

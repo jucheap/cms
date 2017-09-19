@@ -1,6 +1,9 @@
+using System.Collections.Generic;
+using System.Xml;
 using BaiRong.Core.Model;
 using SiteServer.CMS.Core;
 using SiteServer.CMS.Model;
+using SiteServer.CMS.StlParser.Cache;
 
 namespace SiteServer.CMS.StlParser.Model
 {
@@ -15,15 +18,6 @@ namespace SiteServer.CMS.StlParser.Model
             ContentId = pageInfo.PageContentId;
         }
 
-        public ContextInfo(EContextType contextType, PublishmentSystemInfo publishmentSystemInfo, int channelId, int contentId, ContentInfo contentInfo)
-        {
-            ContextType = contextType;
-            PublishmentSystemInfo = publishmentSystemInfo;
-            ChannelId = channelId;
-            ContentId = contentId;
-            _contentInfo = contentInfo;
-        }
-
         //用于clone
         private ContextInfo(ContextInfo contextInfo)
         {
@@ -35,11 +29,26 @@ namespace SiteServer.CMS.StlParser.Model
 
             IsInnerElement = contextInfo.IsInnerElement;
             IsCurlyBrace = contextInfo.IsCurlyBrace;
-            TitleWordNum = contextInfo.TitleWordNum;
             PageItemIndex = contextInfo.PageItemIndex;
-            TotalNum = contextInfo.TotalNum;
             ItemContainer = contextInfo.ItemContainer;
             ContainerClientId = contextInfo.ContainerClientId;
+
+            StlElement = contextInfo.StlElement;
+            Attributes = contextInfo.Attributes;
+            InnerXml = contextInfo.InnerXml;
+            ChildNodes = contextInfo.ChildNodes;
+        }
+
+        public ContextInfo Clone(string stlElement, Dictionary<string, string> attributes, string innerXml, XmlNodeList childNodes)
+        {
+            var contextInfo = new ContextInfo(this)
+            {
+                StlElement = stlElement,
+                Attributes = attributes,
+                InnerXml = innerXml,
+                ChildNodes = childNodes
+            };
+            return contextInfo;
         }
 
         public ContextInfo Clone()
@@ -56,6 +65,14 @@ namespace SiteServer.CMS.StlParser.Model
 
         public int ContentId { get; set; }
 
+        public string StlElement { get; set; }
+
+        public Dictionary<string, string> Attributes { get; set; }
+
+        public string InnerXml { get; set; }
+
+        public XmlNodeList ChildNodes { get; set; }
+
         public ContentInfo ContentInfo
         {
             get
@@ -65,7 +82,8 @@ namespace SiteServer.CMS.StlParser.Model
                 var nodeInfo = NodeManager.GetNodeInfo(PublishmentSystemInfo.PublishmentSystemId, ChannelId);
                 var tableStyle = NodeManager.GetTableStyle(PublishmentSystemInfo, nodeInfo);
                 var tableName = NodeManager.GetTableName(PublishmentSystemInfo, nodeInfo);
-                _contentInfo = DataProvider.ContentDao.GetContentInfo(tableStyle, tableName, ContentId);
+                //_contentInfo = DataProvider.ContentDao.GetContentInfo(tableStyle, tableName, ContentId);
+                _contentInfo = Content.GetContentInfo(tableStyle, tableName, ContentId);
                 return _contentInfo;
             }
             set { _contentInfo = value; }
@@ -74,10 +92,6 @@ namespace SiteServer.CMS.StlParser.Model
         public bool IsInnerElement { get; set; }
 
         public bool IsCurlyBrace { get; set; }
-
-        public int TitleWordNum { get; set; }
-
-        public int TotalNum { get; set; }
 
         public int PageItemIndex { get; set; }
 

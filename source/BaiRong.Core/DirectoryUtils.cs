@@ -64,7 +64,6 @@ namespace BaiRong.Core
             public const string FileConfiguration = "Configuration.xml";
             public const string FileSeo = "Seo.xml";
             public const string FileStlTag = "StlTag.xml";
-            public const string FileContentModel = "ContentModel.xml";//自定义添加的内容模型
         }
 
         public static char DirectorySeparatorChar = Path.DirectorySeparatorChar;
@@ -152,22 +151,10 @@ namespace BaiRong.Core
         {
             if (string.IsNullOrEmpty(parentDirectoryPath) || string.IsNullOrEmpty(path)) return false;
 
-            parentDirectoryPath = parentDirectoryPath.Trim().ToLower();
-            path = path.Trim().ToLower();
+            parentDirectoryPath = parentDirectoryPath.Trim().TrimEnd(Path.DirectorySeparatorChar).ToLower();
+            path = path.Trim().TrimEnd(Path.DirectorySeparatorChar).ToLower();
 
-            var ch1 = parentDirectoryPath[parentDirectoryPath.Length - 1];
-            if (ch1 == Path.DirectorySeparatorChar)
-            {
-                parentDirectoryPath = parentDirectoryPath.Substring(0, parentDirectoryPath.Length - 1);
-            }
-
-            var ch2 = path[path.Length - 1];
-            if (ch2 == Path.DirectorySeparatorChar)
-            {
-                path = path.Substring(0, path.Length - 1);
-            }
-
-            return path.StartsWith(parentDirectoryPath);
+            return parentDirectoryPath == path || path.StartsWith(parentDirectoryPath);
         }
 
         public static void MoveDirectory(string srcDirectoryPath, string destDirectoryPath, bool isOverride)
@@ -378,7 +365,7 @@ namespace BaiRong.Core
             if (StringUtils.EqualsIgnoreCase(directoryName, AspnetClient.DirectoryName)
                 || StringUtils.EqualsIgnoreCase(directoryName, Bin.DirectoryName)
                 || StringUtils.EqualsIgnoreCase(directoryName, SiteFiles.DirectoryName)
-                || StringUtils.EqualsIgnoreCase(directoryName, FileConfigManager.Instance.AdminDirectoryName))
+                || StringUtils.EqualsIgnoreCase(directoryName, WebConfigUtils.AdminDirectory))
             {
                 return true;
             }
@@ -401,7 +388,7 @@ namespace BaiRong.Core
                 AspnetClient.DirectoryName.ToLower(),
                 Bin.DirectoryName.ToLower(),
                 SiteFiles.DirectoryName.ToLower(),
-                FileConfigManager.Instance.AdminDirectoryName.ToLower(),
+                WebConfigUtils.AdminDirectory.ToLower(),
                 SiteTemplates.SiteTemplateMetadata.ToLower()
             };
         }
